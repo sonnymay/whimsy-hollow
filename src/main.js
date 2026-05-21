@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { MenuScene } from './scenes/MenuScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { WinScene } from './scenes/WinScene.js';
+import { DeskScene } from './scenes/DeskScene.js';
 import './styles.css';
 
 const config = {
@@ -14,7 +15,7 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [MenuScene, GameScene, WinScene],
+  scene: [MenuScene, GameScene, WinScene, DeskScene],
   audio: {
     disableWebAudio: false
   }
