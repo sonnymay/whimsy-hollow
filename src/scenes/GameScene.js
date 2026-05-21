@@ -1,11 +1,26 @@
 import Phaser from 'phaser';
-import { mailGarden } from '../data/levels.js';
+import { getLevelById, getNextLevel, mailGarden, markSceneComplete } from '../data/levels.js';
+import {
+  clearLevelProgress,
+  loadBonusIds,
+  loadFoundIds,
+  loadMuted,
+  loadOnboarded,
+  saveBonusIds,
+  saveFoundIds,
+  saveMuted,
+  saveOnboarded
+} from '../data/storage.js';
+import { createPillButton, createStatusPill } from '../ui/Button.js';
+import { setBackdrop } from '../ui/backdrop.js';
+import { theme } from '../ui/theme.js';
+import { playMusicForLevel, queueMusic } from '../audio/music.js';
 
-const HINT_COOLDOWN_MS = 8000;
-const HINT_DURATION_MS = 2000;
+const HINT_COOLDOWN_MS = 30000;
+const HINT_DURATION_MS = 3600;
+const NEAR_MISS_SNAP_RADIUS = 30;
 const HUD_DEPTH = 20;
-const BONUS_SAVE_KEY = 'whimsy-hollow:mail-garden:bonus';
-const UI_FONT = '"Arial Rounded MT Bold", "Trebuchet MS", "Comic Sans MS", Arial, sans-serif';
+const UI_FONT = theme.font;
 const MASCOT_KEY = 'mailBirdMascot';
 const MASCOT_PATH = 'assets/characters/mail_bird_mascot.png';
 
@@ -24,11 +39,19 @@ export class GameScene extends Phaser.Scene {
     this.activeObjects = mailGarden.objects;
     this.isDaily = false;
     this.lastMissAt = 0;
+    this.mainCompleteNoticeShown = false;
+    this.finishButton = null;
   }
 
   init(data = {}) {
+    this.level = getLevelById(data.levelId);
     this.isDaily = Boolean(data.daily);
-    this.activeObjects = this.isDaily ? this.level.objects.slice(0, 3) : this.level.objects;
+    const baseObjects = this.isDaily ? this.level.objects.slice(0, 3) : this.level.objects;
+    this.activeObjects = baseObjects.map((obj) => {
+      if (!Array.isArray(obj.spawns) || obj.spawns.length === 0) return obj;
+      const slot = obj.spawns[Math.floor(Math.random() * obj.spawns.length)];
+      return { ...obj, x: slot.x ?? obj.x, y: slot.y ?? obj.y, scale: slot.scale ?? obj.scale };
+    });
   }
 
   preload() {
@@ -38,229 +61,666 @@ export class GameScene extends Phaser.Scene {
       this.load.image(object.key, object.asset);
     }
 
+    for (const bonus of this.level.bonusEnvelopes) {
+      if (bonus.key && bonus.asset) {
+        this.load.image(bonus.key, bonus.asset);
+      }
+    }
+
+    if (this.level.interactives) {
+      for (const interactive of this.level.interactives) {
+        if (interactive.key && interactive.asset) {
+          this.load.image(interactive.key, interactive.asset);
+        }
+      }
+    }
+
     this.load.image(MASCOT_KEY, MASCOT_PATH);
     this.load.audio('foundChime', 'assets/sounds/found.wav');
+    queueMusic(this, this.level.id);
+
+    if (this.level.foreground) {
+      this.load.image(`fg-${this.level.id}`, this.level.foreground);
+    }
   }
 
   create() {
+    this.muted = loadMuted();
+    this.sound.mute = this.muted;
     this.foundIds = this.loadProgress();
     this.objectSprites = new Map();
     this.checklistItems = new Map();
     this.bonusItems = new Map();
     this.foundBonusIds = this.loadBonusProgress();
+    this.openedInteractives = new Set();
     this.hintReady = true;
+    // Closed by default — the top HUD owns the screen until the player
+    // explicitly opens the List, at which point HUD and List swap places.
     this.listOpen = false;
     this.listPanel = null;
     this.lastMissAt = 0;
+    this.mainCompleteNoticeShown = false;
 
-    this.add.image(640, 360, this.level.background.key);
+    setBackdrop(this.level.background.path);
+    playMusicForLevel(this, this.level.id);
+    this.add.image(640, 360, this.level.background.key).setDisplaySize(1280, 720);
     this.add.rectangle(640, 360, 1280, 720, 0xfff8dc, 0.05).setBlendMode(Phaser.BlendModes.SCREEN);
     this.add.rectangle(640, 20, 1280, 40, 0x315642, 0.14);
     this.add.rectangle(640, 700, 1280, 40, 0x315642, 0.14);
 
     this.createObjects();
+    this.createInteractives();
     this.createBonusEnvelopes();
     this.createSceneSurprises();
     this.createMissTapZone();
+
+    // Optional foreground occlusion layer drawn above objects but below HUD.
+    if (this.level.foreground && this.textures.exists(`fg-${this.level.id}`)) {
+      this.add.image(640, 360, `fg-${this.level.id}`).setDisplaySize(1280, 720).setDepth(8);
+    }
+
     this.createHud();
     this.createGuide();
     this.updateHud();
-    this.sayGuide(this.isDaily ? '3 things!' : 'Tap Pictures');
+    this.sayGuide('Find these');
 
-    if (this.getFoundActiveCount() >= this.activeObjects.length) {
-      this.time.delayedCall(250, () => this.scene.start('WinScene'));
+    // Handle ESC key to pause
+    this.input.keyboard.on('keydown-ESC', () => {
+      this.openPause();
+    });
+
+    this.checkCompletionState(250);
+
+    // First-run tutorial — only on the very first scene the player opens,
+    // and only once per profile/device.
+    if (this.level.id === 'mail-garden' && !loadOnboarded()) {
+      this.time.delayedCall(700, () => this.runFirstRunTutorial());
     }
+  }
+
+  runFirstRunTutorial() {
+    if (!this.activeObjects.length) return;
+    const target = this.activeObjects.find((o) => !this.foundIds.has(o.id)) ?? this.activeObjects[0];
+    const sprite = this.objectSprites.get(target.id);
+    if (!sprite) return;
+
+    // Soft dim overlay (non-interactive — clicks pass through to the scene)
+    const overlay = this.add.rectangle(640, 360, 1280, 720, 0x14110b, 0.34).setDepth(30);
+
+    // Speech bubble near the target
+    const bubbleX = Math.min(Math.max(sprite.x + 90, 220), 1060);
+    const bubbleY = Math.max(sprite.y - 110, 170);
+    const bubble = this.add.graphics().setDepth(31);
+    bubble.fillStyle(0xfff7e3, 0.97);
+    bubble.fillRoundedRect(bubbleX - 140, bubbleY - 40, 280, 80, 18);
+    bubble.lineStyle(2, 0xc9a96e, 0.5);
+    bubble.strokeRoundedRect(bubbleX - 140, bubbleY - 40, 280, 80, 18);
+
+    const tip = this.add.text(bubbleX, bubbleY, 'Tap the glowing item!\nFind every cute treasure.', {
+      fontFamily: UI_FONT, fontSize: '16px', color: '#4a3a26', align: 'center'
+    }).setOrigin(0.5).setDepth(32);
+
+    // Pulsing ring on the target
+    const ring = this.add.ellipse(sprite.x, sprite.y, 100, 76)
+      .setStrokeStyle(4, 0xfff0a8, 1)
+      .setDepth(31);
+    this.tweens.add({
+      targets: ring, scale: 1.18, alpha: 0.4,
+      yoyo: true, repeat: -1, duration: 700, ease: 'Sine.easeInOut'
+    });
+
+    // Skip link
+    const skip = this.add.text(1220, 36, 'Skip', {
+      fontFamily: UI_FONT, fontSize: '16px', color: '#fff4d6', stroke: '#1a1410', strokeThickness: 3
+    }).setOrigin(1, 0.5).setDepth(33).setInteractive({ useHandCursor: true });
+
+    const tutorialPieces = [overlay, bubble, tip, ring, skip];
+    const cleanup = () => {
+      saveOnboarded();
+      for (const piece of tutorialPieces) piece.destroy();
+      this.input.off('pointerdown', firstClickCleanup);
+    };
+
+    // First pointerdown anywhere closes the tutorial. The click also reaches
+    // whatever's underneath (an object's click zone, the miss-tap zone, etc.)
+    // because the overlay is non-interactive.
+    const firstClickCleanup = () => cleanup();
+    this.input.once('pointerdown', firstClickCleanup);
+    skip.on('pointerdown', () => { cleanup(); });
   }
 
   createObjects() {
     for (const object of this.activeObjects) {
       const glow = this.add.ellipse(object.x, object.y, 70, 54, 0xfff0a8, 0)
-        .setDepth(4)
+        .setDepth(4.5)
         .setBlendMode(Phaser.BlendModes.ADD)
         .setVisible(false);
       const sprite = this.add.image(object.x, object.y, object.key)
         .setScale(object.scale)
         .setDepth(5)
-        .setAlpha(0.96)
-        .setInteractive({ useHandCursor: true });
+        .setAlpha(0.82)
+        .setTint(0xd9cdb0);
+      const shadow = this.add.ellipse(
+        object.x + 2,
+        object.y + Math.max(8, sprite.displayHeight * 0.22),
+        Math.max(22, sprite.displayWidth * 0.62),
+        Math.max(10, sprite.displayHeight * 0.18),
+        0x2b1c12,
+        0.24
+      ).setDepth(4).setScale(1, 0.72);
+      const hitWidth = Math.max(56, sprite.displayWidth * 1.5);
+      const hitHeight = Math.max(44, sprite.displayHeight * 1.5);
+      const clickZone = this.add.zone(object.x, object.y, hitWidth, hitHeight)
+        .setInteractive()
+        .setDepth(7);
 
       sprite.setData('objectId', object.id);
       sprite.setData('objectName', object.name);
+      sprite.setData('shadow', shadow);
+      sprite.setData('clickZone', clickZone);
 
-      if (this.foundIds.has(object.id)) {
+      const isHidden = object.hiddenUnder && !this.openedInteractives.has(object.hiddenUnder);
+
+      if (this.foundIds.has(object.id) || isHidden) {
         glow.setVisible(false);
+        shadow.setVisible(false);
         sprite.setVisible(false);
-        sprite.disableInteractive();
+        clickZone.setVisible(false);
+        clickZone.disableInteractive();
       }
 
-      sprite.on('pointerover', () => {
-        if (!this.foundIds.has(object.id)) {
-          sprite.setTint(0xffed9a);
-          this.tweens.add({
-            targets: sprite,
-            scale: object.scale * 1.08,
-            duration: 110,
-            ease: 'Sine.easeOut'
-          });
-        }
-      });
-
-      sprite.on('pointerout', () => {
-        if (!this.foundIds.has(object.id)) {
-          sprite.clearTint();
-          this.tweens.add({
-            targets: sprite,
-            scale: object.scale,
-            duration: 130,
-            ease: 'Sine.easeOut'
-          });
-        }
-      });
-
-      sprite.on('pointerdown', () => this.findObject(object));
+      clickZone.on('pointerdown', () => this.findObject(object));
       sprite.setData('glow', glow);
       this.objectSprites.set(object.id, sprite);
     }
   }
 
-  createHud() {
-    this.createStatusChip(160, 54, 188, this.isDaily ? 'Find 3' : 'Find 10', 0xff9fbd, 0x6a2d45, 19);
-    this.countText = this.createStatusChip(350, 54, 108, '0/10', 0xbdf3d3, 0x315642, 21);
-    this.bonusText = this.createStatusChip(492, 54, 142, 'Notes 0/3', 0x9de3ff, 0x31506a, 17);
+  createInteractives() {
+    this.interactiveSprites = new Map();
+    if (!this.level.interactives) return;
 
-    this.createChecklistPanel();
-    this.createHudButton(650, 54, 116, 'Pictures', () => this.toggleListPanel(), false, 18);
+    for (const interactive of this.level.interactives) {
+      const hiddenObjects = this.activeObjects.filter(obj => obj.hiddenUnder === interactive.id);
+      const allFound = hiddenObjects.length > 0 && hiddenObjects.every(obj => this.foundIds.has(obj.id));
 
-    const hintButton = this.createHudButton(782, 54, 98, 'Help', () => this.showHint(), true, 20);
-    this.hintButton = hintButton;
-    this.hintButtonBg = hintButton.bg;
-    this.hintButtonText = hintButton.text;
+      const startOpen = allFound || this.openedInteractives.has(interactive.id);
+      
+      let currentX = interactive.x;
+      let currentY = interactive.y;
+      if (startOpen) {
+        this.openedInteractives.add(interactive.id);
+        if (interactive.type === 'slide-x') {
+          currentX += interactive.slideDistance;
+        } else if (interactive.type === 'slide-y') {
+          currentY += interactive.slideDistance;
+        }
+      }
 
-    this.createHudButton(910, 54, 112, 'Again', () => this.restartCase(), false, 20);
-    this.createHudButton(1036, 54, 98, 'Found', () => this.scene.start('DeskScene'), false, 18);
-    this.createHudButton(1150, 54, 98, 'Home', () => this.scene.start('MenuScene'), false, 20);
+      const sprite = this.add.image(currentX, currentY, interactive.key)
+        .setScale(interactive.scale)
+        .setDepth(6)
+        .setInteractive({ useHandCursor: true });
+
+      sprite.setData('id', interactive.id);
+      sprite.setData('config', interactive);
+      sprite.setData('isOpen', startOpen);
+
+      sprite.on('pointerdown', () => this.handleInteractiveTap(sprite));
+
+      this.interactiveSprites.set(interactive.id, sprite);
+    }
   }
 
-  createStatusChip(x, y, width, label, color, textColor, fontSize) {
-    this.add.circle(x - width / 2 + 24, y + 6, 25, 0x3d2a1d, 0.24).setDepth(HUD_DEPTH);
-    this.add.circle(x + width / 2 - 24, y + 6, 25, 0x3d2a1d, 0.24).setDepth(HUD_DEPTH);
-    this.add.rectangle(x, y + 6, width - 48, 50, 0x3d2a1d, 0.24).setDepth(HUD_DEPTH);
-    this.add.circle(x - width / 2 + 24, y, 27, 0x583a20, 1).setDepth(HUD_DEPTH + 1);
-    this.add.circle(x + width / 2 - 24, y, 27, 0x583a20, 1).setDepth(HUD_DEPTH + 1);
-    this.add.rectangle(x, y, width - 48, 54, 0x583a20, 1).setDepth(HUD_DEPTH + 1);
-    this.add.rectangle(x, y, width - 52, 48, color, 0.98).setDepth(HUD_DEPTH + 2);
-    this.add.circle(x - width / 2 + 24, y, 24, color, 0.98).setDepth(HUD_DEPTH + 3);
-    this.add.circle(x + width / 2 - 24, y, 24, color, 0.98).setDepth(HUD_DEPTH + 3);
-    return this.add.text(x, y, label, {
-      fontFamily: UI_FONT,
-      fontSize: `${fontSize}px`,
-      color: `#${textColor.toString(16).padStart(6, '0')}`
-    }).setOrigin(0.5).setDepth(HUD_DEPTH + 4);
+  handleInteractiveTap(sprite) {
+    const isOpen = sprite.getData('isOpen');
+    if (isOpen) {
+      this.closeInteractiveCover(sprite);
+    } else {
+      this.openInteractiveCover(sprite);
+    }
   }
 
-  createHudButton(x, y, width, label, onClick, isHint = false, fontSize = 22) {
-    const color = isHint ? 0x92d9ff : 0xffd86f;
-    const hoverColor = isHint ? 0xb5e8ff : 0xffe793;
-    const disabledColor = 0x8f9a92;
-    const shadowLeft = this.add.circle(x - width / 2 + 24, y + 6, 25, 0x3d2a1d, 0.34).setDepth(HUD_DEPTH + 1);
-    const shadowRight = this.add.circle(x + width / 2 - 24, y + 6, 25, 0x3d2a1d, 0.34).setDepth(HUD_DEPTH + 1);
-    const shadow = this.add.rectangle(x, y + 6, width - 48, 50, 0x3d2a1d, 0.34).setDepth(HUD_DEPTH + 1);
-    this.add.circle(x - width / 2 + 24, y, 27, 0x583a20, 1).setDepth(HUD_DEPTH + 2);
-    this.add.circle(x + width / 2 - 24, y, 27, 0x583a20, 1).setDepth(HUD_DEPTH + 2);
-    this.add.rectangle(x, y, width - 48, 54, 0x583a20, 1).setDepth(HUD_DEPTH + 2);
-    const bg = this.add.rectangle(x, y, width - 52, 48, color, 0.96)
-      .setInteractive({ useHandCursor: true })
-      .setDepth(HUD_DEPTH + 3);
-    const leftCap = this.add.circle(x - width / 2 + 24, y, 24, color, 0.96).setDepth(HUD_DEPTH + 4);
-    const rightCap = this.add.circle(x + width / 2 - 24, y, 24, color, 0.96).setDepth(HUD_DEPTH + 4);
+  openInteractiveCover(sprite, callback) {
+    const config = sprite.getData('config');
+    const isOpen = sprite.getData('isOpen');
 
-    const text = this.add.text(x, y, label, {
-      fontFamily: UI_FONT,
-      fontSize: `${fontSize}px`,
-      color: '#2d271d'
-    }).setOrigin(0.5).setDepth(HUD_DEPTH + 5);
+    if (isOpen) {
+      if (callback) callback();
+      return;
+    }
 
-    const setButtonColor = (fill) => {
-      bg.setFillStyle(fill, 0.96);
-      leftCap.setFillStyle(fill, 0.96);
-      rightCap.setFillStyle(fill, 0.96);
-    };
+    sprite.setData('isOpen', true);
+    this.openedInteractives.add(config.id);
 
-    bg.on('pointerover', () => {
-      if (!isHint || this.hintReady) {
-        setButtonColor(hoverColor);
+    if (config.soundEffect && this.cache.audio.exists(config.soundEffect)) {
+      this.sound.play(config.soundEffect, { volume: 0.5 });
+    } else if (this.cache.audio.exists('foundChime')) {
+      this.sound.play('foundChime', { volume: 0.3, detune: -600 });
+    }
+
+    this.tweens.add({
+      targets: sprite,
+      scaleX: config.scale * 1.15,
+      scaleY: config.scale * 0.85,
+      duration: 80,
+      yoyo: true,
+      ease: 'Quad.easeOut',
+      onComplete: () => {
+        let targetX = config.x;
+        let targetY = config.y;
+        if (config.type === 'slide-x') {
+          targetX += config.slideDistance;
+        } else if (config.type === 'slide-y') {
+          targetY += config.slideDistance;
+        }
+
+        this.tweens.add({
+          targets: sprite,
+          x: targetX,
+          y: targetY,
+          scaleX: config.scale,
+          scaleY: config.scale,
+          duration: 400,
+          ease: 'Back.easeOut',
+          onComplete: () => {
+            this.activeObjects.forEach(obj => {
+              if (obj.hiddenUnder === config.id && !this.foundIds.has(obj.id)) {
+                const objSprite = this.objectSprites.get(obj.id);
+                if (objSprite) {
+                  objSprite.setVisible(true);
+                  const shadow = objSprite.getData('shadow');
+                  if (shadow) shadow.setVisible(true);
+                  const clickZone = objSprite.getData('clickZone');
+                  if (clickZone) {
+                    clickZone.setVisible(true);
+                    clickZone.setInteractive();
+                  }
+
+                  objSprite.setScale(0);
+                  this.tweens.add({
+                    targets: objSprite,
+                    scale: obj.scale,
+                    duration: 300,
+                    ease: 'Back.easeOut'
+                  });
+
+                  this.playSoftSparkle(objSprite.x, objSprite.y, 8, 0xfff0a8);
+                }
+              }
+            });
+
+            if (callback) callback();
+          }
+        });
       }
     });
-    bg.on('pointerout', () => {
-      setButtonColor(isHint && !this.hintReady ? disabledColor : color);
-    });
-    bg.on('pointerdown', onClick);
+  }
 
-    return { bg, text, setButtonColor, color, disabledColor, shadow, shadowLeft, shadowRight };
+  closeInteractiveCover(sprite) {
+    const config = sprite.getData('config');
+    sprite.setData('isOpen', false);
+    this.openedInteractives.delete(config.id);
+
+    if (config.soundEffect && this.cache.audio.exists(config.soundEffect)) {
+      this.sound.play(config.soundEffect, { volume: 0.5, detune: 200 });
+    } else if (this.cache.audio.exists('foundChime')) {
+      this.sound.play('foundChime', { volume: 0.2, detune: -400 });
+    }
+
+    const targetX = config.x;
+    const targetY = config.y;
+
+    this.tweens.add({
+      targets: sprite,
+      x: targetX,
+      y: targetY,
+      duration: 350,
+      ease: 'Back.easeOut',
+      onComplete: () => {
+        this.activeObjects.forEach(obj => {
+          if (obj.hiddenUnder === config.id && !this.foundIds.has(obj.id)) {
+            const objSprite = this.objectSprites.get(obj.id);
+            if (objSprite) {
+              objSprite.setVisible(false);
+              const glow = objSprite.getData('glow');
+              if (glow) glow.setVisible(false);
+              const shadow = objSprite.getData('shadow');
+              if (shadow) shadow.setVisible(false);
+              const clickZone = objSprite.getData('clickZone');
+              if (clickZone) {
+                clickZone.setVisible(false);
+                clickZone.disableInteractive();
+              }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  createHud() {
+    // Left: single calm count pill
+    this.countPill = createStatusPill(this, {
+      x: 90,
+      y: theme.hud.y,
+      width: 110,
+      height: 48,
+      label: `0 / ${this.activeObjects.length}`,
+      fontSize: 22,
+      depth: HUD_DEPTH
+    });
+
+    this.createChecklistPanel();
+
+    // Right cluster: same-style icon buttons, evenly spaced
+    const btnW = 96;
+    const btnH = 48;
+    const muteW = 56;
+    const pauseW = 56;
+    const gap = 12;
+    const rightEdge = 1280 - 22;
+    const homeX = rightEdge - btnW / 2;
+    const pauseX = homeX - btnW / 2 - gap - pauseW / 2;
+    const helpX = pauseX - pauseW / 2 - gap - btnW / 2;
+    const listX = helpX - btnW - gap;
+    const muteX = listX - btnW / 2 - gap - muteW / 2;
+
+    this.muteButton = createPillButton(this, {
+      x: muteX, y: theme.hud.y,
+      width: muteW, height: btnH,
+      label: this.muted ? '🔇' : '🔊', fontSize: 20,
+      onClick: () => this.toggleMute(),
+      depth: HUD_DEPTH
+    });
+
+    this.listButton = createPillButton(this, {
+      x: listX, y: theme.hud.y,
+      width: btnW, height: btnH,
+      label: 'List', fontSize: 18,
+      onClick: () => this.toggleListPanel(),
+      depth: HUD_DEPTH
+    });
+
+    this.hintButton = createPillButton(this, {
+      x: helpX, y: theme.hud.y,
+      width: btnW, height: btnH,
+      label: 'Help', fontSize: 18,
+      onClick: () => this.showHint(),
+      color: theme.color.creamSoft,
+      depth: HUD_DEPTH
+    });
+
+    this.pauseButton = createPillButton(this, {
+      x: pauseX, y: theme.hud.y,
+      width: pauseW, height: btnH,
+      label: '⏸', fontSize: 18,
+      onClick: () => this.openPause(),
+      depth: HUD_DEPTH
+    });
+
+    this.homeButton = createPillButton(this, {
+      x: homeX, y: theme.hud.y,
+      width: btnW, height: btnH,
+      label: 'Home', fontSize: 18,
+      onClick: () => this.scene.start('MenuScene'),
+      depth: HUD_DEPTH
+    });
+
+    // HUD elements that hide while the List panel is open. The List button
+    // sits behind the panel visually, so it joins the hideable set; the
+    // panel's own × button is the close affordance.
+    this.hudHideable = [this.countPill, this.muteButton, this.listButton, this.hintButton, this.pauseButton, this.homeButton];
+    this.applyListVisibility();
+
+    // Centered, only when complete — soft cream, not red
+    this.finishButton = createPillButton(this, {
+      x: 640, y: 670,
+      width: 220, height: 64,
+      label: 'Finished', fontSize: 26,
+      onClick: () => {
+        if (this.areMainObjectsComplete()) this.finishLevel();
+      },
+      color: theme.color.leaf,
+      hoverColor: 0xd8fadf,
+      depth: HUD_DEPTH + 2
+    });
+    this.finishButton.setVisible(false);
+  }
+
+  applyListVisibility() {
+    const showHud = !this.listOpen;
+    if (!this.hudHideable) return;
+    for (const el of this.hudHideable) {
+      if (!el) continue;
+      if (typeof el.setVisible === 'function') {
+        el.setVisible(showHud);
+      } else if (el.container && typeof el.container.setVisible === 'function') {
+        el.container.setVisible(showHud);
+      }
+    }
+  }
+
+  toggleMute() {
+    this.muted = !this.muted;
+    this.sound.mute = this.muted;
+    saveMuted(this.muted);
+    this.muteButton.setLabel(this.muted ? '🔇' : '🔊');
+  }
+
+  updateRemainingPulse() {
+    // Intentionally disabled — pulsing remaining objects telegraphs their
+    // location, which contradicts the "hidden objects should be subtle"
+    // direction. Help button still provides a deliberate, opt-in hint.
   }
 
   createChecklistPanel() {
-    this.listPanel = this.add.container(122, 386).setDepth(HUD_DEPTH + 6).setVisible(false);
-    const bg = this.add.rectangle(0, 0, 224, 564, 0x14241f, 0.88)
-      .setStrokeStyle(2, 0xe4c46e, 0.72);
-    this.listPanel.add(bg);
+    // Horizontal strip docked near the top, centered. Sits below the top HUD
+    // (HUD ends ~y=68) and above the painted scene's hidden objects
+    // (objects sit at y >= ~200 in current scenes).
+    const cardW = 76;
+    const cardH = 76;
+    const cardGap = 6;
+    const itemCount = this.activeObjects.length;
+    const itemsWidth = itemCount * cardW + (itemCount - 1) * cardGap;
+    const headerH = 26;
+    const footerInsetY = 4;
+    const horizontalPadding = 16;
 
-    const title = this.add.text(0, -258, 'Find these', {
-      fontFamily: UI_FONT,
-      fontSize: '22px',
-      color: '#fff0c8',
-      stroke: '#15231d',
-      strokeThickness: 3
-    }).setOrigin(0.5).setDepth(HUD_DEPTH + 7);
-    this.listPanel.add(title);
+    const panelW = itemsWidth + horizontalPadding * 2;
+    const panelH = headerH + cardH + 14;
+    const panelCenterX = 640;
+    // Dock flush at the top — replaces the HUD's screen space while open.
+    const panelCenterY = 8 + panelH / 2;
+
+    this.listPanel = this.add.container(panelCenterX, panelCenterY)
+      .setDepth(HUD_DEPTH + 6)
+      .setVisible(this.listOpen);
+
+    // Drop shadow
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x2b1c12, 0.18);
+    shadow.fillRoundedRect(-panelW / 2 + 3, -panelH / 2 + 5, panelW, panelH, 22);
+
+    // Panel body — soft cream
+    const bgGfx = this.add.graphics();
+    bgGfx.fillStyle(0xfff7e3, 0.95);
+    bgGfx.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 22);
+    bgGfx.lineStyle(1, 0xc9a96e, 0.32);
+    bgGfx.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 22);
+    this.listPanel.add([shadow, bgGfx]);
+
+    // Header: title centered (with live count), bonus count to the left,
+    // footer links to the right.
+    const headerY = -panelH / 2 + 14;
+    this.listTitleText = this.add.text(0, headerY, `Find these · 0/${this.activeObjects.length}`, {
+      fontFamily: UI_FONT, fontSize: '13px', color: '#4a3a26'
+    }).setOrigin(0.5);
+    const title = this.listTitleText;
+
+    this.bonusListText = this.add.text(
+      -panelW / 2 + horizontalPadding, headerY,
+      `${this.getBonusLabel()} 0/${this.level.bonusEnvelopes.length}`,
+      { fontFamily: UI_FONT, fontSize: '11px', color: '#9a8568' }
+    ).setOrigin(0, 0.5);
+
+    // Close button — labeled pill, primary way out of the panel
+    const closeW = 78;
+    const closeH = 30;
+    const closeRightX = panelW / 2 - horizontalPadding;
+    const closeCenterX = closeRightX - closeW / 2;
+
+    const closeShadow = this.add.graphics();
+    closeShadow.fillStyle(0x2b1c12, 0.22);
+    closeShadow.fillRoundedRect(closeCenterX - closeW / 2, headerY - closeH / 2 + 3, closeW, closeH, 15);
+
+    const closeBg = this.add.graphics();
+    const drawCloseBg = (color) => {
+      closeBg.clear();
+      closeBg.fillStyle(color, 1);
+      closeBg.fillRoundedRect(closeCenterX - closeW / 2, headerY - closeH / 2, closeW, closeH, 15);
+      closeBg.lineStyle(1.5, 0xc9a96e, 0.55);
+      closeBg.strokeRoundedRect(closeCenterX - closeW / 2, headerY - closeH / 2, closeW, closeH, 15);
+    };
+    drawCloseBg(0xfff0d4);
+
+    const closeLabel = this.add.text(closeCenterX, headerY, '✕  Close', {
+      fontFamily: UI_FONT, fontSize: '14px', color: '#4a3a26'
+    }).setOrigin(0.5);
+
+    const closeHit = this.add.zone(closeCenterX, headerY, closeW, closeH + 6)
+      .setInteractive({ useHandCursor: true });
+    closeHit.on('pointerover', () => drawCloseBg(0xffe7a3));
+    closeHit.on('pointerout', () => drawCloseBg(0xfff0d4));
+    closeHit.on('pointerdown', () => this.toggleListPanel());
+
+    // Place Finds/Reset to the LEFT of the close pill
+    const finksRightX = closeCenterX - closeW / 2 - 10;
+    const findsLink = this.add.text(finksRightX, headerY, 'Finds', {
+      fontFamily: UI_FONT, fontSize: '12px', color: '#9a8568'
+    }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
+    findsLink.on('pointerover', () => findsLink.setColor('#4a3a26'));
+    findsLink.on('pointerout', () => findsLink.setColor('#9a8568'));
+    findsLink.on('pointerdown', () => this.scene.start('DeskScene', { levelId: this.level.id }));
+
+    const resetLink = this.add.text(finksRightX - 50, headerY, 'Reset', {
+      fontFamily: UI_FONT, fontSize: '12px', color: '#9a8568'
+    }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
+    resetLink.on('pointerover', () => resetLink.setColor('#4a3a26'));
+    resetLink.on('pointerout', () => resetLink.setColor('#9a8568'));
+    resetLink.on('pointerdown', () => this.restartCase());
+
+    const headerDivider = this.add.graphics();
+    headerDivider.lineStyle(1, 0xd9b673, 0.32);
+    headerDivider.lineBetween(
+      -panelW / 2 + 18, -panelH / 2 + headerH,
+      panelW / 2 - 18, -panelH / 2 + headerH
+    );
+
+    this.listPanel.add([title, this.bonusListText, findsLink, resetLink, closeShadow, closeBg, closeLabel, closeHit, headerDivider]);
+
+    // Row of vertical mini-cards (thumb on top, name below)
+    const cardsTopY = -panelH / 2 + headerH + footerInsetY;
+    const startX = -itemsWidth / 2 + cardW / 2;
 
     this.activeObjects.forEach((object, index) => {
-      const column = index % 2;
-      const row = Math.floor(index / 2);
-      const x = -52 + column * 104;
-      const y = -202 + row * 96;
-      const card = this.add.rectangle(x, y, 92, 82, 0xf7df9a, 0.16)
-        .setStrokeStyle(2, 0xe4c46e, 0.42)
-        .setDepth(HUD_DEPTH + 7);
-      const thumb = this.add.image(x, y - 4, object.key)
-        .setDisplaySize(52, 52)
-        .setDepth(HUD_DEPTH + 8);
-      const mark = this.add.text(x - 34, y - 28, '○', {
-        fontFamily: UI_FONT,
-        fontSize: '18px',
-        color: '#f0d27d'
-      }).setOrigin(0.5).setDepth(HUD_DEPTH + 7);
-      const label = this.add.text(x, y + 31, object.name.replace('Magical ', '').replace('Glowing ', ''), {
-        fontFamily: UI_FONT,
-        fontSize: '11px',
-        color: '#f8edd0',
-        align: 'center',
-        wordWrap: { width: 82, useAdvancedWrap: true }
-      }).setOrigin(0.5).setDepth(HUD_DEPTH + 7);
+      const x = startX + index * (cardW + cardGap);
+      const yCenter = cardsTopY + cardH / 2;
 
-      this.listPanel.add([card, thumb, mark, label]);
+      // Card body (graphics — redrawn on found state)
+      const card = this.add.graphics();
+      this.drawCard(card, cardW, cardH, x, yCenter, false);
+      card.setData('cardX', x);
+      card.setData('cardY', yCenter);
+
+      // Thumbnail centered, slightly above middle
+      const thumb = this.add.image(x, yCenter - 12, object.key).setDisplaySize(40, 40);
+
+      // Name centered below thumb
+      const shortName = this.shortenObjectName(object.name);
+      const label = this.add.text(x, yCenter + 22, shortName, {
+        fontFamily: UI_FONT, fontSize: '10px', color: '#4a3a26',
+        align: 'center', wordWrap: { width: cardW - 8, useAdvancedWrap: true }
+      }).setOrigin(0.5);
+
+      // Check badge — top-right corner of card, hidden until found
+      const mark = this.add.container(x + cardW / 2 - 10, yCenter - cardH / 2 + 10).setVisible(false);
+      const badgeBg = this.add.circle(0, 0, 9, 0x7eb58a, 1).setStrokeStyle(1.5, 0xffffff, 0.85);
+      const badgeCheck = this.add.text(0, 0, '✓', {
+        fontFamily: UI_FONT, fontSize: '11px', color: '#ffffff'
+      }).setOrigin(0.5);
+      mark.add([badgeBg, badgeCheck]);
+
+      this.listPanel.add([card, thumb, label, mark]);
       this.checklistItems.set(object.id, { card, mark, label, thumb });
     });
+
+    // Cache card dims for later redraws
+    this.checklistCardW = cardW;
+    this.checklistCardH = cardH;
+  }
+
+  drawCard(graphics, w, h, x, y, found) {
+    graphics.clear();
+    graphics.fillStyle(found ? 0xe8efd6 : 0xfff0d4, found ? 0.7 : 0.85);
+    graphics.fillRoundedRect(x - w / 2, y - h / 2, w, h, 12);
+  }
+
+  shortenObjectName(name) {
+    // Drop common descriptive prefixes for cleaner card labels.
+    const dropPrefixes = [
+      'Magical', 'Glowing', 'Whimsy', 'Cozy', 'Sleepy', 'Tiny',
+      'Dream', 'Lost', 'Soft', 'Lovely'
+    ];
+    let cleaned = name;
+    for (const word of dropPrefixes) {
+      cleaned = cleaned.replace(new RegExp(`^${word}\\s+`, 'i'), '');
+    }
+    // Names like "Porcelain Teacup" → "Teacup"; "Moon Coin" → "Moon Coin".
+    if (cleaned.length > 12 && cleaned.includes(' ')) {
+      const words = cleaned.split(' ');
+      cleaned = words[words.length - 1];
+    }
+    return cleaned;
   }
 
   toggleListPanel() {
     this.listOpen = !this.listOpen;
     this.listPanel.setVisible(this.listOpen);
-    if (this.guide) {
-      this.guide.setVisible(!this.listOpen);
-    }
+    // When the list is open, hide the rest of the top HUD so the top of
+    // the screen isn't doubled-up. List button itself stays so the player
+    // can always close. The list's title now carries the live count.
+    this.applyListVisibility();
   }
 
   createBonusEnvelopes() {
     for (const envelope of this.level.bonusEnvelopes) {
       const container = this.add.container(envelope.x, envelope.y).setDepth(6);
-      const paper = this.add.rectangle(0, 0, 28, 18, 0xf7df9a, 0.72)
-        .setStrokeStyle(1, 0x72552a, 0.7)
-        .setRotation(-0.12);
-      const flap = this.add.triangle(0, 0, -13, -7, 0, 3, 13, -7, 0xe8c975, 0.62)
-        .setRotation(-0.12);
-      container.add([paper, flap]);
-      container.setInteractive(new Phaser.Geom.Rectangle(-16, -12, 32, 24), Phaser.Geom.Rectangle.Contains);
+      let hoverTarget;
+      let usesSpriteBonus = false;
+      let hitWidth = 32;
+      let hitHeight = 24;
+
+      if (envelope.key) {
+        const shadow = this.add.ellipse(0, 16, 42, 10, 0x2b1c12, 0.22);
+        const sprite = this.add.image(0, 0, envelope.key)
+          .setScale(envelope.scale ?? 0.06)
+          .setAlpha(0.96);
+        hitWidth = Math.max(34, sprite.displayWidth);
+        hitHeight = Math.max(28, sprite.displayHeight);
+        hoverTarget = sprite;
+        usesSpriteBonus = true;
+        container.add([shadow, sprite]);
+      } else {
+        const paper = this.add.rectangle(0, 0, 28, 18, 0xf7df9a, 0.72)
+          .setStrokeStyle(1, 0x72552a, 0.7)
+          .setRotation(-0.12);
+        const flap = this.add.triangle(0, 0, -13, -7, 0, 3, 13, -7, 0xe8c975, 0.62)
+          .setRotation(-0.12);
+        hoverTarget = paper;
+        container.add([paper, flap]);
+      }
+
+      container.setInteractive(new Phaser.Geom.Rectangle(-hitWidth / 2, -hitHeight / 2, hitWidth, hitHeight), Phaser.Geom.Rectangle.Contains);
       container.setData('bonusId', envelope.id);
 
       if (this.foundBonusIds.has(envelope.id)) {
@@ -268,8 +728,6 @@ export class GameScene extends Phaser.Scene {
         container.disableInteractive();
       }
 
-      container.on('pointerover', () => paper.setFillStyle(0xffefad, 0.95));
-      container.on('pointerout', () => paper.setFillStyle(0xf7df9a, 0.72));
       container.on('pointerdown', () => this.findBonusEnvelope(envelope, container));
       this.bonusItems.set(envelope.id, container);
     }
@@ -283,8 +741,8 @@ export class GameScene extends Phaser.Scene {
     this.foundBonusIds.add(envelope.id);
     this.saveBonusProgress();
     container.disableInteractive();
-    this.showFoundToast('Note!');
-    this.sayGuide('Note!');
+    this.showFoundToast(this.getBonusFoundText());
+    this.sayGuide(this.getBonusFoundText());
     this.playSoftSparkle(container.x, container.y, 8);
 
     this.tweens.add({
@@ -298,6 +756,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.updateHud();
+    this.checkCompletionState(650);
   }
 
   createSceneSurprises() {
@@ -322,14 +781,20 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
+    const snappedObject = this.findNearbyObject(pointer.x, pointer.y);
+    if (snappedObject) {
+      this.findObject(snappedObject);
+      return;
+    }
+
     this.lastMissAt = now;
-    this.sayGuide('Try again');
-    this.playSoftSparkle(pointer.x, pointer.y, 3, 0xbfe8ff);
+    this.sayGuide('Look!');
+    this.playMissFeedback(pointer.x, pointer.y);
   }
 
   playSceneSurprise(surprise) {
-    this.showFoundToast('Sparkle!');
-    this.sayGuide('Cute!');
+    this.showFoundToast(surprise.label);
+    this.sayGuide('Nice!');
     this.playSoftSparkle(surprise.x, surprise.y, 6);
   }
 
@@ -340,12 +805,25 @@ export class GameScene extends Phaser.Scene {
 
     const sprite = this.objectSprites.get(object.id);
     const glow = sprite.getData('glow');
+    const shadow = sprite.getData('shadow');
+    const clickZone = sprite.getData('clickZone');
     this.foundIds.add(object.id);
     this.saveProgress();
     this.playFoundFeedback(sprite);
     this.showFoundToast(`${object.name}!`);
-    this.sayGuide(this.getFoundActiveCount() >= this.activeObjects.length ? 'All done!' : 'Yay!');
-    sprite.disableInteractive();
+    this.sayGuide(this.getFoundActiveCount() >= this.activeObjects.length ? 'All done!' : 'Nice!');
+    if (clickZone) {
+      clickZone.disableInteractive();
+      clickZone.setVisible(false);
+    }
+
+    this.tweens.add({
+      targets: shadow,
+      alpha: 0,
+      duration: 220,
+      ease: 'Sine.easeOut',
+      onComplete: () => shadow.setVisible(false)
+    });
 
     this.tweens.add({
       targets: sprite,
@@ -362,10 +840,55 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.updateHud();
+    this.checkCompletionState(550);
+  }
 
-    if (this.getFoundActiveCount() >= this.activeObjects.length) {
-      this.time.delayedCall(700, () => this.scene.start('WinScene'));
+  checkCompletionState() {
+    if (!this.areMainObjectsComplete()) {
+      return;
     }
+
+    this.enterBonusSearchMode();
+  }
+
+  areMainObjectsComplete() {
+    return this.getFoundActiveCount() >= this.activeObjects.length;
+  }
+
+  enterBonusSearchMode() {
+    if (this.mainCompleteNoticeShown) {
+      return;
+    }
+
+    this.mainCompleteNoticeShown = true;
+    if (this.finishButton) {
+      this.finishButton.setVisible(true);
+    }
+    this.showFoundToast('Finished!');
+    this.sayGuide('All done!');
+  }
+
+  finishLevel() {
+    markSceneComplete(this.level.id);
+    const nextLevel = getNextLevel(this.level.id);
+    if (nextLevel) {
+      window.localStorage.removeItem(nextLevel.saveKey);
+      window.localStorage.removeItem(nextLevel.bonusSaveKey);
+      this.scene.start('LoadingScene', {
+        targetScene: 'GameScene',
+        targetData: { levelId: nextLevel.id },
+        message: `Opening ${nextLevel.title}...`
+      });
+      return;
+    }
+
+    this.scene.start('WinScene', { levelId: this.level.id });
+  }
+
+  openPause() {
+    this.sound.pauseAll();
+    this.scene.pause('GameScene');
+    this.scene.launch('PauseScene', { from: 'GameScene' });
   }
 
   createGuide() {
@@ -464,11 +987,12 @@ export class GameScene extends Phaser.Scene {
 
   playFoundFeedback(sprite) {
     if (this.sound.get('foundChime') || this.cache.audio.exists('foundChime')) {
-      this.sound.play('foundChime', { volume: 0.7, detune: 120 });
+      this.sound.play('foundChime', { volume: 0.45, detune: 120 });
     }
 
-    for (let i = 0; i < 22; i += 1) {
-      const angle = (Math.PI * 2 * i) / 22;
+    const sparkleCount = 10;
+    for (let i = 0; i < sparkleCount; i += 1) {
+      const angle = (Math.PI * 2 * i) / sparkleCount;
       const sparkle = this.add.star(sprite.x, sprite.y, 5, 4, 12, 0xfff0a8, 1)
         .setDepth(30)
         .setBlendMode(Phaser.BlendModes.ADD);
@@ -485,7 +1009,7 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
-    for (let i = 0; i < 8; i += 1) {
+    for (let i = 0; i < 3; i += 1) {
       const heart = this.add.text(sprite.x, sprite.y, '♥', {
         fontFamily: UI_FONT,
         fontSize: `${Phaser.Math.Between(18, 28)}px`,
@@ -524,20 +1048,50 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  playMissFeedback(x, y) {
+    if (this.sound.get('foundChime') || this.cache.audio.exists('foundChime')) {
+      this.sound.play('foundChime', { volume: 0.16, detune: -900 });
+    }
+
+    const ripple = this.add.circle(x, y, 16)
+      .setStrokeStyle(4, 0xbfe8ff, 0.95)
+      .setDepth(33);
+    const dot = this.add.circle(x, y, 5, 0xbfe8ff, 0.72)
+      .setDepth(33);
+
+    this.tweens.add({
+      targets: ripple,
+      radius: 42,
+      alpha: 0,
+      duration: 420,
+      ease: 'Sine.easeOut',
+      onComplete: () => ripple.destroy()
+    });
+
+    this.tweens.add({
+      targets: dot,
+      alpha: 0,
+      scale: 0.35,
+      duration: 260,
+      ease: 'Sine.easeOut',
+      onComplete: () => dot.destroy()
+    });
+  }
+
   showFoundToast(name) {
     if (this.toast) {
       this.toast.destroy();
     }
 
-    const toast = this.add.container(640, 82).setDepth(40).setAlpha(0);
-    const bg = this.add.rectangle(0, 0, 760, 58, 0x1b2a22, 0.84)
+    const toast = this.add.container(720, 622).setDepth(40).setAlpha(0);
+    const bg = this.add.rectangle(0, 0, 440, 54, 0x1b2a22, 0.84)
       .setStrokeStyle(2, 0xf0d27d, 0.68);
     const text = this.add.text(0, 0, name, {
       fontFamily: UI_FONT,
       fontSize: '20px',
       color: '#fff0c8',
       align: 'center',
-      wordWrap: { width: 700, useAdvancedWrap: true }
+      wordWrap: { width: 400, useAdvancedWrap: true }
     }).setOrigin(0.5);
     toast.add([bg, text]);
     this.toast = toast;
@@ -545,7 +1099,7 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: toast,
       alpha: 1,
-      y: 72,
+      y: 604,
       duration: 160,
       ease: 'Sine.easeOut',
       yoyo: true,
@@ -561,40 +1115,59 @@ export class GameScene extends Phaser.Scene {
 
     const remaining = this.activeObjects.filter((object) => !this.foundIds.has(object.id));
     if (remaining.length === 0) {
+      this.showBonusHint();
       return;
     }
 
     const object = remaining[0];
     const sprite = this.objectSprites.get(object.id);
+
+    if (object.hiddenUnder && !this.openedInteractives.has(object.hiddenUnder)) {
+      const coverSprite = this.interactiveSprites.get(object.hiddenUnder);
+      if (coverSprite) {
+        this.openInteractiveCover(coverSprite, () => {
+          this.highlightHintedObject(object, sprite);
+        });
+        this.startHintCooldown();
+        return;
+      }
+    }
+
+    this.highlightHintedObject(object, sprite);
+    this.startHintCooldown();
+  }
+
+  highlightHintedObject(object, sprite) {
     const glow = sprite.getData('glow');
     this.showFoundToast('Look!');
     this.sayGuide('Look!');
     this.guideHopTo(sprite);
+    this.playHintBeam(sprite);
     if (glow) {
-      glow.setVisible(true).setAlpha(0.34).setScale(1);
+      glow.setVisible(true).setAlpha(0.62).setScale(1.25);
       this.tweens.add({
         targets: glow,
-        alpha: 0.08,
-        scale: 1.28,
+        alpha: 0.14,
+        scale: 1.85,
         yoyo: true,
-        repeat: 3,
-        duration: 260,
+        repeat: 6,
+        duration: 360,
         ease: 'Sine.easeInOut',
         onComplete: () => glow.setVisible(false)
       });
     }
-    const ring = this.add.ellipse(sprite.x, sprite.y, sprite.displayWidth + 26, sprite.displayHeight + 22)
-      .setStrokeStyle(5, 0xffef8a, 1)
+    const ring = this.add.ellipse(sprite.x, sprite.y, Math.max(86, sprite.displayWidth + 48), Math.max(68, sprite.displayHeight + 38))
+      .setStrokeStyle(7, 0xffef8a, 1)
       .setDepth(25);
 
     sprite.setTint(0xfff0a4);
     this.tweens.add({
       targets: ring,
-      scale: 1.16,
-      alpha: 0.25,
+      scale: 1.34,
+      alpha: 0.18,
       yoyo: true,
-      repeat: 3,
-      duration: 250,
+      repeat: 6,
+      duration: 360,
       ease: 'Sine.easeInOut'
     });
 
@@ -604,76 +1177,165 @@ export class GameScene extends Phaser.Scene {
         sprite.clearTint();
       }
     });
+  }
 
+  playHintBeam(sprite) {
+    const quadrantX = sprite.x < 640 ? 320 : 960;
+    const quadrantY = sprite.y < 360 ? 210 : 530;
+    const beam = this.add.ellipse(quadrantX, quadrantY, 430, 250, 0xffef8a, 0.12)
+      .setDepth(3)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    const arrow = this.add.triangle(sprite.x, sprite.y - 82, -18, 22, 18, 22, 0, -20, 0xffef8a, 0.95)
+      .setDepth(34);
+
+    this.tweens.add({
+      targets: beam,
+      alpha: 0.02,
+      scale: 1.18,
+      yoyo: true,
+      repeat: 4,
+      duration: 420,
+      ease: 'Sine.easeInOut',
+      onComplete: () => beam.destroy()
+    });
+
+    this.tweens.add({
+      targets: arrow,
+      y: arrow.y - 18,
+      alpha: 0,
+      yoyo: true,
+      repeat: 2,
+      duration: 500,
+      ease: 'Sine.easeInOut',
+      onComplete: () => arrow.destroy()
+    });
+
+    for (let i = 0; i < 18; i += 1) {
+      this.time.delayedCall(i * 70, () => {
+        this.playSoftSparkle(sprite.x + Phaser.Math.Between(-42, 42), sprite.y + Phaser.Math.Between(-34, 34), 1, 0xffef8a);
+      });
+    }
+  }
+
+  showBonusHint() {
+    const remainingBonus = this.level.bonusEnvelopes.filter((bonus) => !this.foundBonusIds.has(bonus.id));
+    if (remainingBonus.length === 0) {
+      return;
+    }
+
+    const bonus = remainingBonus[0];
+    const container = this.bonusItems.get(bonus.id);
+    if (!container) {
+      return;
+    }
+
+    if (bonus.hiddenUnder && !this.openedInteractives.has(bonus.hiddenUnder)) {
+      const coverSprite = this.interactiveSprites.get(bonus.hiddenUnder);
+      if (coverSprite) {
+        this.openInteractiveCover(coverSprite, () => {
+          this.highlightBonusHint(bonus, container);
+        });
+        this.startHintCooldown();
+        return;
+      }
+    }
+
+    this.highlightBonusHint(bonus, container);
     this.startHintCooldown();
+  }
+
+  highlightBonusHint(bonus, container) {
+    this.showFoundToast('Look!');
+    this.sayGuide('Look!');
+    this.playHintBeam(container);
+    this.playSoftSparkle(container.x, container.y, 18, 0x9de3ff);
+  }
+
+  findNearbyObject(x, y) {
+    let bestObject = null;
+    let bestDistance = NEAR_MISS_SNAP_RADIUS;
+
+    for (const object of this.activeObjects) {
+      if (this.foundIds.has(object.id)) {
+        continue;
+      }
+      const distance = Phaser.Math.Distance.Between(x, y, object.x, object.y);
+      if (distance <= bestDistance) {
+        bestObject = object;
+        bestDistance = distance;
+      }
+    }
+
+    return bestObject;
   }
 
   startHintCooldown() {
     this.hintReady = false;
-    this.hintButtonBg.disableInteractive();
-    this.hintButtonBg.setFillStyle(this.hintButton.disabledColor, 0.96);
-    this.hintButton.setButtonColor(this.hintButton.disabledColor);
-    this.hintButtonText.setText('Wait');
+    this.hintButton.setEnabled(false);
 
     this.time.delayedCall(HINT_COOLDOWN_MS, () => {
       this.hintReady = true;
-      this.hintButtonBg.setInteractive({ useHandCursor: true });
-      this.hintButton.setButtonColor(this.hintButton.color);
-      this.hintButtonText.setText('Help');
+      this.hintButton.setEnabled(true);
     });
   }
 
   updateHud() {
-    this.countText.setText(`${this.getFoundActiveCount()}/${this.activeObjects.length}`);
-    this.bonusText.setText(`Notes ${this.foundBonusIds.size}/${this.level.bonusEnvelopes.length}`);
+    const found = this.getFoundActiveCount();
+    const total = this.activeObjects.length;
+    this.countPill.setText(`${found} / ${total}`);
+    if (this.listTitleText) {
+      this.listTitleText.setText(`Find these · ${found}/${total}`);
+    }
+    if (this.bonusListText) {
+      this.bonusListText.setText(`${this.getBonusLabel()} ${this.foundBonusIds.size}/${this.level.bonusEnvelopes.length}`);
+    }
 
     for (const object of this.activeObjects) {
       const item = this.checklistItems.get(object.id);
+      if (!item) continue;
       const found = this.foundIds.has(object.id);
-      item.mark.setText(found ? '✓' : '○');
-      item.mark.setColor(found ? '#bdf3d3' : '#f0d27d');
-      item.label.setColor(found ? '#a8c9b4' : '#f8edd0');
-      item.label.setAlpha(found ? 0.68 : 1);
-      item.thumb.setAlpha(found ? 0.38 : 1);
-      item.card.setFillStyle(found ? 0x7eb58a : 0xf7df9a, found ? 0.18 : 0.15);
+
+      // Green check badge only when found
+      item.mark.setVisible(found);
+
+      // Name fade when found
+      item.label.setColor(found ? '#8a9d8e' : '#4a3a26');
+      item.label.setAlpha(found ? 0.65 : 1);
+
+      // Thumb desaturate + fade when found
+      item.thumb.setAlpha(found ? 0.4 : 1);
+      if (found) item.thumb.setTint(0xa8b0a4); else item.thumb.clearTint();
+
+      // Redraw card background with the right state color
+      const cardX = item.card.getData('cardX');
+      const cardY = item.card.getData('cardY');
+      if (cardX != null && cardY != null) {
+        this.drawCard(item.card, this.checklistCardW, this.checklistCardH, cardX, cardY, found);
+      }
     }
+
+    this.updateRemainingPulse();
   }
 
   getFoundActiveCount() {
     return this.activeObjects.filter((object) => this.foundIds.has(object.id)).length;
   }
 
+  getBonusLabel() {
+    return this.level.bonusLabel ?? 'Notes';
+  }
+
+  getBonusFoundText() {
+    return this.level.bonusFoundText ?? 'Note!';
+  }
+
   restartCase() {
-    window.localStorage.removeItem(this.level.saveKey);
-    window.localStorage.removeItem(BONUS_SAVE_KEY);
-    this.scene.restart({ daily: this.isDaily });
+    clearLevelProgress(this.level);
+    this.scene.restart({ daily: this.isDaily, levelId: this.level.id });
   }
 
-  loadProgress() {
-    try {
-      const value = window.localStorage.getItem(this.level.saveKey);
-      const parsed = value ? JSON.parse(value) : [];
-      return new Set(Array.isArray(parsed) ? parsed : []);
-    } catch {
-      return new Set();
-    }
-  }
-
-  saveProgress() {
-    window.localStorage.setItem(this.level.saveKey, JSON.stringify([...this.foundIds]));
-  }
-
-  loadBonusProgress() {
-    try {
-      const value = window.localStorage.getItem(BONUS_SAVE_KEY);
-      const parsed = value ? JSON.parse(value) : [];
-      return new Set(Array.isArray(parsed) ? parsed : []);
-    } catch {
-      return new Set();
-    }
-  }
-
-  saveBonusProgress() {
-    window.localStorage.setItem(BONUS_SAVE_KEY, JSON.stringify([...this.foundBonusIds]));
-  }
+  loadProgress() { return loadFoundIds(this.level); }
+  saveProgress() { saveFoundIds(this.level, this.foundIds); }
+  loadBonusProgress() { return loadBonusIds(this.level); }
+  saveBonusProgress() { saveBonusIds(this.level, this.foundBonusIds); }
 }

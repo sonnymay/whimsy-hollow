@@ -1,8 +1,11 @@
 import Phaser from 'phaser';
+import { LoadingScene } from './scenes/LoadingScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { WinScene } from './scenes/WinScene.js';
 import { DeskScene } from './scenes/DeskScene.js';
+import { SettingsScene } from './scenes/SettingsScene.js';
+import { PauseScene } from './scenes/PauseScene.js';
 import './styles.css';
 
 const config = {
@@ -15,10 +18,36 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [MenuScene, GameScene, WinScene, DeskScene],
+  scene: [LoadingScene, MenuScene, GameScene, WinScene, DeskScene, SettingsScene, PauseScene],
   audio: {
     disableWebAudio: false
   }
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+
+// Toggle Fullscreen on F11 key
+window.addEventListener('keydown', async (e) => {
+  if (e.key === 'F11') {
+    e.preventDefault();
+    try {
+      if (window.__TAURI_INTERNALS__) {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window');
+        const appWindow = getCurrentWindow();
+        const isFullscreen = await appWindow.isFullscreen();
+        await appWindow.setFullscreen(!isFullscreen);
+      } else {
+        // Fallback for standard browser
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        } else {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to toggle fullscreen:', err);
+    }
+  }
+});

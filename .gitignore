@@ -3,3 +3,10 @@ dist/
 .DS_Store
 *.log
 .vercel
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# Backed-up source assets (kept locally, not shipped)
+public/assets/characters/*.original.png

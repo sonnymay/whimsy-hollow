@@ -1,7 +1,11 @@
 import Phaser from 'phaser';
-import { mailGarden } from '../data/levels.js';
+import { getCompletedSceneCount, getFirstUnfinishedLevel, levels, loadCompletedSceneIds } from '../data/levels.js';
+import { createPillButton } from '../ui/Button.js';
+import { setBackdrop } from '../ui/backdrop.js';
+import { theme } from '../ui/theme.js';
+import { playMusicForLevel, queueMusic } from '../audio/music.js';
 
-const UI_FONT = '"Arial Rounded MT Bold", "Trebuchet MS", "Comic Sans MS", Arial, sans-serif';
+const UI_FONT = theme.font;
 const MASCOT_KEY = 'mailBirdMascot';
 const MASCOT_PATH = 'assets/characters/mail_bird_mascot.png';
 
@@ -11,31 +15,48 @@ export class MenuScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image(mailGarden.background.key, mailGarden.background.path);
+    for (const level of levels) {
+      this.loadImageOnce(level.background.key, level.background.path);
+    }
+
+    this.loadImageOnce('object-magic-recipe-card', 'assets/objects/magic_recipe_card.png');
+    this.loadImageOnce('object-purple-teapot', 'assets/objects/obj_purple_teapot.png');
+    this.loadImageOnce('object-sleepy-cat', 'assets/objects/obj_sleepy_cat.png');
+    this.loadImageOnce('object-bookshop-hourglass', 'assets/objects/bookshop_hourglass.png');
     this.load.image(MASCOT_KEY, MASCOT_PATH);
+    queueMusic(this, '__menu__');
   }
 
   create() {
     const { width, height } = this.scale;
+    const nextScene = getFirstUnfinishedLevel();
+    const completedCount = getCompletedSceneCount();
+    const allDone = !nextScene;
+    const playScene = nextScene ?? levels[levels.length - 1];
+    const sceneLabel = allDone ? 'All places found' : playScene.title.replace('Whimsy Hollow ', '');
+    const footerLabel = allDone ? `Done ${levels.length}/${levels.length}. Play again anytime.` : `${completedCount}/${levels.length} places found`;
 
-    this.add.image(width / 2, height / 2, mailGarden.background.key);
-    this.add.rectangle(0, 0, width, height, 0xfff2cf, 0.34).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN);
-    this.add.rectangle(width / 2, height / 2, width, height, 0x77c7a0, 0.18);
+    setBackdrop(playScene.background.path);
+    playMusicForLevel(this, '__menu__');
+
+    // Top-right settings button
+    createPillButton(this, {
+      x: width - 70, y: 50,
+      width: 60, height: 48,
+      label: '⚙', fontSize: 22, radius: 24,
+      onClick: () => this.scene.start('SettingsScene')
+    });
+    this.add.image(width / 2, height / 2, playScene.background.key).setDisplaySize(width, height);
+    this.add.rectangle(0, 0, width, height, 0xfff2cf, 0.3).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x234235, 0.12);
     this.add.rectangle(width / 2, 0, width, 210, 0x7eb58a, 0.44).setOrigin(0.5, 0);
     this.add.rectangle(width / 2, height, width, 160, 0x6aa9c8, 0.36).setOrigin(0.5, 1);
     this.add.circle(248, 210, 118, 0xffd1dc, 0.24);
     this.add.circle(1056, 190, 138, 0xffec8a, 0.2);
     this.add.circle(1020, 592, 156, 0x9de3ff, 0.18);
-    this.drawMascot(width / 2 - 430, 426, 1.55);
+    this.drawMascot(width / 2 - 280, 428, 1.3);
 
-    this.add.text(width / 2, 116, 'Cute Search', {
-      fontFamily: UI_FONT,
-      fontSize: '22px',
-      color: '#f0d68e',
-      letterSpacing: 2
-    }).setOrigin(0.5);
-
-    this.add.text(width / 2, 184, 'Whimsy Hollow', {
+    this.add.text(width / 2, 168, 'Whimsy Hollow', {
       fontFamily: UI_FONT,
       fontSize: '78px',
       color: '#fff2c7',
@@ -43,7 +64,7 @@ export class MenuScene extends Phaser.Scene {
       strokeThickness: 10
     }).setOrigin(0.5);
 
-    this.add.text(width / 2, 304, 'Tap tiny treasures. No timer.', {
+    this.add.text(width / 2, 286, 'No timer. Just tiny treasures.', {
       fontFamily: UI_FONT,
       fontSize: '27px',
       color: '#f2ead0',
@@ -51,7 +72,7 @@ export class MenuScene extends Phaser.Scene {
       strokeThickness: 4
     }).setOrigin(0.5);
 
-    this.add.text(width / 2, 382, 'Mail Garden', {
+    this.add.text(width / 2, 372, sceneLabel, {
       fontFamily: UI_FONT,
       fontSize: '34px',
       color: '#ffe09a',
@@ -59,13 +80,45 @@ export class MenuScene extends Phaser.Scene {
       strokeThickness: 5
     }).setOrigin(0.5);
 
-    this.createButton(width / 2, 500, 'Play', 'search', () => {
-      window.localStorage.removeItem(mailGarden.saveKey);
-      window.localStorage.removeItem('whimsy-hollow:mail-garden:bonus');
-      this.scene.start('GameScene', { levelId: 'mail-garden' });
-    }, 240, 36);
+    if (!allDone) {
+      this.createMenuPreview(width / 2 + 170, 488, playScene.id);
+    }
 
-    this.add.text(width / 2, 650, 'Big buttons. Picture clues. Cozy pace.', {
+    if (allDone) {
+      this.add.text(width / 2, 504, 'Pick a place ↓', {
+        fontFamily: UI_FONT,
+        fontSize: '30px',
+        color: '#fff4d6',
+        stroke: '#2b2018',
+        strokeThickness: 5
+      }).setOrigin(0.5);
+    } else {
+      createPillButton(this, {
+        x: width / 2, y: 492,
+        width: 260, height: 80,
+        label: 'Play',
+        fontSize: 32, radius: 40,
+        onClick: () => {
+          this.scene.start('LoadingScene', {
+            targetScene: 'GameScene',
+            targetData: { levelId: playScene.id },
+            message: `Opening ${sceneLabel}...`
+          });
+        }
+      });
+    }
+
+    this.createPlaceDots(width / 2, 596, playScene?.id);
+
+    // Sticker Book entry — small, sits beneath the dots
+    createPillButton(this, {
+      x: width - 130, y: height - 50,
+      width: 180, height: 46,
+      label: '📒 Sticker Book', fontSize: 16, radius: 23,
+      onClick: () => this.scene.start('DeskScene')
+    });
+
+    this.add.text(width / 2, 650, footerLabel, {
       fontFamily: UI_FONT,
       fontSize: '23px',
       color: '#eadfc0',
@@ -74,58 +127,97 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
   }
 
-  createButton(x, y, label, icon, onClick, width = 268, fontSize = 28) {
-    const shadowLeft = this.add.circle(x - width / 2 + 38, y + 9, 40, 0x3d2a1d, 0.34);
-    const shadowRight = this.add.circle(x + width / 2 - 38, y + 9, 40, 0x3d2a1d, 0.34);
-    const shadow = this.add.rectangle(x, y + 9, width - 76, 80, 0x3d2a1d, 0.34);
-    const leftCap = this.add.circle(x - width / 2 + 38, y, 38, 0xffd86f, 0.98)
-      .setStrokeStyle(4, 0x6a4323);
-    const rightCap = this.add.circle(x + width / 2 - 38, y, 38, 0xffd86f, 0.98)
-      .setStrokeStyle(4, 0x6a4323);
-    const buttonBg = this.add.rectangle(x, y, width - 76, 76, 0xffd86f, 0.98)
-      .setStrokeStyle(4, 0x6a4323)
-      .setInteractive({ useHandCursor: true });
-    this.drawButtonIcon(x - width / 2 + 48, y, icon);
-    this.add.text(x + 16, y, label, {
-      fontFamily: UI_FONT,
-      fontSize: `${fontSize}px`,
-      color: '#35291d'
-    }).setOrigin(0.5);
+  createPlaceDots(centerX, y, nextId) {
+    const completed = loadCompletedSceneIds();
+    const dotW = 110;
+    const dotH = 70;
+    const gap = 18;
+    const totalW = levels.length * dotW + (levels.length - 1) * gap;
+    const startX = centerX - totalW / 2 + dotW / 2;
 
-    const setFill = (color) => {
-      leftCap.setFillStyle(color, 0.98);
-      rightCap.setFillStyle(color, 0.98);
-      buttonBg.setFillStyle(color, 0.98);
+    levels.forEach((level, i) => {
+      const x = startX + i * (dotW + gap);
+      const isDone = completed.has(level.id);
+      const isNext = level.id === nextId;
+      const frameColor = isNext ? 0xffd86f : (isDone ? 0xcabfa8 : 0xfff4d6);
+
+      // Shadow
+      const shadow = this.add.graphics();
+      shadow.fillStyle(0x2b1c12, 0.28);
+      shadow.fillRoundedRect(x - dotW / 2, y - dotH / 2 + 5, dotW, dotH, 14);
+
+      // Cream backplate so the thumbnail reads well
+      const back = this.add.graphics();
+      back.fillStyle(0xfff4d6, 0.95);
+      back.fillRoundedRect(x - dotW / 2, y - dotH / 2, dotW, dotH, 14);
+
+      // Thumbnail
+      const thumb = this.add.image(x, y, level.background.key)
+        .setDisplaySize(dotW - 10, dotH - 14);
+      if (isDone) thumb.setTint(0xb8b0a0).setAlpha(0.7);
+
+      // Outline
+      const frame = this.add.graphics();
+      frame.lineStyle(isNext ? 4 : 3, frameColor, 0.95);
+      frame.strokeRoundedRect(x - dotW / 2, y - dotH / 2, dotW, dotH, 14);
+
+      // Status badge under the dot
+      const badge = isDone ? '✓ Done' : (isNext ? '★ Next' : 'Tap');
+      this.add.text(x, y + dotH / 2 + 16, badge, {
+        fontFamily: UI_FONT,
+        fontSize: '15px',
+        color: isDone ? '#bdf3d3' : (isNext ? '#ffe09a' : '#f2ead0'),
+        stroke: '#2b2018',
+        strokeThickness: 3
+      }).setOrigin(0.5);
+
+      // Click target
+      const hit = this.add.zone(x, y, dotW, dotH + 32).setInteractive({ useHandCursor: true });
+      hit.on('pointerover', () => thumb.setDisplaySize(dotW - 4, dotH - 8));
+      hit.on('pointerout', () => thumb.setDisplaySize(dotW - 10, dotH - 14));
+      hit.on('pointerdown', () => {
+        window.localStorage.removeItem(level.saveKey);
+        window.localStorage.removeItem(level.bonusSaveKey);
+        this.scene.start('LoadingScene', {
+          targetScene: 'GameScene',
+          targetData: { levelId: level.id },
+          message: `Opening ${level.title.replace('Whimsy Hollow ', '')}...`
+        });
+      });
+    });
+  }
+
+  loadImageOnce(key, path) {
+    if (!this.textures.exists(key)) {
+      this.load.image(key, path);
+    }
+  }
+
+  createMenuPreview(x, y, levelId) {
+    if (!['restaurant-kitchen', 'whimsy-living-room', 'cozy-dream-bedroom', 'forest-bookshop'].includes(levelId)) {
+      return;
+    }
+
+    const shadow = this.add.ellipse(x, y + 42, 54, 14, 0x2d1d12, 0.28);
+    const textureKeyByLevel = {
+      'restaurant-kitchen': 'object-magic-recipe-card',
+      'whimsy-living-room': 'object-purple-teapot',
+      'cozy-dream-bedroom': 'object-sleepy-cat',
+      'forest-bookshop': 'object-bookshop-hourglass'
     };
-
-    buttonBg.on('pointerover', () => setFill(0xffee9f));
-    buttonBg.on('pointerout', () => setFill(0xffd86f));
-    buttonBg.on('pointerdown', onClick);
+    const textureKey = textureKeyByLevel[levelId];
+    const card = this.add.image(x, y + 4, textureKey)
+      .setScale(levelId === 'restaurant-kitchen' ? 0.11 : (levelId === 'forest-bookshop' ? 0.09 : 0.07))
+      .setRotation(-0.08);
 
     this.tweens.add({
-      targets: [leftCap, rightCap, buttonBg],
-      y: y - 4,
-      duration: 900,
+      targets: [shadow, card],
+      y: '-=5',
+      duration: 1100,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut'
     });
-  }
-
-  drawButtonIcon(x, y, icon) {
-    if (icon === 'search') {
-      this.add.circle(x - 3, y - 3, 11, 0xfff8dc, 1).setStrokeStyle(4, 0x35291d);
-      this.add.rectangle(x + 10, y + 11, 18, 5, 0x35291d, 1).setRotation(0.75);
-      return;
-    }
-
-    if (icon === 'book') {
-      this.add.rectangle(x, y, 27, 26, 0xff9fbd, 1).setStrokeStyle(3, 0x35291d);
-      this.add.line(x, y, 0, -12, 0, 12, 0x35291d, 1).setLineWidth(3);
-      return;
-    }
-
-    this.add.star(x, y, 5, 7, 16, 0xffffff, 1).setStrokeStyle(3, 0x35291d);
   }
 
   drawMascot(x, y, scale) {

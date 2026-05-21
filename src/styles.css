@@ -8,8 +8,28 @@ body,
 
 body {
   overflow: hidden;
-  background: #182421;
+  background: #2a2620;
   font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* Blurred painterly backdrop that fills wide windows behind the 16:9 canvas.
+   Image is set per scene via JS (see setBackdrop in src/ui/backdrop.js). */
+#backdrop {
+  position: fixed;
+  inset: -40px; /* slight overscan so the blur edge isn't visible */
+  background-color: #2a2620;
+  background-size: cover;
+  background-position: center;
+  filter: blur(36px) saturate(1.15) brightness(0.7);
+  transform: scale(1.08);
+  transition: background-image 600ms ease, opacity 600ms ease;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+#game {
+  position: relative;
+  z-index: 1;
 }
 
 canvas {

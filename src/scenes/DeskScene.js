@@ -1,166 +1,185 @@
 import Phaser from 'phaser';
-import { mailGarden } from '../data/levels.js';
+import { levels } from '../data/levels.js';
+import { loadFoundIds, loadBonusIds } from '../data/storage.js';
+import { createPillButton } from '../ui/Button.js';
+import { theme, hex } from '../ui/theme.js';
 
-const BONUS_SAVE_KEY = 'whimsy-hollow:mail-garden:bonus';
-const UI_FONT = '"Trebuchet MS", "Comic Sans MS", Arial, sans-serif';
+const UI_FONT = theme.font;
 
+/**
+ * Global Sticker Book — every object from every scene, grayed out until found.
+ * The single biggest retention loop in cozy hidden-object games: it makes
+ * progress visible across scenes and gives the player a reason to revisit
+ * scenes they already finished to mop up the few they missed.
+ */
 export class DeskScene extends Phaser.Scene {
   constructor() {
     super('DeskScene');
   }
 
+  init(data = {}) {
+    this.returnLevelId = data.levelId ?? null;
+  }
+
   preload() {
-    for (const object of mailGarden.objects) {
-      this.load.image(object.key, object.asset);
+    // Load every level's main object PNGs so each sticker can render its art.
+    for (const level of levels) {
+      for (const object of level.objects) {
+        if (!this.textures.exists(object.key)) {
+          this.load.image(object.key, object.asset);
+        }
+      }
     }
   }
 
   create() {
     const { width, height } = this.scale;
-    const foundIds = this.loadIds(mailGarden.saveKey);
-    const bonusIds = this.loadIds(BONUS_SAVE_KEY);
 
-    this.add.rectangle(0, 0, width, height, 0x2c241b).setOrigin(0);
-    this.add.rectangle(width / 2, 0, width, height, 0x4d725b, 0.2).setOrigin(0.5, 0);
-    this.add.circle(1060, 128, 260, 0xf6d27a, 0.09);
-    this.add.circle(230, 620, 220, 0x8fc8b0, 0.08);
+    // Background — soft cream wash with subtle painterly tint
+    this.add.rectangle(0, 0, width, height, 0x2a2620).setOrigin(0);
+    this.add.rectangle(0, 0, width, height, 0xfff2cf, 0.08).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN);
+    this.add.circle(1080, 130, 240, 0xffd1dc, 0.08);
+    this.add.circle(220, 600, 200, 0x9de3ff, 0.08);
 
-    this.createButton(116, 64, 'Back', () => this.scene.start('GameScene'));
-
-    this.add.text(width / 2, 72, 'Sticker Book', {
+    // Header
+    this.add.text(width / 2, 50, 'Sticker Book', {
       fontFamily: UI_FONT,
-      fontSize: '58px',
-      color: '#fff0c8',
+      fontSize: '44px',
+      color: '#fff4d6',
       stroke: '#2b2018',
-      strokeThickness: 8
+      strokeThickness: 7
     }).setOrigin(0.5);
 
-    this.add.text(width / 2, 126, 'Your cute finds live here.', {
+    // Total progress
+    const totals = this.computeTotals();
+    this.add.text(width / 2, 90, `${totals.found} of ${totals.total} stickers · ${totals.bonusFound}/${totals.bonusTotal} bonus`, {
       fontFamily: UI_FONT,
-      fontSize: '23px',
-      color: '#e8dcc1'
+      fontSize: '17px',
+      color: '#eadfc0'
     }).setOrigin(0.5);
 
-    this.drawDesk(foundIds, bonusIds);
-    this.drawProgress(foundIds, bonusIds);
-
-    this.createButton(width / 2 - 220, 654, 'Play', () => this.scene.start('GameScene'));
-    this.createButton(width / 2, 654, 'Again', () => {
-      window.localStorage.removeItem(mailGarden.saveKey);
-      window.localStorage.removeItem(BONUS_SAVE_KEY);
-      this.scene.start('GameScene');
+    // One section per level
+    const sectionsTopY = 122;
+    const sectionH = 96;
+    const sectionGap = 8;
+    levels.forEach((level, i) => {
+      const y = sectionsTopY + i * (sectionH + sectionGap);
+      this.drawSection(level, y, sectionH);
     });
-    this.createButton(width / 2 + 220, 654, 'Home', () => this.scene.start('MenuScene'));
+
+    // Footer buttons
+    createPillButton(this, {
+      x: width / 2 - 130, y: height - 36,
+      width: 140, height: 50,
+      label: 'Back', fontSize: 20, radius: 25,
+      onClick: () => {
+        if (this.returnLevelId) {
+          this.scene.start('GameScene', { levelId: this.returnLevelId });
+        } else {
+          this.scene.start('MenuScene');
+        }
+      }
+    });
+
+    createPillButton(this, {
+      x: width / 2 + 130, y: height - 36,
+      width: 140, height: 50,
+      label: 'Home', fontSize: 20, radius: 25,
+      onClick: () => this.scene.start('MenuScene')
+    });
   }
 
-  drawDesk(foundIds, bonusIds) {
-    this.add.rectangle(640, 430, 946, 336, 0xffefc8, 1)
-      .setStrokeStyle(6, 0x6a4323);
-    this.add.rectangle(640, 430, 18, 336, 0xd59a58, 1);
-    this.add.rectangle(405, 430, 434, 300, 0xfff8dc, 1)
-      .setStrokeStyle(2, 0xe2bd77, 0.75);
-    this.add.rectangle(875, 430, 434, 300, 0xfff8dc, 1)
-      .setStrokeStyle(2, 0xe2bd77, 0.75);
+  computeTotals() {
+    let found = 0, total = 0, bonusFound = 0, bonusTotal = 0;
+    for (const level of levels) {
+      const f = loadFoundIds(level);
+      const b = loadBonusIds(level);
+      found += f.size;
+      total += level.objects.length;
+      bonusFound += b.size;
+      bonusTotal += level.bonusEnvelopes.length;
+    }
+    return { found, total, bonusFound, bonusTotal };
+  }
 
-    mailGarden.objects.forEach((object, index) => {
-      const column = index % 5;
-      const row = Math.floor(index / 5);
-      const x = 286 + column * 136;
-      const y = 350 + row * 136;
-      const found = foundIds.has(object.id);
+  drawSection(level, y, h) {
+    const foundIds = loadFoundIds(level);
+    const bonusIds = loadBonusIds(level);
 
-      this.add.circle(x, y, 52, found ? 0xffd1dc : 0xe5d7bd, found ? 0.42 : 0.2)
-        .setStrokeStyle(3, found ? 0xff9fbd : 0xbfa27a, found ? 0.9 : 0.55);
-      const sprite = this.add.image(x, y, object.key)
-        .setScale(found ? object.scale * 1.15 : object.scale)
-        .setAlpha(found ? 1 : 0.18)
-        .setTint(found ? 0xffffff : 0x1a1a1a);
+    // Section card background (subtle, lets backdrop show through)
+    const card = this.add.graphics();
+    card.fillStyle(0xfff7e3, 0.12);
+    card.fillRoundedRect(40, y, 1200, h, 16);
+    card.lineStyle(1, 0xc9a96e, 0.25);
+    card.strokeRoundedRect(40, y, 1200, h, 16);
 
-      if (found) {
-        this.tweens.add({
-          targets: sprite,
-          y: y - 4,
-          duration: 1200 + index * 80,
-          ease: 'Sine.easeInOut',
-          yoyo: true,
-          repeat: -1
-        });
-      }
-
-      this.add.text(x, y + 68, found ? 'Sticker!' : 'Soon', {
-        fontFamily: UI_FONT,
-        fontSize: '15px',
-        color: found ? '#fff0c8' : '#8e7c64'
-      }).setOrigin(0.5);
-    });
-
-    this.add.rectangle(1048, 430, 156, 214, 0x1f3028, 0.72)
-      .setStrokeStyle(2, 0xe4c46e, 0.65);
-    this.add.text(1048, 342, 'Notes', {
+    // Left label block
+    const labelX = 64;
+    const labelY = y + h / 2;
+    const sceneName = level.title.replace('Whimsy Hollow ', '');
+    this.add.text(labelX, labelY - 16, sceneName, {
       fontFamily: UI_FONT,
       fontSize: '20px',
-      color: '#fff0c8'
-    }).setOrigin(0.5);
+      color: '#fff4d6',
+      stroke: '#2b2018',
+      strokeThickness: 4
+    }).setOrigin(0, 0.5);
 
-    mailGarden.bonusEnvelopes.forEach((note, index) => {
-      const y = 386 + index * 56;
-      const found = bonusIds.has(note.id);
-      this.add.rectangle(1048, y, 92, 34, found ? 0xf7df9a : 0x554430, found ? 0.9 : 0.45)
-        .setStrokeStyle(1, found ? 0x72552a : 0x8c7654, 0.8)
-        .setRotation(index % 2 === 0 ? -0.05 : 0.04);
-      this.add.text(1048, y, found ? note.clue : '???', {
-        fontFamily: UI_FONT,
-        fontSize: '13px',
-        color: found ? '#4a321c' : '#b7a98f'
-      }).setOrigin(0.5);
+    const bonusLabel = level.bonusLabel ?? 'Notes';
+    this.add.text(labelX, labelY + 14, `${foundIds.size}/${level.objects.length} · ${bonusLabel} ${bonusIds.size}/${level.bonusEnvelopes.length}`, {
+      fontFamily: UI_FONT,
+      fontSize: '13px',
+      color: '#cfc0a4'
+    }).setOrigin(0, 0.5);
+
+    // Stickers row
+    const stickerSize = 56;
+    const stickerGap = 8;
+    const rowW = level.objects.length * stickerSize + (level.objects.length - 1) * stickerGap;
+    const rowStartX = 1240 - rowW - 24; // right-aligned inside section
+    const rowY = y + h / 2;
+
+    level.objects.forEach((object, i) => {
+      const sx = rowStartX + i * (stickerSize + stickerGap) + stickerSize / 2;
+      this.drawSticker(sx, rowY, stickerSize, object, foundIds.has(object.id));
     });
   }
 
-  drawProgress(foundIds, bonusIds) {
-    const text = `Stickers ${foundIds.size}/${mailGarden.objects.length}     Notes ${bonusIds.size}/${mailGarden.bonusEnvelopes.length}`;
-    this.add.rectangle(640, 178, 760, 46, 0x18251f, 0.62)
-      .setStrokeStyle(2, 0xe4c46e, 0.54);
-    this.add.text(640, 178, text, {
-      fontFamily: UI_FONT,
-      fontSize: '21px',
-      color: '#ffe1a0'
-    }).setOrigin(0.5);
-  }
+  drawSticker(x, y, size, object, found) {
+    // Sticker plate
+    const plate = this.add.graphics();
+    if (found) {
+      plate.fillStyle(0xfff0c8, 0.85);
+    } else {
+      plate.fillStyle(0x352d22, 0.55);
+    }
+    plate.fillRoundedRect(x - size / 2, y - size / 2, size, size, 10);
+    plate.lineStyle(1.5, found ? 0xd9b673 : 0x6a5a44, found ? 0.7 : 0.5);
+    plate.strokeRoundedRect(x - size / 2, y - size / 2, size, size, 10);
 
-  createButton(x, y, label, onClick) {
-    const leftCap = this.add.circle(x - 66, y, 29, 0xffd86f, 0.98)
-      .setStrokeStyle(3, 0x583a20);
-    const rightCap = this.add.circle(x + 66, y, 29, 0xffd86f, 0.98)
-      .setStrokeStyle(3, 0x583a20);
-    const bg = this.add.rectangle(x, y, 132, 58, 0xffd86f, 0.98)
-      .setStrokeStyle(3, 0x583a20)
-      .setInteractive({ useHandCursor: true });
-    const text = this.add.text(x, y, label, {
-      fontFamily: UI_FONT,
-      fontSize: '22px',
-      color: '#2d271d'
-    }).setOrigin(0.5);
+    if (found) {
+      // Sticker thumb in full color
+      this.add.image(x, y, object.key)
+        .setDisplaySize(size - 16, size - 16);
 
-    const setFill = (color) => {
-      leftCap.setFillStyle(color, 0.98);
-      rightCap.setFillStyle(color, 0.98);
-      bg.setFillStyle(color, 0.98);
-    };
+      // Small green corner check
+      this.add.circle(x + size / 2 - 8, y - size / 2 + 8, 7, 0x7eb58a, 1)
+        .setStrokeStyle(1.5, 0xffffff, 0.85);
+      this.add.text(x + size / 2 - 8, y - size / 2 + 8, '✓', {
+        fontFamily: UI_FONT, fontSize: '10px', color: '#ffffff'
+      }).setOrigin(0.5);
+    } else {
+      // Silhouette: gray tinted thumbnail at low alpha so kids can still
+      // see the shape they're hunting for.
+      this.add.image(x, y, object.key)
+        .setDisplaySize(size - 18, size - 18)
+        .setTint(0x161310)
+        .setAlpha(0.22);
 
-    bg.on('pointerover', () => setFill(0xffee9f));
-    bg.on('pointerout', () => setFill(0xffd86f));
-    bg.on('pointerdown', onClick);
-
-    return { bg, text };
-  }
-
-  loadIds(key) {
-    try {
-      const value = window.localStorage.getItem(key);
-      const parsed = value ? JSON.parse(value) : [];
-      return new Set(Array.isArray(parsed) ? parsed : []);
-    } catch {
-      return new Set();
+      // Small "?" mark
+      this.add.text(x, y, '?', {
+        fontFamily: UI_FONT, fontSize: '20px', color: '#8a7e64', stroke: '#1a1410', strokeThickness: 2
+      }).setOrigin(0.5).setAlpha(0.55);
     }
   }
 }
