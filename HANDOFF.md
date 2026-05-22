@@ -326,6 +326,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden notes added in `public/assets/bonus/`: `candlelit_music_parlor_music_note_01.png`, `candlelit_music_parlor_music_note_02.png`, and `candlelit_music_parlor_music_note_03.png`.
   - Uses shared music via `src/data/music.js`, `Notes 0/3`, `Note!`, 10 main hidden objects, and three music-parlor surprise hotspots.
 
+- Rainy Art Atelier scene added:
+  - Added `Rainy Art Atelier` with id `rainy-art-atelier`, inserted after `candlelit-music-parlor` in the level registry.
+  - Background is `public/assets/backgrounds/rainy_art_atelier.png`, generated as a 1920x1080 painterly cottage art studio with rainy windows, easel, shelves, worktable, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `rainy_art_atelier_paintbrush.png`, `rainy_art_atelier_blue_watercolor_pan.png`, `rainy_art_atelier_rose_paint_tube.png`, `rainy_art_atelier_palette_knife.png`, `rainy_art_atelier_sketchbook.png`, `rainy_art_atelier_pressed_daisy_card.png`, `rainy_art_atelier_ribbon_eraser.png`, `rainy_art_atelier_ceramic_water_cup.png`, `rainy_art_atelier_charcoal_pencil.png`, and `rainy_art_atelier_mini_easel.png`.
+  - Bonus crystal raindrops added in `public/assets/bonus/`: `rainy_art_atelier_raindrop_01.png`, `rainy_art_atelier_raindrop_02.png`, and `rainy_art_atelier_raindrop_03.png`.
+  - Uses shared music via `src/data/music.js`, `Raindrops 0/3`, `Raindrop!`, 10 main hidden objects, and three art-atelier surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

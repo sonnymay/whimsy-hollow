@@ -33,7 +33,8 @@ export const musicByLevel = {
   'cozy-quilt-workshop': { music: sharedMusic },
   'sleepy-train-car': { music: sharedMusic },
   'sunbeam-pottery-studio': { music: sharedMusic },
-  'candlelit-music-parlor': { music: sharedMusic }
+  'candlelit-music-parlor': { music: sharedMusic },
+  'rainy-art-atelier': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;
