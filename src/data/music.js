@@ -41,7 +41,8 @@ export const musicByLevel = {
   'lavender-laundry-room': { music: sharedMusic },
   'cozy-map-room': { music: sharedMusic },
   'sunny-gift-wrap-nook': { music: sharedMusic },
-  'misty-herb-pantry': { music: sharedMusic }
+  'misty-herb-pantry': { music: sharedMusic },
+  'sunny-puzzle-parlor': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;

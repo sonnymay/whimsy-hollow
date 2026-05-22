@@ -382,6 +382,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden leaves added in `public/assets/bonus/`: `misty_herb_pantry_golden_leaf_01.png`, `misty_herb_pantry_golden_leaf_02.png`, and `misty_herb_pantry_golden_leaf_03.png`.
   - Uses shared music via `src/data/music.js`, `Leaves 0/3`, `Leaf!`, 10 main hidden objects, and three herb-pantry surprise hotspots.
 
+- Sunny Puzzle Parlor scene added:
+  - Added `Sunny Puzzle Parlor` with id `sunny-puzzle-parlor`, inserted after `misty-herb-pantry` in the level registry.
+  - Background is `public/assets/backgrounds/sunny_puzzle_parlor.png`, generated as a 1920x1080 painterly cottage puzzle room with a puzzle table, game shelves, marbles, blocks, cushions, sunny window, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `sunny_puzzle_parlor_jigsaw_piece.png`, `sunny_puzzle_parlor_blue_marble.png`, `sunny_puzzle_parlor_domino_tile.png`, `sunny_puzzle_parlor_red_spinning_top.png`, `sunny_puzzle_parlor_hourglass.png`, `sunny_puzzle_parlor_flower_card.png`, `sunny_puzzle_parlor_wooden_block.png`, `sunny_puzzle_parlor_green_pawn.png`, `sunny_puzzle_parlor_pencil_stub.png`, and `sunny_puzzle_parlor_puzzle_box.png`.
+  - Bonus golden puzzle pieces added in `public/assets/bonus/`: `sunny_puzzle_parlor_golden_piece_01.png`, `sunny_puzzle_parlor_golden_piece_02.png`, and `sunny_puzzle_parlor_golden_piece_03.png`.
+  - Uses shared music via `src/data/music.js`, `Pieces 0/3`, `Piece!`, 10 main hidden objects, and three puzzle-parlor surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
