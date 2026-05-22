@@ -424,6 +424,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden feathers added in `public/assets/bonus/`: `morning_birdwatching_porch_golden_feather_01.png`, `morning_birdwatching_porch_golden_feather_02.png`, and `morning_birdwatching_porch_golden_feather_03.png`.
   - Uses shared music via `src/data/music.js`, `Feathers 0/3`, `Feather!`, 10 main hidden objects, and three birdwatching-porch surprise hotspots.
 
+- Sunlit Seed Library scene added:
+  - Added `Sunlit Seed Library` with id `sunlit-seed-library`, inserted after `morning-birdwatching-porch` in the level registry.
+  - Background is `public/assets/backgrounds/sunlit_seed_library.png`, generated as a 1920x1080 painterly cottage seed library with catalog drawers, seed cubbies, seedlings, jars, potting-table supplies, warm window light, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `sunlit_seed_library_watering_can.png`, `sunlit_seed_library_seed_packet.png`, `sunlit_seed_library_plant_label.png`, `sunlit_seed_library_seedling_pot.png`, `sunlit_seed_library_twine_spool.png`, `sunlit_seed_library_hand_trowel.png`, `sunlit_seed_library_seed_jar.png`, `sunlit_seed_library_pressed_flower_card.png`, `sunlit_seed_library_garden_gloves.png`, and `sunlit_seed_library_catalog_drawer.png`.
+  - Bonus golden seeds added in `public/assets/bonus/`: `sunlit_seed_library_golden_seed_01.png`, `sunlit_seed_library_golden_seed_02.png`, and `sunlit_seed_library_golden_seed_03.png`.
+  - Uses shared music via `src/data/music.js`, `Seeds 0/3`, `Seed!`, 10 main hidden objects, and three seed-library surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
