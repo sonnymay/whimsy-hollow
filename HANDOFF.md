@@ -340,6 +340,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus tiny gears added in `public/assets/bonus/`: `morning_clockmaker_nook_gear_01.png`, `morning_clockmaker_nook_gear_02.png`, and `morning_clockmaker_nook_gear_03.png`.
   - Uses shared music via `src/data/music.js`, `Gears 0/3`, `Gear!`, 10 main hidden objects, and three clockmaker-nook surprise hotspots.
 
+- Willow Pond Boathouse scene added:
+  - Added `Willow Pond Boathouse` with id `willow-pond-boathouse`, inserted after `morning-clockmaker-nook` in the level registry.
+  - Background is `public/assets/backgrounds/willow_pond_boathouse.png`, generated as a 1920x1080 painterly open-air boathouse with pond view, willow branches, bench, oars, shelves, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `willow_pond_boathouse_wooden_oar.png`, `willow_pond_boathouse_blue_glass_float.png`, `willow_pond_boathouse_gingham_blanket.png`, `willow_pond_boathouse_lily_pad_coaster.png`, `willow_pond_boathouse_brass_lantern.png`, `willow_pond_boathouse_willow_bookmark.png`, `willow_pond_boathouse_rope_knot.png`, `willow_pond_boathouse_paper_sailboat.png`, `willow_pond_boathouse_painted_pebble.png`, and `willow_pond_boathouse_flower_thermos.png`.
+  - Bonus crystal dewdrops added in `public/assets/bonus/`: `willow_pond_boathouse_dewdrop_01.png`, `willow_pond_boathouse_dewdrop_02.png`, and `willow_pond_boathouse_dewdrop_03.png`.
+  - Uses shared music via `src/data/music.js`, `Dewdrops 0/3`, `Dewdrop!`, 10 main hidden objects, and three boathouse surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
