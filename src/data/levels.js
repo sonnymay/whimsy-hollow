@@ -17,6 +17,7 @@ import { moonlitToyAttic } from './levels/moonlit-toy-attic.js';
 import { cloudberryTreehouse } from './levels/cloudberry-treehouse.js';
 import { cozyQuiltWorkshop } from './levels/cozy-quilt-workshop.js';
 import { sleepyTrainCar } from './levels/sleepy-train-car.js';
+import { sunbeamPotteryStudio } from './levels/sunbeam-pottery-studio.js';
 
 export {
   mailGarden,
@@ -33,7 +34,8 @@ export {
   moonlitToyAttic,
   cloudberryTreehouse,
   cozyQuiltWorkshop,
-  sleepyTrainCar
+  sleepyTrainCar,
+  sunbeamPotteryStudio
 };
 
 export const levels = [
@@ -51,7 +53,8 @@ export const levels = [
   moonlitToyAttic,
   cloudberryTreehouse,
   cozyQuiltWorkshop,
-  sleepyTrainCar
+  sleepyTrainCar,
+  sunbeamPotteryStudio
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

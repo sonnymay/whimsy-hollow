@@ -312,6 +312,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden tickets added in `public/assets/bonus/`: `sleepy_train_car_ticket_01.png`, `sleepy_train_car_ticket_02.png`, and `sleepy_train_car_ticket_03.png`.
   - Uses shared music via `src/data/music.js`, `Tickets 0/3`, `Ticket!`, 10 main hidden objects, and three train-car surprise hotspots.
 
+- Sunbeam Pottery Studio scene added:
+  - Added `Sunbeam Pottery Studio` with id `sunbeam-pottery-studio`, inserted after `sleepy-train-car` in the level registry.
+  - Background is `public/assets/backgrounds/sunbeam_pottery_studio.png`, generated as a 1920x1080 painterly cottage pottery room with shelves, worktable, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `sunbeam_pottery_studio_clay_mug.png`, `sunbeam_pottery_studio_ceramic_tile.png`, `sunbeam_pottery_studio_pottery_rib.png`, `sunbeam_pottery_studio_soft_sponge.png`, `sunbeam_pottery_studio_blue_glaze_jar.png`, `sunbeam_pottery_studio_flower_stamp.png`, `sunbeam_pottery_studio_ribbon_vase.png`, `sunbeam_pottery_studio_clay_bird.png`, `sunbeam_pottery_studio_paint_palette.png`, and `sunbeam_pottery_studio_herb_pot.png`.
+  - Bonus clay beads added in `public/assets/bonus/`: `sunbeam_pottery_studio_clay_bead_01.png`, `sunbeam_pottery_studio_clay_bead_02.png`, and `sunbeam_pottery_studio_clay_bead_03.png`.
+  - Uses shared music via `src/data/music.js`, `Beads 0/3`, `Bead!`, 10 main hidden objects, and three pottery-studio surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

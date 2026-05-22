@@ -31,7 +31,8 @@ export const musicByLevel = {
   'moonlit-toy-attic': { music: sharedMusic },
   'cloudberry-treehouse': { music: sharedMusic },
   'cozy-quilt-workshop': { music: sharedMusic },
-  'sleepy-train-car': { music: sharedMusic }
+  'sleepy-train-car': { music: sharedMusic },
+  'sunbeam-pottery-studio': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;
