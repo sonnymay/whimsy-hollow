@@ -283,6 +283,20 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus glow motes added in `public/assets/bonus/`: `moonlit_toy_attic_glow_mote_01.png`, `moonlit_toy_attic_glow_mote_02.png`, and `moonlit_toy_attic_glow_mote_03.png`.
   - Uses shared music via `src/data/music.js`, `Glow Motes 0/3`, `Glow!`, 10 main hidden objects, and three toy-attic surprise hotspots.
 
+- Cloudberry Treehouse scene added:
+  - Added `Cloudberry Treehouse` with id `cloudberry-treehouse`, inserted after `moonlit-toy-attic` in the level registry.
+  - Background is `public/assets/backgrounds/cloudberry_treehouse.png`, generated as a 1920x1080 painterly treehouse room with leafy windows and safe object placement zones.
+  - Main objects added in `public/assets/objects/`: `cloudberry_treehouse_jam_jar.png`, `cloudberry_treehouse_bird_whistle.png`, `cloudberry_treehouse_leaf_notebook.png`, `cloudberry_treehouse_acorn_button.png`, `cloudberry_treehouse_berry_basket.png`, `cloudberry_treehouse_brass_compass.png`, `cloudberry_treehouse_blue_kite.png`, `cloudberry_treehouse_toy_squirrel.png`, `cloudberry_treehouse_honey_spoon.png`, and `cloudberry_treehouse_green_handkerchief.png`.
+  - Bonus berries added in `public/assets/bonus/`: `cloudberry_treehouse_berry_01.png`, `cloudberry_treehouse_berry_02.png`, and `cloudberry_treehouse_berry_03.png`.
+  - Uses shared music via `src/data/music.js`, `Berries 0/3`, `Berry!`, 10 main hidden objects, and three treehouse surprise hotspots.
+
+- Cozy Quilt Workshop scene added:
+  - Added `Cozy Quilt Workshop` with id `cozy-quilt-workshop`, inserted after `cloudberry-treehouse` in the level registry.
+  - Background is `public/assets/backgrounds/cozy_quilt_workshop.png`, generated as a 1920x1080 painterly cottage craft room with quilt frame, fabric shelves, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `cozy_quilt_workshop_quilt_square.png`, `cozy_quilt_workshop_embroidery_hoop.png`, `cozy_quilt_workshop_needle_case.png`, `cozy_quilt_workshop_measuring_tape.png`, `cozy_quilt_workshop_pincushion.png`, `cozy_quilt_workshop_lavender_sachet.png`, `cozy_quilt_workshop_button_card.png`, `cozy_quilt_workshop_yarn_basket.png`, `cozy_quilt_workshop_ribbon_bow.png`, and `cozy_quilt_workshop_fabric_bird.png`.
+  - Bonus quilt stars added in `public/assets/bonus/`: `cozy_quilt_workshop_star_01.png`, `cozy_quilt_workshop_star_02.png`, and `cozy_quilt_workshop_star_03.png`.
+  - Uses shared music via `src/data/music.js`, `Stars 0/3`, `Star!`, 10 main hidden objects, and three quilt-workshop surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
