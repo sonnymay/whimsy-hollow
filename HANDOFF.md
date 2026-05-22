@@ -333,6 +333,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus crystal raindrops added in `public/assets/bonus/`: `rainy_art_atelier_raindrop_01.png`, `rainy_art_atelier_raindrop_02.png`, and `rainy_art_atelier_raindrop_03.png`.
   - Uses shared music via `src/data/music.js`, `Raindrops 0/3`, `Raindrop!`, 10 main hidden objects, and three art-atelier surprise hotspots.
 
+- Morning Clockmaker Nook scene added:
+  - Added `Morning Clockmaker Nook` with id `morning-clockmaker-nook`, inserted after `rainy-art-atelier` in the level registry.
+  - Background is `public/assets/backgrounds/morning_clockmaker_nook.png`, generated as a 1920x1080 painterly cottage clock repair room with warm sunlight, shelves, workbench, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `morning_clockmaker_nook_brass_gear.png`, `morning_clockmaker_nook_blue_clock_key.png`, `morning_clockmaker_nook_mechanical_bird.png`, `morning_clockmaker_nook_oil_can.png`, `morning_clockmaker_nook_watch_pillow.png`, `morning_clockmaker_nook_clock_hand.png`, `morning_clockmaker_nook_hourglass.png`, `morning_clockmaker_nook_clock_dial.png`, `morning_clockmaker_nook_cogwheel_stamp.png`, and `morning_clockmaker_nook_brass_bell.png`.
+  - Bonus tiny gears added in `public/assets/bonus/`: `morning_clockmaker_nook_gear_01.png`, `morning_clockmaker_nook_gear_02.png`, and `morning_clockmaker_nook_gear_03.png`.
+  - Uses shared music via `src/data/music.js`, `Gears 0/3`, `Gear!`, 10 main hidden objects, and three clockmaker-nook surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
