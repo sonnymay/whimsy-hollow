@@ -43,7 +43,8 @@ export const musicByLevel = {
   'sunny-gift-wrap-nook': { music: sharedMusic },
   'misty-herb-pantry': { music: sharedMusic },
   'sunny-puzzle-parlor': { music: sharedMusic },
-  'moonlit-origami-alcove': { music: sharedMusic }
+  'moonlit-origami-alcove': { music: sharedMusic },
+  'cozy-cobbler-nook': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;

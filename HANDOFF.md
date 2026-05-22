@@ -396,6 +396,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus crescent moons added in `public/assets/bonus/`: `moonlit_origami_alcove_crescent_01.png`, `moonlit_origami_alcove_crescent_02.png`, and `moonlit_origami_alcove_crescent_03.png`.
   - Uses shared music via `src/data/music.js`, `Moons 0/3`, `Moon!`, 10 main hidden objects, and three origami-alcove surprise hotspots.
 
+- Cozy Cobbler Nook scene added:
+  - Added `Cozy Cobbler Nook` with id `cozy-cobbler-nook`, inserted after `moonlit-origami-alcove` in the level registry.
+  - Background is `public/assets/backgrounds/cozy_cobbler_nook.png`, generated as a 1920x1080 painterly cottage shoe-mending corner with boots, laces, buckles, baskets, shelves, sunny window, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `cozy_cobbler_nook_tiny_boot.png`, `cozy_cobbler_nook_blue_thread_spool.png`, `cozy_cobbler_nook_brass_buckle.png`, `cozy_cobbler_nook_wooden_shoehorn.png`, `cozy_cobbler_nook_shoe_brush.png`, `cozy_cobbler_nook_boot_lace.png`, `cozy_cobbler_nook_daisy_shoe_clip.png`, `cozy_cobbler_nook_polishing_cloth.png`, `cozy_cobbler_nook_buttonhook.png`, and `cozy_cobbler_nook_shoe_form.png`.
+  - Bonus golden buttons added in `public/assets/bonus/`: `cozy_cobbler_nook_golden_button_01.png`, `cozy_cobbler_nook_golden_button_02.png`, and `cozy_cobbler_nook_golden_button_03.png`.
+  - Uses shared music via `src/data/music.js`, `Buttons 0/3`, `Button!`, 10 main hidden objects, and three cobbler-nook surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
