@@ -319,6 +319,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus clay beads added in `public/assets/bonus/`: `sunbeam_pottery_studio_clay_bead_01.png`, `sunbeam_pottery_studio_clay_bead_02.png`, and `sunbeam_pottery_studio_clay_bead_03.png`.
   - Uses shared music via `src/data/music.js`, `Beads 0/3`, `Bead!`, 10 main hidden objects, and three pottery-studio surprise hotspots.
 
+- Candlelit Music Parlor scene added:
+  - Added `Candlelit Music Parlor` with id `candlelit-music-parlor`, inserted after `sunbeam-pottery-studio` in the level registry.
+  - Background is `public/assets/backgrounds/candlelit_music_parlor.png`, generated as a 1920x1080 painterly cottage music room with piano, shelves, window bench, lanterns, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `candlelit_music_parlor_music_box.png`, `candlelit_music_parlor_tuning_fork.png`, `candlelit_music_parlor_blue_metronome.png`, `candlelit_music_parlor_recorder_flute.png`, `candlelit_music_parlor_piano_key_ribbon.png`, `candlelit_music_parlor_flower_tambourine.png`, `candlelit_music_parlor_candle_snuffer.png`, `candlelit_music_parlor_sheet_music_clip.png`, `candlelit_music_parlor_pearl_button.png`, and `candlelit_music_parlor_lavender_sachet.png`.
+  - Bonus golden notes added in `public/assets/bonus/`: `candlelit_music_parlor_music_note_01.png`, `candlelit_music_parlor_music_note_02.png`, and `candlelit_music_parlor_music_note_03.png`.
+  - Uses shared music via `src/data/music.js`, `Notes 0/3`, `Note!`, 10 main hidden objects, and three music-parlor surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
