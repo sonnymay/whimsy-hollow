@@ -417,6 +417,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus honey drops added in `public/assets/bonus/`: `honey_candle_workshop_honey_drop_01.png`, `honey_candle_workshop_honey_drop_02.png`, and `honey_candle_workshop_honey_drop_03.png`.
   - Uses shared music via `src/data/music.js`, `Honey Drops 0/3`, `Honey Drop!`, 10 main hidden objects, and three candle-workshop surprise hotspots.
 
+- Morning Birdwatching Porch scene added:
+  - Added `Morning Birdwatching Porch` with id `morning-birdwatching-porch`, inserted after `honey-candle-workshop` in the level registry.
+  - Background is `public/assets/backgrounds/morning_birdwatching_porch.png`, generated as a 1920x1080 painterly cottage porch with bird feeders, birdhouses, wicker chair, seed tins, flower pots, a garden view, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `morning_birdwatching_porch_binoculars.png`, `morning_birdwatching_porch_seed_scoop.png`, `morning_birdwatching_porch_feather_journal.png`, `morning_birdwatching_porch_birdhouse.png`, `morning_birdwatching_porch_pinecone_charm.png`, `morning_birdwatching_porch_seed_pouch.png`, `morning_birdwatching_porch_field_guide_card.png`, `morning_birdwatching_porch_bird_whistle.png`, `morning_birdwatching_porch_seed_tin.png`, and `morning_birdwatching_porch_twig_bundle.png`.
+  - Bonus golden feathers added in `public/assets/bonus/`: `morning_birdwatching_porch_golden_feather_01.png`, `morning_birdwatching_porch_golden_feather_02.png`, and `morning_birdwatching_porch_golden_feather_03.png`.
+  - Uses shared music via `src/data/music.js`, `Feathers 0/3`, `Feather!`, 10 main hidden objects, and three birdwatching-porch surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
