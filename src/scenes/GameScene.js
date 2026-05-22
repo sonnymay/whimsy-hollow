@@ -185,12 +185,6 @@ export class GameScene extends Phaser.Scene {
     return obj;
   }
 
-  toggleZoom() {
-    if (!this.cameras || !this.cameras.main) return;
-    const targetZoom = this.zoomLevel > 1.05 ? 1 : 1.8;
-    this.applyZoom(targetZoom, 640, 360);
-  }
-
   /**
    * Set the main camera's zoom, anchoring it on the given scene coords so
    * what was at (anchorX, anchorY) on screen stays at the same screen point.
@@ -533,18 +527,17 @@ export class GameScene extends Phaser.Scene {
 
     this.createChecklistPanel();
 
-    // Right cluster: same-style icon buttons, evenly spaced
+    // Right cluster: same-style icon buttons, evenly spaced.
+    // Zoom is mouse-wheel-only — no button needed in the HUD.
     const btnW = 96;
     const btnH = 48;
     const muteW = 56;
     const pauseW = 56;
-    const zoomW = 56;
     const gap = 12;
     const rightEdge = 1280 - 22;
     const homeX = rightEdge - btnW / 2;
     const pauseX = homeX - btnW / 2 - gap - pauseW / 2;
-    const zoomX = pauseX - pauseW / 2 - gap - zoomW / 2;
-    const helpX = zoomX - zoomW / 2 - gap - btnW / 2;
+    const helpX = pauseX - pauseW / 2 - gap - btnW / 2;
     const listX = helpX - btnW - gap;
     const muteX = listX - btnW / 2 - gap - muteW / 2;
 
@@ -573,14 +566,6 @@ export class GameScene extends Phaser.Scene {
       depth: HUD_DEPTH
     });
 
-    this.zoomButton = createPillButton(this, {
-      x: zoomX, y: theme.hud.y,
-      width: zoomW, height: btnH,
-      label: '🔍', fontSize: 20,
-      onClick: () => this.toggleZoom(),
-      depth: HUD_DEPTH
-    });
-
     this.pauseButton = createPillButton(this, {
       x: pauseX, y: theme.hud.y,
       width: pauseW, height: btnH,
@@ -600,7 +585,7 @@ export class GameScene extends Phaser.Scene {
     // HUD elements that hide while the List panel is open. The List button
     // sits behind the panel visually, so it joins the hideable set; the
     // panel's own × button is the close affordance.
-    this.hudHideable = [this.countPill, this.muteButton, this.listButton, this.hintButton, this.zoomButton, this.pauseButton, this.homeButton];
+    this.hudHideable = [this.countPill, this.muteButton, this.listButton, this.hintButton, this.pauseButton, this.homeButton];
     this.applyListVisibility();
 
     // Centered, only when complete — soft cream, not red
@@ -621,7 +606,7 @@ export class GameScene extends Phaser.Scene {
     // can render them with a separate non-zoomed camera.
     const hudContainers = [
       this.countPill.container, this.muteButton.container, this.listButton.container,
-      this.hintButton.container, this.zoomButton.container, this.pauseButton.container,
+      this.hintButton.container, this.pauseButton.container,
       this.homeButton.container, this.listPanel, this.finishButton.container
     ];
     for (const c of hudContainers) {

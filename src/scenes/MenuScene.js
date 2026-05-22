@@ -119,9 +119,15 @@ export class MenuScene extends Phaser.Scene {
       });
     }
 
-    this.createPlaceDots(width / 2, 596, playScene?.id);
+    // Places button — opens the full scrollable scene browser
+    createPillButton(this, {
+      x: width / 2, y: 596,
+      width: 220, height: 60,
+      label: '📍 Places', fontSize: 22, radius: 30,
+      onClick: () => this.scene.start('BrowseScene', { returnTo: 'MenuScene' })
+    });
 
-    // Sticker Book entry — small, sits beneath the dots
+    // Sticker Book entry — small, bottom-right corner
     createPillButton(this, {
       x: width - 130, y: height - 50,
       width: 180, height: 46,

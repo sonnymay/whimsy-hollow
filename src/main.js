@@ -6,6 +6,7 @@ import { WinScene } from './scenes/WinScene.js';
 import { DeskScene } from './scenes/DeskScene.js';
 import { SettingsScene } from './scenes/SettingsScene.js';
 import { PauseScene } from './scenes/PauseScene.js';
+import { BrowseScene } from './scenes/BrowseScene.js';
 import './styles.css';
 
 const config = {
@@ -18,7 +19,7 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [LoadingScene, MenuScene, GameScene, WinScene, DeskScene, SettingsScene, PauseScene],
+  scene: [LoadingScene, MenuScene, GameScene, WinScene, DeskScene, SettingsScene, PauseScene, BrowseScene],
   audio: {
     disableWebAudio: false
   }
