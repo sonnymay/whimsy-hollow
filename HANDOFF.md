@@ -361,6 +361,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus soap bubbles added in `public/assets/bonus/`: `lavender_laundry_room_bubble_01.png`, `lavender_laundry_room_bubble_02.png`, and `lavender_laundry_room_bubble_03.png`.
   - Uses shared music via `src/data/music.js`, `Bubbles 0/3`, `Bubble!`, 10 main hidden objects, and three laundry-room surprise hotspots.
 
+- Cozy Map Room scene added:
+  - Added `Cozy Map Room` with id `cozy-map-room`, inserted after `lavender-laundry-room` in the level registry.
+  - Background is `public/assets/backgrounds/cozy_map_room.png`, generated as a 1920x1080 painterly map room with warm sunlight, globes, rolled maps, lanterns, plants, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `cozy_map_room_brass_compass.png`, `cozy_map_room_parchment_map.png`, `cozy_map_room_blue_journal.png`, `cozy_map_room_spyglass.png`, `cozy_map_room_sealing_wax.png`, `cozy_map_room_star_pin.png`, `cozy_map_room_ribbon_bookmark.png`, `cozy_map_room_wooden_ruler.png`, `cozy_map_room_painted_pebble.png`, and `cozy_map_room_magnifying_glass.png`.
+  - Bonus compass roses added in `public/assets/bonus/`: `cozy_map_room_compass_rose_01.png`, `cozy_map_room_compass_rose_02.png`, and `cozy_map_room_compass_rose_03.png`.
+  - Uses shared music via `src/data/music.js`, `Roses 0/3`, `Rose!`, 10 main hidden objects, and three map-room surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

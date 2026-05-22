@@ -38,7 +38,8 @@ export const musicByLevel = {
   'morning-clockmaker-nook': { music: sharedMusic },
   'willow-pond-boathouse': { music: sharedMusic },
   'breezy-kite-workshop': { music: sharedMusic },
-  'lavender-laundry-room': { music: sharedMusic }
+  'lavender-laundry-room': { music: sharedMusic },
+  'cozy-map-room': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;
