@@ -347,6 +347,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus crystal dewdrops added in `public/assets/bonus/`: `willow_pond_boathouse_dewdrop_01.png`, `willow_pond_boathouse_dewdrop_02.png`, and `willow_pond_boathouse_dewdrop_03.png`.
   - Uses shared music via `src/data/music.js`, `Dewdrops 0/3`, `Dewdrop!`, 10 main hidden objects, and three boathouse surprise hotspots.
 
+- Breezy Kite Workshop scene added:
+  - Added `Breezy Kite Workshop` with id `breezy-kite-workshop`, inserted after `willow-pond-boathouse` in the level registry.
+  - Background is `public/assets/backgrounds/breezy_kite_workshop.png`, generated as a 1920x1080 painterly cottage kite-making room with open sky window, ribbons, worktable, shelves, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `breezy_kite_workshop_paper_kite.png`, `breezy_kite_workshop_blue_ribbon_spool.png`, `breezy_kite_workshop_bamboo_stick.png`, `breezy_kite_workshop_cloud_button.png`, `breezy_kite_workshop_flower_tail_bow.png`, `breezy_kite_workshop_scissors_charm.png`, `breezy_kite_workshop_windsock.png`, `breezy_kite_workshop_glue_pot.png`, `breezy_kite_workshop_cloth_patch.png`, and `breezy_kite_workshop_wooden_bobbin.png`.
+  - Bonus pinwheels added in `public/assets/bonus/`: `breezy_kite_workshop_pinwheel_01.png`, `breezy_kite_workshop_pinwheel_02.png`, and `breezy_kite_workshop_pinwheel_03.png`.
+  - Uses shared music via `src/data/music.js`, `Pinwheels 0/3`, `Pinwheel!`, 10 main hidden objects, and three kite-workshop surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
