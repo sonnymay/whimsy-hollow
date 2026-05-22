@@ -368,6 +368,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus compass roses added in `public/assets/bonus/`: `cozy_map_room_compass_rose_01.png`, `cozy_map_room_compass_rose_02.png`, and `cozy_map_room_compass_rose_03.png`.
   - Uses shared music via `src/data/music.js`, `Roses 0/3`, `Rose!`, 10 main hidden objects, and three map-room surprise hotspots.
 
+- Sunny Gift Wrap Nook scene added:
+  - Added `Sunny Gift Wrap Nook` with id `sunny-gift-wrap-nook`, inserted after `cozy-map-room` in the level registry.
+  - Background is `public/assets/backgrounds/sunny_gift_wrap_nook.png`, generated as a 1920x1080 painterly cottage wrapping nook with paper rolls, ribbons, parcels, shelves, baskets, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `sunny_gift_wrap_nook_golden_scissors.png`, `sunny_gift_wrap_nook_blue_ribbon_spool.png`, `sunny_gift_wrap_nook_gift_tag.png`, `sunny_gift_wrap_nook_wax_stamp.png`, `sunny_gift_wrap_nook_floral_paper_roll.png`, `sunny_gift_wrap_nook_tape_dispenser.png`, `sunny_gift_wrap_nook_sticker_sheet.png`, `sunny_gift_wrap_nook_lace_doily.png`, `sunny_gift_wrap_nook_wooden_stamp.png`, and `sunny_gift_wrap_nook_blue_parcel.png`.
+  - Bonus paper hearts added in `public/assets/bonus/`: `sunny_gift_wrap_nook_paper_heart_01.png`, `sunny_gift_wrap_nook_paper_heart_02.png`, and `sunny_gift_wrap_nook_paper_heart_03.png`.
+  - Uses shared music via `src/data/music.js`, `Hearts 0/3`, `Heart!`, 10 main hidden objects, and three gift-wrap surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
