@@ -452,6 +452,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden prisms added in `public/assets/bonus/`: `rainbow_glass_sunroom_golden_prism_01.png`, `rainbow_glass_sunroom_golden_prism_02.png`, and `rainbow_glass_sunroom_golden_prism_03.png`.
   - Uses shared music via `src/data/music.js`, `Prisms 0/3`, `Prism!`, 10 main hidden objects, and three rainbow-glass-sunroom surprise hotspots.
 
+- Rainy Boot Mudroom scene added:
+  - Added `Rainy Boot Mudroom` with id `rainy-boot-mudroom`, inserted after `rainbow-glass-sunroom` in the level registry.
+  - Background is `public/assets/backgrounds/rainy_boot_mudroom.png`, generated as a 1920x1080 painterly cottage mudroom with rain-streaked windows, a wooden bench, coat hooks, umbrellas, rain boots, woven baskets, folded towels, warm lamplight, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `rainy_boot_mudroom_yellow_boot.png`, `rainy_boot_mudroom_polka_umbrella.png`, `rainy_boot_mudroom_brass_hook.png`, `rainy_boot_mudroom_towel_stack.png`, `rainy_boot_mudroom_boot_brush.png`, `rainy_boot_mudroom_flower_doormat.png`, `rainy_boot_mudroom_watering_can.png`, `rainy_boot_mudroom_wooden_clothespin.png`, `rainy_boot_mudroom_rain_gauge.png`, and `rainy_boot_mudroom_seed_packet.png`.
+  - Bonus silver raindrops added in `public/assets/bonus/`: `rainy_boot_mudroom_silver_raindrop_01.png`, `rainy_boot_mudroom_silver_raindrop_02.png`, and `rainy_boot_mudroom_silver_raindrop_03.png`.
+  - Uses shared music via `src/data/music.js`, `Raindrops 0/3`, `Raindrop!`, 10 main hidden objects, and three rainy-boot-mudroom surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

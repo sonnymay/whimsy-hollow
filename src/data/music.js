@@ -51,7 +51,8 @@ export const musicByLevel = {
   'sunlit-seed-library': { music: sharedMusic },
   'painted-pebble-patio': { music: sharedMusic },
   'puppet-theater-alcove': { music: sharedMusic },
-  'rainbow-glass-sunroom': { music: sharedMusic }
+  'rainbow-glass-sunroom': { music: sharedMusic },
+  'rainy-boot-mudroom': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;
