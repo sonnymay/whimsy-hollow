@@ -2,8 +2,10 @@ import Phaser from 'phaser';
 import { levels, loadCompletedSceneIds, getFirstUnfinishedLevel } from '../data/levels.js';
 import { createPillButton } from '../ui/Button.js';
 import { theme } from '../ui/theme.js';
+import { loadReputation } from '../data/storage.js';
 
 const UI_FONT = theme.font;
+
 
 /**
  * Scrollable grid of every scene in the game. Replaces the title-screen
@@ -24,6 +26,12 @@ export class BrowseScene extends Phaser.Scene {
 
   init(data = {}) {
     this.returnTo = data.returnTo ?? 'MenuScene';
+  }
+
+  preload() {
+    if (!this.cache.audio.exists('wrongSfx')) {
+      this.load.audio('wrongSfx', 'assets/sounds/wrong.mp3');
+    }
   }
 
   create() {
@@ -145,17 +153,35 @@ export class BrowseScene extends Phaser.Scene {
   }
 
   drawPlaceCard(level, cx, cy, w, h, isDone, isNext) {
+    // Determine locks by difficulty and reputation
+    const levelIndex = levels.findIndex((l) => l.id === level.id);
+    let requiredRep = 0;
+    let difficulty = 'Easy';
+    if (levelIndex >= 24) {
+      difficulty = 'Hard';
+      requiredRep = 800;
+    } else if (levelIndex >= 12) {
+      difficulty = 'Medium';
+      requiredRep = 300;
+    }
+    const currentRep = loadReputation();
+    const isLocked = currentRep < requiredRep;
+
     // Drop shadow
     const shadow = this.add.graphics();
     shadow.fillStyle(0x1a140d, 0.34);
     shadow.fillRoundedRect(cx - w / 2 + 3, cy - h / 2 + 6, w, h, 18);
     this.scrollContainer.add(shadow);
 
-    // Card body — cream
+    // Card body
     const card = this.add.graphics();
-    card.fillStyle(isDone ? 0xe8efd6 : 0xfff0d4, 0.95);
+    if (isLocked) {
+      card.fillStyle(0x3a3630, 0.95); // Dark gray for locked
+    } else {
+      card.fillStyle(isDone ? 0xe8efd6 : 0xfff0d4, 0.95);
+    }
     card.fillRoundedRect(cx - w / 2, cy - h / 2, w, h, 18);
-    card.lineStyle(isNext ? 4 : 2, isNext ? 0xffd86f : (isDone ? 0xcabfa8 : 0xd9b673), 0.85);
+    card.lineStyle(isNext && !isLocked ? 4 : 2, isLocked ? 0x5a5044 : (isNext ? 0xffd86f : (isDone ? 0xcabfa8 : 0xd9b673)), 0.85);
     card.strokeRoundedRect(cx - w / 2, cy - h / 2, w, h, 18);
     this.scrollContainer.add(card);
 
@@ -166,12 +192,20 @@ export class BrowseScene extends Phaser.Scene {
     if (this.textures.exists(level.background.key)) {
       const thumb = this.add.image(cx, thumbY, level.background.key)
         .setDisplaySize(thumbW, thumbH);
-      if (isDone) thumb.setTint(0xb8b0a0).setAlpha(0.7);
+      if (isLocked) {
+        thumb.setTint(0x4a4a4a).setAlpha(0.5); // very dark/tinted for locked
+      } else if (isDone) {
+        thumb.setTint(0xb8b0a0).setAlpha(0.7);
+      }
       this.scrollContainer.add(thumb);
     } else {
       // Soft painterly tint placeholder so it doesn't feel empty
       const ph = this.add.graphics();
-      ph.fillGradientStyle(0xfde4b3, 0xfde4b3, 0xc9b48a, 0xc9b48a, 1);
+      if (isLocked) {
+        ph.fillGradientStyle(0x5a5044, 0x5a5044, 0x302a24, 0x302a24, 1);
+      } else {
+        ph.fillGradientStyle(0xfde4b3, 0xfde4b3, 0xc9b48a, 0xc9b48a, 1);
+      }
       ph.fillRoundedRect(cx - thumbW / 2, thumbY - thumbH / 2, thumbW, thumbH, 10);
       this.scrollContainer.add(ph);
     }
@@ -181,15 +215,19 @@ export class BrowseScene extends Phaser.Scene {
     const nameText = this.add.text(cx, cy + h / 2 - 36, title, {
       fontFamily: UI_FONT,
       fontSize: '18px',
-      color: '#4a3a26',
+      color: isLocked ? '#998d7d' : '#4a3a26',
       align: 'center',
       wordWrap: { width: w - 24, useAdvancedWrap: true }
     }).setOrigin(0.5);
     this.scrollContainer.add(nameText);
 
     // Status badge
-    const badge = isDone ? '✓ Done' : (isNext ? '★ Next' : 'Tap');
-    const badgeColor = isDone ? '#7eb58a' : (isNext ? '#a67a1e' : '#7a6750');
+    let badge = isDone ? '✓ Done' : (isNext ? '★ Next' : 'Tap');
+    let badgeColor = isDone ? '#7eb58a' : (isNext ? '#a67a1e' : '#7a6750');
+    if (isLocked) {
+      badge = `🔒 Lock (${requiredRep} Rep)`;
+      badgeColor = '#d6827e';
+    }
     const badgeText = this.add.text(cx, cy + h / 2 - 12, badge, {
       fontFamily: UI_FONT, fontSize: '13px', color: badgeColor
     }).setOrigin(0.5);
@@ -203,6 +241,25 @@ export class BrowseScene extends Phaser.Scene {
       // THIS scene first (which sets dragStart via the global handler).
       if (!this.requireSceneOwnedTap()) return;
       if (this.suppressClickIfDrag && this.suppressClickIfDrag()) return;
+
+      if (isLocked) {
+        if (this.cache.audio.exists('wrongSfx')) {
+          this.sound.play('wrongSfx', { volume: 0.3 });
+        }
+        // Flash text on screen
+        const lockMsg = this.add.text(cx, cy, `Requires ${requiredRep} Rep!`, {
+          fontFamily: UI_FONT, fontSize: '20px', color: '#ff7777', stroke: '#000000', strokeThickness: 4
+        }).setOrigin(0.5);
+        this.tweens.add({
+          targets: lockMsg,
+          y: cy - 30,
+          alpha: 0,
+          duration: 1200,
+          onComplete: () => lockMsg.destroy()
+        });
+        return;
+      }
+
       window.localStorage.removeItem(level.saveKey);
       window.localStorage.removeItem(level.bonusSaveKey);
       this.scene.start('LoadingScene', {
@@ -213,4 +270,5 @@ export class BrowseScene extends Phaser.Scene {
     });
     this.scrollContainer.add(hit);
   }
+
 }

@@ -128,6 +128,14 @@ export class MenuScene extends Phaser.Scene {
       onClick: () => this.scene.start('BrowseScene', { returnTo: 'MenuScene' })
     });
 
+    // Cozy Office entry — small, bottom-left corner
+    createPillButton(this, {
+      x: 130, y: height - 50,
+      width: 180, height: 46,
+      label: '🏠 Cozy Office', fontSize: 16, radius: 23,
+      onClick: () => this.scene.start('HubScene')
+    });
+
     // Sticker Book entry — small, bottom-right corner
     createPillButton(this, {
       x: width - 130, y: height - 50,

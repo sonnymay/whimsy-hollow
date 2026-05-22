@@ -5,7 +5,10 @@ import {
   loadMuted, saveMuted,
   loadMusicEnabled, saveMusicEnabled,
   loadMusicVolume, saveMusicVolume,
-  loadAmbientVolume, saveAmbientVolume
+  loadAmbientVolume, saveAmbientVolume,
+  loadHighContrast, saveHighContrast,
+  loadKeysPointer, saveKeysPointer,
+  loadColorblind, saveColorblind
 } from '../data/storage.js';
 import { refreshMusicSettings } from '../audio/music.js';
 
@@ -28,41 +31,63 @@ export class SettingsScene extends Phaser.Scene {
 
     // Card
     const cardW = 720;
-    const cardH = 540;
+    const cardH = 640;
     const cardGfx = this.add.graphics();
     cardGfx.fillStyle(0xfff4d6, 0.97);
     cardGfx.fillRoundedRect(width / 2 - cardW / 2, height / 2 - cardH / 2, cardW, cardH, 28);
     cardGfx.lineStyle(3, theme.color.outline, 0.45);
     cardGfx.strokeRoundedRect(width / 2 - cardW / 2, height / 2 - cardH / 2, cardW, cardH, 28);
 
-    this.add.text(width / 2, height / 2 - cardH / 2 + 48, 'Settings', {
+    this.add.text(width / 2, height / 2 - cardH / 2 + 40, 'Settings', {
       fontFamily: UI_FONT,
       fontSize: '40px',
       color: hex(theme.color.text)
     }).setOrigin(0.5);
 
-    let y = height / 2 - 160;
+    let y = height / 2 - 220;
     this.addToggleRow(width / 2, y, 'Sounds', () => !loadMuted(), (on) => {
       saveMuted(!on);
       this.sound.mute = !on;
     });
 
-    y += 80;
+    y += 55;
     this.addToggleRow(width / 2, y, 'Music', loadMusicEnabled, (on) => {
       saveMusicEnabled(on);
       refreshMusicSettings(this);
     });
 
-    y += 80;
+    y += 50;
     this.addSliderRow(width / 2, y, 'Music volume', loadMusicVolume, (v) => {
       saveMusicVolume(v);
       refreshMusicSettings(this);
     });
 
-    y += 70;
+    y += 50;
     this.addSliderRow(width / 2, y, 'Ambient volume', loadAmbientVolume, (v) => {
       saveAmbientVolume(v);
       refreshMusicSettings(this);
+    });
+
+    y += 50;
+    this.addToggleRow(width / 2, y, 'High-Contrast Outlines', loadHighContrast, (on) => {
+      saveHighContrast(on);
+    });
+
+    y += 55;
+    this.addToggleRow(width / 2, y, 'Keyboard Pointer', loadKeysPointer, (on) => {
+      saveKeysPointer(on);
+    });
+
+    y += 55;
+    const colorblindOptions = ['none', 'protanopia', 'deuteranopia', 'tritanopia'];
+    const displayNames = {
+      none: 'None',
+      protanopia: 'Protanopia',
+      deuteranopia: 'Deuteranopia',
+      tritanopia: 'Tritanopia'
+    };
+    this.addCycleRow(width / 2, y, 'Colorblind Filter', loadColorblind, colorblindOptions, displayNames, (mode) => {
+      saveColorblind(mode);
     });
 
     // About
@@ -93,7 +118,7 @@ export class SettingsScene extends Phaser.Scene {
   addToggleRow(centerX, y, label, getValue, onChange) {
     const labelX = centerX - 220;
     this.add.text(labelX, y, label, {
-      fontFamily: UI_FONT, fontSize: '24px', color: hex(theme.color.text)
+      fontFamily: UI_FONT, fontSize: '22px', color: hex(theme.color.text)
     }).setOrigin(0, 0.5);
 
     const trackX = centerX + 140;
@@ -121,7 +146,7 @@ export class SettingsScene extends Phaser.Scene {
   addSliderRow(centerX, y, label, getValue, onChange) {
     const labelX = centerX - 220;
     this.add.text(labelX, y, label, {
-      fontFamily: UI_FONT, fontSize: '20px', color: hex(theme.color.textSoft)
+      fontFamily: UI_FONT, fontSize: '18px', color: hex(theme.color.textSoft)
     }).setOrigin(0, 0.5);
 
     const trackX = centerX + 80;
@@ -149,6 +174,33 @@ export class SettingsScene extends Phaser.Scene {
       updateFromPointer(pointer);
       this.input.on('pointermove', updateFromPointer);
       this.input.once('pointerup', () => this.input.off('pointermove', updateFromPointer));
+    });
+  }
+
+  addCycleRow(centerX, y, label, getValue, options, displayNames, onChange) {
+    const labelX = centerX - 220;
+    this.add.text(labelX, y, label, {
+      fontFamily: UI_FONT, fontSize: '22px', color: hex(theme.color.text)
+    }).setOrigin(0, 0.5);
+
+    const btnX = centerX + 140;
+    const currentVal = getValue();
+    const btn = createPillButton(this, {
+      x: btnX,
+      y: y,
+      width: 160,
+      height: 36,
+      label: displayNames[currentVal] || currentVal,
+      fontSize: 16,
+      radius: 18,
+      onClick: () => {
+        const current = getValue();
+        const currentIndex = options.indexOf(current);
+        const nextIndex = (currentIndex + 1) % options.length;
+        const nextValue = options[nextIndex];
+        onChange(nextValue);
+        btn.setText(displayNames[nextValue] || nextValue);
+      }
     });
   }
 }

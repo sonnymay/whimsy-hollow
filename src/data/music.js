@@ -74,7 +74,8 @@ export const musicByLevel = {
   'rainbow-glass-sunroom': { music: cozyMusic },
   'rainy-boot-mudroom': { music: cozyMusic },
   'cozy-aquarium-corner': { music: cozyMusic },
-  'cozy-mineral-cabinet': { music: cozyMusic }
+  'cozy-mineral-cabinet': { music: cozyMusic },
+  'cozy-stamp-desk': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;

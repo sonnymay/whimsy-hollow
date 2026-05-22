@@ -30,7 +30,8 @@ export const mailGarden = {
       asset: 'assets/objects/golden_key.png',
       x: 696,
       y: 410,
-      scale: 0.5
+      scale: 0.5,
+      hiddenUnder: 'garden-hatch'
     },
     {
       id: 'blue-crystal',
@@ -165,6 +166,19 @@ export const mailGarden = {
       x: 1062,
       y: 616,
       label: 'Blue flowers sparkle with garden gossip.'
+    }
+  ],
+  interactives: [
+    {
+      id: 'garden-hatch',
+      key: 'garden-hatch',
+      asset: 'assets/interactives/garden_hatch.png',
+      x: 696,
+      y: 410,
+      scale: 0.5,
+      type: 'slide-y',
+      slideDistance: -80,
+      soundEffect: 'coverOpenSfx'
     }
   ]
 };

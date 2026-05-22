@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
-import { getLevelById, getNextLevel, mailGarden, markSceneComplete } from '../data/levels.js';
+import { getLevelById, getNextLevel, mailGarden, markSceneComplete, loadCompletedSceneIds, levels } from '../data/levels.js';
 import { createPillButton } from '../ui/Button.js';
 import { setBackdrop } from '../ui/backdrop.js';
 import { theme } from '../ui/theme.js';
+import { addCoins, addReputation } from '../data/storage.js';
 
 const UI_FONT = theme.font;
 
@@ -23,7 +24,40 @@ export class WinScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
     const nextLevel = getNextLevel(this.level.id);
+
+    const completed = loadCompletedSceneIds();
+    const isFirstTime = !completed.has(this.level.id);
+
     markSceneComplete(this.level.id);
+
+    // Determine rewards by difficulty/index
+    const levelIndex = levels.findIndex((l) => l.id === this.level.id);
+    let baseCoins = 100;
+    let baseRep = 50;
+    if (levelIndex >= 24) {
+      baseCoins = 200;
+      baseRep = 100;
+    } else if (levelIndex >= 12) {
+      baseCoins = 150;
+      baseRep = 75;
+    }
+
+    let earnedCoins = 0;
+    let earnedRep = 0;
+
+    if (isFirstTime) {
+      earnedCoins += baseCoins;
+      earnedRep += baseRep;
+      addCoins(baseCoins);
+      addReputation(baseRep);
+    }
+
+
+    const bonusCount = this.loadBonusCount();
+    if (bonusCount > 0) {
+      earnedCoins += bonusCount * 20;
+      addCoins(bonusCount * 20);
+    }
 
     setBackdrop(this.level.background.path);
     this.add.image(width / 2, height / 2, this.level.background.key).setDisplaySize(width, height);
@@ -46,23 +80,42 @@ export class WinScene extends Phaser.Scene {
       color: '#d8ead7'
     }).setOrigin(0.5);
 
-    const bonusCount = this.loadBonusCount();
-    this.add.text(width / 2, 318, `${this.getBonusLabel()} ${bonusCount}/${this.level.bonusEnvelopes.length}`, {
+    // Coins & Reputation earned text
+    let rewardsText = '';
+    if (earnedCoins > 0 && earnedRep > 0) {
+      rewardsText = `+${earnedCoins} 🪙   +${earnedRep} ⭐️`;
+    } else if (earnedCoins > 0) {
+      rewardsText = `+${earnedCoins} 🪙`;
+    } else if (earnedRep > 0) {
+      rewardsText = `+${earnedRep} ⭐️`;
+    } else {
+      rewardsText = 'No new rewards';
+    }
+
+    this.add.text(width / 2, 305, rewardsText, {
       fontFamily: UI_FONT,
-      fontSize: '22px',
-      color: '#ffe1a0'
+      fontSize: '24px',
+      color: '#ffe1a0',
+      stroke: '#281c12',
+      strokeThickness: 3
     }).setOrigin(0.5);
 
-    if (nextLevel) {
-      this.time.delayedCall(900, () => this.startNextLevel(nextLevel));
-      return;
-    }
+    this.add.text(width / 2, 345, `${this.getBonusLabel()} found: ${bonusCount}/${this.level.bonusEnvelopes.length}`, {
+      fontFamily: UI_FONT,
+      fontSize: '18px',
+      color: '#b8ccb7'
+    }).setOrigin(0.5);
+
+    const btnLabel = nextLevel ? 'Next Place' : 'My Finds';
+    const btnAction = nextLevel 
+      ? () => this.startNextLevel(nextLevel)
+      : () => this.scene.start('DeskScene', { levelId: this.level.id });
 
     createPillButton(this, {
       x: width / 2 - 200, y: 432,
       width: 160, height: 60,
-      label: 'My Finds', fontSize: 22, radius: 30,
-      onClick: () => this.scene.start('DeskScene', { levelId: this.level.id })
+      label: btnLabel, fontSize: 22, radius: 30,
+      onClick: btnAction
     });
 
     createPillButton(this, {

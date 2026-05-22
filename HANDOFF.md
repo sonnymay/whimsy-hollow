@@ -2,6 +2,16 @@
 
 ## Current Status
 
+- **Cozy Mechanics & Settings Pass (2026-05-22)**:
+  - **Progression Hub & Customization (`HubScene.js`)**: Implemented a fully interactive Hub Office where players can decorate their room by dragging and placing furniture.
+  - **Boutique Shop**: Players can access the shop inside the Hub, spending coins earned from side quests to purchase items. All coins and placements persist via `localStorage` tracking (`src/data/storage.js`).
+  - **Smarter Assist Systems**:
+    - **Checklist Mascot Clues**: Clicking item cards in the tray triggers our bird mascot 🐤 to slide in with context-specific riddle clues.
+    - **Compass Radar**: The Help button triggers a vintage compass dial and needle pointing to a random target quadrant, using elastic overshoot/wobble tweens.
+    - **Hidden Spirits & Ghost Charges**: Added hidden spirits 👻 in levels. Finding them grants a "Ghost Charge" that automatically pans/zooms the camera to a remaining target and flashes a cyan replica.
+  - **Accessibility Settings (`SettingsScene.js`)**: Exposes settings toggles for **High-Contrast Outlines** (dual yellow/white border on hover), **Keyboard Pointer Controls** (tray card navigation via WASD/Arrows + Space), and **Colorblind Filters** (Protanopia, Deuteranopia, and Tritanopia matrix post-effects on camera layers).
+  - **Developer Level Editor**: Pressing `D` in any level opens a developer panel. Drag, scale, and nudge objects, and copy/view updated JS coordinate structures to save directly into level data files.
+
 - **Audio Integration Pass (2026-05-22)**:
   - **Custom SFX & Music Loops**: Generated and integrated 6 SFX (`click.mp3`, `wrong.mp3`, `hint.mp3`, `win.mp3`, `cover_open.mp3`, `bonus.mp3`) and 4 music loops (`menu.mp3`, `cozy.mp3`, `nature.mp3`, `dreamy.mp3`) as highly compatible MP3 files.
   - **Phaser Wiring**: Wired SFX playback into `src/scenes/GameScene.js` (for wrong clicks, hints, wins, bonus collectibles, and interactive cover fallback), `src/scenes/MenuScene.js` (for preloading), and `src/ui/Button.js` (to play `clickSfx` on pointerdown).
@@ -486,6 +496,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Main objects added in `public/assets/objects/`: `cozy_mineral_cabinet_agate_slice.png`, `cozy_mineral_cabinet_geode_half.png`, `cozy_mineral_cabinet_brass_magnifier.png`, `cozy_mineral_cabinet_velvet_pouch.png`, `cozy_mineral_cabinet_mineral_brush.png`, `cozy_mineral_cabinet_label_card.png`, `cozy_mineral_cabinet_display_tray.png`, `cozy_mineral_cabinet_quartz_point.png`, `cozy_mineral_cabinet_jasper_pebble.png`, and `cozy_mineral_cabinet_specimen_jar.png`.
   - Bonus golden sparkles added in `public/assets/bonus/`: `cozy_mineral_cabinet_golden_sparkle_01.png`, `cozy_mineral_cabinet_golden_sparkle_02.png`, and `cozy_mineral_cabinet_golden_sparkle_03.png`.
   - Uses shared music via `src/data/music.js`, `Sparkles 0/3`, `Sparkle!`, 10 main hidden objects, and three cozy-mineral-cabinet surprise hotspots.
+
+- Cozy Stamp Desk scene added:
+  - Added `Cozy Stamp Desk` with id `cozy-stamp-desk`, inserted after `cozy-mineral-cabinet` in the level registry.
+  - Background is `public/assets/backgrounds/cozy_stamp_desk.webp`, generated as a 1920x1080 painterly cottage stamp-collector desk with albums, postcards, cubbies, small envelopes, paper trays, warm lamplight, a sunny window, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `cozy_stamp_desk_stamp_album.png`, `cozy_stamp_desk_stamp_tongs.png`, `cozy_stamp_desk_butterfly_postcard.png`, `cozy_stamp_desk_green_ink_pad.png`, `cozy_stamp_desk_wax_seal_stamp.png`, `cozy_stamp_desk_perforation_gauge.png`, `cozy_stamp_desk_ribbon_bundle.png`, `cozy_stamp_desk_envelope_stack.png`, `cozy_stamp_desk_flower_stamp_sheet.png`, and `cozy_stamp_desk_sorting_tray.png`.
+  - Bonus golden stamps added in `public/assets/bonus/`: `cozy_stamp_desk_golden_stamp_01.png`, `cozy_stamp_desk_golden_stamp_02.png`, and `cozy_stamp_desk_golden_stamp_03.png`.
+  - Uses shared music via `src/data/music.js`, `Stamps 0/3`, `Stamp!`, 10 main hidden objects, and three cozy-stamp-desk surprise hotspots.
 
 GitHub repo: `sonnymay/whimsy-hollow`
 

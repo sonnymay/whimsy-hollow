@@ -9,7 +9,10 @@ import {
   saveBonusIds,
   saveFoundIds,
   saveMuted,
-  saveOnboarded
+  saveOnboarded,
+  loadHighContrast,
+  loadKeysPointer,
+  loadColorblind
 } from '../data/storage.js';
 import { createPillButton, createStatusPill } from '../ui/Button.js';
 import { setBackdrop } from '../ui/backdrop.js';
@@ -107,6 +110,12 @@ export class GameScene extends Phaser.Scene {
     this.lastMissAt = 0;
     this.mainCompleteNoticeShown = false;
 
+    this.highContrastOutlineGfx = this.add.graphics().setDepth(4.8);
+    this.keysPointerIndex = -1;
+    this.keysPointerHighlight = this.add.graphics().setDepth(HUD_DEPTH + 8);
+    this.addToHud(this.keysPointerHighlight);
+    this.ghostCharges = 0;
+
     setBackdrop(this.level.background.path);
     playMusicForLevel(this, this.level.id);
     this.add.image(640, 360, this.level.background.key).setDisplaySize(1280, 720);
@@ -117,6 +126,7 @@ export class GameScene extends Phaser.Scene {
     this.createObjects();
     this.createInteractives();
     this.createBonusEnvelopes();
+    this.spawnHiddenGhost();
     this.createSceneSurprises();
     this.createMissTapZone();
 
@@ -133,6 +143,22 @@ export class GameScene extends Phaser.Scene {
     // Handle ESC key to pause
     this.input.keyboard.on('keydown-ESC', () => {
       this.openPause();
+    });
+
+    if (loadKeysPointer()) {
+      this.setupKeysPointerControls();
+    }
+
+    this.events.on('resume', () => {
+      this.applyColorblindFilter();
+      if (loadKeysPointer()) {
+        if (!this.keysPointerKeys) {
+          this.setupKeysPointerControls();
+        }
+      } else {
+        this.keysPointerIndex = -1;
+        this.updateKeysPointerHighlight();
+      }
     });
 
     this.checkCompletionState(250);
@@ -179,6 +205,29 @@ export class GameScene extends Phaser.Scene {
 
     this.zoomLevel = 1;
     this.zoomed = false;
+
+    // Smooth camera target values
+    this.cameraTargetZoom = 1;
+    this.cameraTargetScrollX = 0;
+    this.cameraTargetScrollY = 0;
+
+    this.applyColorblindFilter();
+  }
+
+  update(time, delta) {
+    if (!this.cameras || !this.cameras.main) return;
+    const cam = this.cameras.main;
+    
+    // Framerate-independent smooth interpolation towards target values
+    const dt = delta / 1000;
+    const lerpSpeed = 10;
+    const lerpFactor = Math.min(1, lerpSpeed * dt);
+    
+    cam.zoom = Phaser.Math.Linear(cam.zoom, this.cameraTargetZoom, lerpFactor);
+    cam.scrollX = Phaser.Math.Linear(cam.scrollX, this.cameraTargetScrollX, lerpFactor);
+    cam.scrollY = Phaser.Math.Linear(cam.scrollY, this.cameraTargetScrollY, lerpFactor);
+    
+    this.clampCameraScroll();
   }
 
   // Convenience: route dynamic runtime objects to the correct layer so they
@@ -200,21 +249,20 @@ export class GameScene extends Phaser.Scene {
    */
   applyZoom(newZoom, anchorWorldX, anchorWorldY) {
     if (!this.cameras || !this.cameras.main) return;
-    const cam = this.cameras.main;
     const clamped = Phaser.Math.Clamp(newZoom, 1, 3);
 
     // Anchor: keep the world point (anchorWorldX, anchorWorldY) at its
-    // current screen position after the zoom change.
-    // Convert world point → screen point under the OLD camera:
-    const screenX = (anchorWorldX - cam.scrollX) * cam.zoom;
-    const screenY = (anchorWorldY - cam.scrollY) * cam.zoom;
+    // current screen position under the new target zoom
+    const screenX = (anchorWorldX - this.cameraTargetScrollX) * this.cameraTargetZoom;
+    const screenY = (anchorWorldY - this.cameraTargetScrollY) * this.cameraTargetZoom;
 
-    cam.setZoom(clamped);
+    this.cameraTargetZoom = clamped;
 
-    // Now solve scroll so (anchorWorldX - newScroll) * newZoom == screenX
-    cam.scrollX = anchorWorldX - screenX / clamped;
-    cam.scrollY = anchorWorldY - screenY / clamped;
-    this.clampCameraScroll();
+    // Solve for target scroll coordinates
+    this.cameraTargetScrollX = anchorWorldX - screenX / clamped;
+    this.cameraTargetScrollY = anchorWorldY - screenY / clamped;
+    
+    this.clampCameraTargetScroll();
 
     this.zoomLevel = clamped;
     this.zoomed = clamped > 1.0001;
@@ -223,11 +271,23 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  clampCameraTargetScroll() {
+    const cam = this.cameras.main;
+    const viewW = cam.width / this.cameraTargetZoom;
+    const viewH = cam.height / this.cameraTargetZoom;
+    const maxW = this.level.width || 1280;
+    const maxH = this.level.height || 720;
+    this.cameraTargetScrollX = Phaser.Math.Clamp(this.cameraTargetScrollX, 0, Math.max(0, maxW - viewW));
+    this.cameraTargetScrollY = Phaser.Math.Clamp(this.cameraTargetScrollY, 0, Math.max(0, maxH - viewH));
+  }
+
   clampCameraScroll() {
     const cam = this.cameras.main;
     const viewW = cam.width / cam.zoom;
     const viewH = cam.height / cam.zoom;
-    cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, Math.max(0, 1280 - viewW));
+    const maxW = this.level.width || 1280;
+    const maxH = this.level.height || 720;
+    cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, Math.max(0, maxW - viewW));
     cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, Math.max(0, 720 - viewH));
   }
 
@@ -265,26 +325,37 @@ export class GameScene extends Phaser.Scene {
     }
 
     const cam = this.cameras.main;
-    // Convert pointer screen position → current world position
+    // Convert pointer screen position → current target world position
     const pointerObj = this.input.activePointer;
-    const worldX = pointerObj.x / cam.zoom + cam.scrollX;
-    const worldY = pointerObj.y / cam.zoom + cam.scrollY;
-    // Scroll up (dy < 0) zooms in. Step size proportional to current zoom
+    const worldX = pointerObj.x / this.cameraTargetZoom + this.cameraTargetScrollX;
+    const worldY = pointerObj.y / this.cameraTargetZoom + this.cameraTargetScrollY;
+    // Scroll up (dy < 0) zooms in. Step size proportional to current target zoom
     // so it feels smooth at any level.
-    const step = 0.12 * cam.zoom;
-    const targetZoom = cam.zoom + (dy < 0 ? step : -step);
+    const step = 0.12 * this.cameraTargetZoom;
+    const targetZoom = this.cameraTargetZoom + (dy < 0 ? step : -step);
     this.applyZoom(targetZoom, worldX, worldY);
   }
 
   handleScenePan(pointer) {
     if (this.isDevMode) return;
-    if (!this.zoomed || !pointer.isDown) return;
-    const cam = this.cameras.main;
+    if (!pointer.isDown) return;
+    
+    // Clear hover outline on panning to avoid visual artifacts
+    this.clearHoverOutline();
+    
+    // Pan if zoomed or if the level background bounds are larger than 1280x720.
+    const maxW = this.level.width || 1280;
+    const maxH = this.level.height || 720;
+    const canPan = this.cameraTargetZoom > 1.0001 || maxW > 1280 || maxH > 720;
+    if (!canPan) return;
+
     const dx = pointer.x - pointer.prevPosition.x;
     const dy = pointer.y - pointer.prevPosition.y;
-    cam.scrollX -= dx / cam.zoom;
-    cam.scrollY -= dy / cam.zoom;
-    this.clampCameraScroll();
+    
+    this.cameraTargetScrollX -= dx / this.cameraTargetZoom;
+    this.cameraTargetScrollY -= dy / this.cameraTargetZoom;
+    
+    this.clampCameraTargetScroll();
   }
 
   runFirstRunTutorial() {
@@ -384,7 +455,18 @@ export class GameScene extends Phaser.Scene {
         clickZone.disableInteractive();
       }
 
-      clickZone.on('pointerdown', () => this.findObject(object));
+      clickZone.on('pointerdown', () => {
+        this.clearHoverOutline();
+        this.findObject(object);
+      });
+      clickZone.on('pointerover', () => {
+        if (loadHighContrast()) {
+          this.drawHoverOutline(sprite);
+        }
+      });
+      clickZone.on('pointerout', () => {
+        this.clearHoverOutline();
+      });
       sprite.setData('glow', glow);
       this.objectSprites.set(object.id, sprite);
     }
@@ -420,7 +502,18 @@ export class GameScene extends Phaser.Scene {
       sprite.setData('config', interactive);
       sprite.setData('isOpen', startOpen);
 
-      sprite.on('pointerdown', () => this.handleInteractiveTap(sprite));
+      sprite.on('pointerdown', () => {
+        this.clearHoverOutline();
+        this.handleInteractiveTap(sprite);
+      });
+      sprite.on('pointerover', () => {
+        if (loadHighContrast()) {
+          this.drawHoverOutline(sprite);
+        }
+      });
+      sprite.on('pointerout', () => {
+        this.clearHoverOutline();
+      });
 
       this.interactiveSprites.set(interactive.id, sprite);
     }
@@ -582,7 +675,8 @@ export class GameScene extends Phaser.Scene {
     const homeX = rightEdge - btnW / 2;
     const pauseX = homeX - btnW / 2 - gap - pauseW / 2;
     const helpX = pauseX - pauseW / 2 - gap - btnW / 2;
-    const listX = helpX - btnW - gap;
+    const ghostX = helpX - btnW - gap;
+    const listX = ghostX - btnW - gap;
     const muteX = listX - btnW / 2 - gap - muteW / 2;
 
     this.muteButton = createPillButton(this, {
@@ -598,6 +692,15 @@ export class GameScene extends Phaser.Scene {
       width: btnW, height: btnH,
       label: 'List', fontSize: 18,
       onClick: () => this.toggleListPanel(),
+      depth: HUD_DEPTH
+    });
+
+    this.ghostButton = createPillButton(this, {
+      x: ghostX, y: theme.hud.y,
+      width: btnW, height: btnH,
+      label: '👻 0', fontSize: 18,
+      onClick: () => this.useGhostCharge(),
+      color: theme.color.creamSoft,
       depth: HUD_DEPTH
     });
 
@@ -629,7 +732,7 @@ export class GameScene extends Phaser.Scene {
     // HUD elements that hide while the List panel is open. The List button
     // sits behind the panel visually, so it joins the hideable set; the
     // panel's own × button is the close affordance.
-    this.hudHideable = [this.countPill, this.muteButton, this.listButton, this.hintButton, this.pauseButton, this.homeButton];
+    this.hudHideable = [this.countPill, this.muteButton, this.listButton, this.ghostButton, this.hintButton, this.pauseButton, this.homeButton];
     this.applyListVisibility();
 
     // Centered, only when complete — soft cream, not red
@@ -650,7 +753,7 @@ export class GameScene extends Phaser.Scene {
     // can render them with a separate non-zoomed camera.
     const hudContainers = [
       this.countPill.container, this.muteButton.container, this.listButton.container,
-      this.hintButton.container, this.pauseButton.container,
+      this.ghostButton.container, this.hintButton.container, this.pauseButton.container,
       this.homeButton.container, this.listPanel, this.finishButton.container
     ];
     for (const c of hudContainers) {
@@ -823,6 +926,14 @@ export class GameScene extends Phaser.Scene {
 
       this.listPanel.add([card, thumb, label, mark]);
       this.checklistItems.set(object.id, { card, mark, label, thumb });
+
+      const cardHit = this.add.zone(x, yCenter, cardW, cardH)
+        .setInteractive({ useHandCursor: true });
+      cardHit.on('pointerdown', (pointer, localX, localY, event) => {
+        event.stopPropagation();
+        this.showMascotClueBubble(object);
+      });
+      this.listPanel.add(cardHit);
     });
 
     // Cache card dims for later redraws
@@ -861,6 +972,13 @@ export class GameScene extends Phaser.Scene {
     // the screen isn't doubled-up. List button itself stays so the player
     // can always close. The list's title now carries the live count.
     this.applyListVisibility();
+    
+    if (loadKeysPointer()) {
+      if (this.listOpen && this.keysPointerIndex === -1 && this.activeObjects.length > 0) {
+        this.keysPointerIndex = 0;
+      }
+      this.updateKeysPointerHighlight();
+    }
   }
 
   createBonusEnvelopes() {
@@ -1057,19 +1175,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   finishLevel() {
-    markSceneComplete(this.level.id);
-    const nextLevel = getNextLevel(this.level.id);
-    if (nextLevel) {
-      window.localStorage.removeItem(nextLevel.saveKey);
-      window.localStorage.removeItem(nextLevel.bonusSaveKey);
-      this.scene.start('LoadingScene', {
-        targetScene: 'GameScene',
-        targetData: { levelId: nextLevel.id },
-        message: `Opening ${nextLevel.title}...`
-      });
-      return;
-    }
-
     this.scene.start('WinScene', { levelId: this.level.id });
   }
 
@@ -1084,6 +1189,556 @@ export class GameScene extends Phaser.Scene {
   createGuide() {}
   sayGuide() {}
   guideHopTo() {}
+
+  applyColorblindFilter() {
+    if (!this.cameras || !this.cameras.main || !this.cameras.main.postFX) return;
+
+    // Clean up old FX if any
+    if (this.colorblindFX) {
+      this.cameras.main.postFX.remove(this.colorblindFX);
+      this.colorblindFX = null;
+    }
+    if (this.uiColorblindFX && this.uiCam && this.uiCam.postFX) {
+      this.uiCam.postFX.remove(this.uiColorblindFX);
+      this.uiColorblindFX = null;
+    }
+
+    const mode = loadColorblind();
+    if (mode === 'none') return;
+
+    let matrix;
+    if (mode === 'protanopia') {
+      matrix = [
+        0.567, 0.433, 0, 0, 0,
+        0.558, 0.442, 0, 0, 0,
+        0, 0.242, 0.758, 0, 0,
+        0, 0, 0, 1, 0
+      ];
+    } else if (mode === 'deuteranopia') {
+      matrix = [
+        0.625, 0.375, 0, 0, 0,
+        0.7, 0.3, 0, 0, 0,
+        0, 0.3, 0.7, 0, 0,
+        0, 0, 0, 1, 0
+      ];
+    } else if (mode === 'tritanopia') {
+      matrix = [
+        0.95, 0.05, 0, 0, 0,
+        0, 0.433, 0.567, 0, 0,
+        0, 0.475, 0.525, 0, 0,
+        0, 0, 0, 1, 0
+      ];
+    }
+
+    if (matrix) {
+      this.colorblindFX = this.cameras.main.postFX.addColorMatrix();
+      this.colorblindFX.set(matrix);
+      
+      if (this.uiCam && this.uiCam.postFX) {
+        this.uiColorblindFX = this.uiCam.postFX.addColorMatrix();
+        this.uiColorblindFX.set(matrix);
+      }
+    }
+  }
+
+  drawHoverOutline(sprite) {
+    if (!loadHighContrast()) return;
+    this.highContrastOutlineGfx.clear();
+    this.highContrastOutlineGfx.lineStyle(4, 0xffffff, 1.0);
+    
+    const bounds = sprite.getBounds();
+    const padding = 4;
+    this.highContrastOutlineGfx.strokeRoundedRect(
+      bounds.x - padding,
+      bounds.y - padding,
+      bounds.width + padding * 2,
+      bounds.height + padding * 2,
+      8
+    );
+    
+    this.highContrastOutlineGfx.lineStyle(2, 0xffeb3b, 1.0);
+    this.highContrastOutlineGfx.strokeRoundedRect(
+      bounds.x - padding + 1,
+      bounds.y - padding + 1,
+      bounds.width + padding * 2 - 2,
+      bounds.height + padding * 2 - 2,
+      8
+    );
+  }
+
+  clearHoverOutline() {
+    this.highContrastOutlineGfx.clear();
+  }
+
+  showMascotClueBubble(object) {
+    if (this.mascotTimer) {
+      this.mascotTimer.remove();
+      this.mascotTimer = null;
+    }
+    if (this.mascotContainer) {
+      this.mascotContainer.destroy();
+      this.mascotContainer = null;
+    }
+
+    const { width, height } = this.scale;
+
+    this.mascotContainer = this.add.container(60, height - 120).setDepth(HUD_DEPTH + 10);
+    this.addToHud(this.mascotContainer);
+
+    const bird = this.add.text(-20, 0, '🐤', {
+      fontFamily: UI_FONT,
+      fontSize: '48px'
+    }).setOrigin(0.5);
+    
+    this.tweens.add({
+      targets: bird,
+      y: -15,
+      scaleX: 1.1,
+      scaleY: 0.9,
+      yoyo: true,
+      duration: 200,
+      repeat: 2,
+      ease: 'Quad.easeOut'
+    });
+
+    const clueText = object.clue || `Can you find the ${object.name}?`;
+
+    const bubbleW = 320;
+    const bubbleH = 80;
+    const bubbleBg = this.add.graphics();
+    bubbleBg.fillStyle(0xfff7e3, 0.95);
+    bubbleBg.fillRoundedRect(30, -bubbleH / 2, bubbleW, bubbleH, 16);
+    bubbleBg.lineStyle(2.5, 0x6a4323, 0.85);
+    bubbleBg.strokeRoundedRect(30, -bubbleH / 2, bubbleW, bubbleH, 16);
+
+    bubbleBg.fillStyle(0xfff7e3, 0.95);
+    bubbleBg.fillTriangle(30, -8, 20, 0, 30, 8);
+    bubbleBg.lineStyle(2.5, 0x6a4323, 0.85);
+    bubbleBg.lineBetween(30, -8, 20, 0);
+    bubbleBg.lineBetween(20, 0, 30, 8);
+
+    const textLabel = this.add.text(30 + 16, 0, clueText, {
+      fontFamily: UI_FONT,
+      fontSize: '14px',
+      color: '#4a3a26',
+      wordWrap: { width: bubbleW - 32, useAdvancedWrap: true }
+    }).setOrigin(0, 0.5);
+
+    this.mascotContainer.add([bubbleBg, bird, textLabel]);
+
+    this.mascotContainer.x = -400;
+    this.tweens.add({
+      targets: this.mascotContainer,
+      x: 60,
+      duration: 400,
+      ease: 'Back.easeOut'
+    });
+
+    if (this.cache.audio.exists('hintSfx')) {
+      this.sound.play('hintSfx', { volume: 0.3 });
+    }
+
+    this.mascotTimer = this.time.delayedCall(6000, () => {
+      if (this.mascotContainer) {
+        this.tweens.add({
+          targets: this.mascotContainer,
+          x: -400,
+          alpha: 0,
+          duration: 350,
+          ease: 'Power2.easeIn',
+          onComplete: () => {
+            if (this.mascotContainer) {
+              this.mascotContainer.destroy();
+              this.mascotContainer = null;
+            }
+          }
+        });
+      }
+    });
+
+    const dismissZone = this.add.zone(0, 0, bubbleW + 80, bubbleH + 40)
+      .setOrigin(0, 0.5)
+      .setPosition(-40, 0)
+      .setInteractive({ useHandCursor: true });
+    dismissZone.on('pointerdown', (pointer, localX, localY, event) => {
+      event.stopPropagation();
+      if (this.mascotTimer) {
+        this.mascotTimer.remove();
+        this.mascotTimer = null;
+      }
+      this.tweens.add({
+        targets: this.mascotContainer,
+        scaleY: 0,
+        alpha: 0,
+        duration: 150,
+        onComplete: () => {
+          if (this.mascotContainer) {
+            this.mascotContainer.destroy();
+            this.mascotContainer = null;
+          }
+        }
+      });
+    });
+    this.mascotContainer.add(dismissZone);
+  }
+
+  playCompassRadar(object) {
+    if (this.compassContainer) {
+      this.compassContainer.destroy();
+    }
+
+    const { width, height } = this.scale;
+    const cx = width / 2;
+    const cy = height / 2;
+
+    this.compassContainer = this.add.container(cx, cy).setDepth(HUD_DEPTH + 15).setAlpha(0);
+    this.addToHud(this.compassContainer);
+
+    const dial = this.add.graphics();
+    dial.fillStyle(0x1a140d, 0.3);
+    dial.fillCircle(4, 4, 84);
+    dial.fillStyle(0x8c6d31, 1);
+    dial.fillCircle(0, 0, 80);
+    dial.lineStyle(3, 0xd4bc8a, 1);
+    dial.strokeCircle(0, 0, 80);
+    dial.fillStyle(0xfff5db, 1);
+    dial.fillCircle(0, 0, 72);
+    dial.lineStyle(1.5, 0xcabfa8, 0.8);
+    dial.strokeCircle(0, 0, 72);
+
+    const dirs = [
+      { text: 'N', x: 0, y: -54 },
+      { text: 'E', x: 54, y: 0 },
+      { text: 'S', x: 0, y: 54 },
+      { text: 'W', x: -54, y: 0 }
+    ];
+    dirs.forEach(d => {
+      const t = this.add.text(d.x, d.y, d.text, {
+        fontFamily: UI_FONT,
+        fontSize: '14px',
+        color: '#6e4c1f',
+        fontStyle: 'bold'
+      }).setOrigin(0.5);
+      this.compassContainer.add(t);
+    });
+
+    dial.lineStyle(1, 0x8c6d31, 0.4);
+    dial.lineBetween(-66, 0, 66, 0);
+    dial.lineBetween(0, -66, 0, 66);
+    
+    this.compassContainer.addAt(dial, 0);
+
+    const needle = this.add.graphics();
+    needle.fillStyle(0xcc4b31, 1);
+    needle.fillTriangle(0, -65, -8, 0, 0, 0);
+    needle.fillStyle(0xe56247, 1);
+    needle.fillTriangle(0, -65, 8, 0, 0, 0);
+    needle.fillStyle(0x2a3e52, 1);
+    needle.fillTriangle(0, 65, -8, 0, 0, 0);
+    needle.fillStyle(0x3e5870, 1);
+    needle.fillTriangle(0, 65, 8, 0, 0, 0);
+    needle.fillStyle(0x8c6d31, 1);
+    needle.fillCircle(0, 0, 8);
+    needle.fillStyle(0xd4bc8a, 1);
+    needle.fillCircle(0, 0, 4);
+
+    this.compassContainer.add(needle);
+
+    const cam = this.cameras.main;
+    const targetScreenX = (object.x - cam.scrollX) * cam.zoom;
+    const targetScreenY = (object.y - cam.scrollY) * cam.zoom;
+    
+    const targetAngleRad = Math.atan2(targetScreenY - cy, targetScreenX - cx);
+    const targetAngleDeg = Phaser.Math.RadToDeg(targetAngleRad) + 90;
+
+    const initialSpin = 360 * 3 + Phaser.Math.Between(-180, 180);
+    needle.angle = initialSpin;
+
+    this.tweens.add({
+      targets: this.compassContainer,
+      alpha: 1,
+      duration: 300,
+      ease: 'Quad.easeOut'
+    });
+
+    this.tweens.add({
+      targets: needle,
+      angle: targetAngleDeg,
+      duration: 1800,
+      ease: 'Elastic.easeOut',
+      easeParams: [1.1, 0.45],
+      onComplete: () => {
+        this.time.delayedCall(1200, () => {
+          if (this.compassContainer) {
+            this.tweens.add({
+              targets: this.compassContainer,
+              alpha: 0,
+              scale: 0.8,
+              duration: 350,
+              ease: 'Quad.easeIn',
+              onComplete: () => {
+                if (this.compassContainer) {
+                  this.compassContainer.destroy();
+                  this.compassContainer = null;
+                }
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+
+  spawnHiddenGhost() {
+    if (this.isDevMode) return;
+    
+    const maxW = this.level.width || 1280;
+    const maxH = this.level.height || 720;
+    
+    const gx = Phaser.Math.Between(150, maxW - 150);
+    const gy = Phaser.Math.Between(220, maxH - 150);
+    
+    this.ghostContainer = this.add.container(gx, gy).setDepth(6);
+    this.addToWorld(this.ghostContainer);
+    
+    const glow = this.add.ellipse(0, 0, 56, 56, 0x90caf9, 0.4)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    
+    const ghostText = this.add.text(0, 0, '👻', {
+      fontFamily: UI_FONT,
+      fontSize: '32px'
+    }).setOrigin(0.5);
+    
+    this.ghostContainer.add([glow, ghostText]);
+    
+    this.tweens.add({
+      targets: this.ghostContainer,
+      y: gy - 16,
+      yoyo: true,
+      repeat: -1,
+      duration: 1200,
+      ease: 'Sine.easeInOut'
+    });
+    
+    this.tweens.add({
+      targets: glow,
+      scale: 1.3,
+      alpha: 0.1,
+      yoyo: true,
+      repeat: -1,
+      duration: 1200,
+      ease: 'Sine.easeInOut'
+    });
+    
+    ghostText.setInteractive({ useHandCursor: true });
+    ghostText.on('pointerdown', (pointer, localX, localY, event) => {
+      event.stopPropagation();
+      this.collectGhost();
+    });
+  }
+
+  collectGhost() {
+    if (!this.ghostContainer) return;
+    
+    this.ghostCharges += 1;
+    if (this.ghostButton) {
+      this.ghostButton.setText(`👻 ${this.ghostCharges}`);
+    }
+    
+    if (this.cache.audio.exists('bonusSfx')) {
+      this.sound.play('bonusSfx', { volume: 0.4, detune: 400 });
+    }
+    
+    this.playSoftSparkle(this.ghostContainer.x, this.ghostContainer.y, 12, 0x90caf9);
+    
+    const targetX = this.ghostButton ? this.ghostButton.container.x : 940;
+    const targetY = this.ghostButton ? this.ghostButton.container.y : 36;
+    
+    const cam = this.cameras.main;
+    const worldTargetX = targetX / cam.zoom + cam.scrollX;
+    const worldTargetY = targetY / cam.zoom + cam.scrollY;
+    
+    const tempGhost = this.add.text(this.ghostContainer.x, this.ghostContainer.y, '👻', {
+      fontFamily: UI_FONT, fontSize: '28px'
+    }).setOrigin(0.5).setDepth(HUD_DEPTH + 10);
+    this.addToWorld(tempGhost);
+    
+    this.ghostContainer.destroy();
+    this.ghostContainer = null;
+    
+    this.tweens.add({
+      targets: tempGhost,
+      x: worldTargetX,
+      y: worldTargetY,
+      scale: 0.4,
+      alpha: 0.2,
+      duration: 800,
+      ease: 'Back.easeIn',
+      onComplete: () => {
+        tempGhost.destroy();
+        if (this.ghostButton) {
+          this.tweens.add({
+            targets: this.ghostButton.container,
+            scale: 1.15,
+            yoyo: true,
+            duration: 100
+          });
+        }
+      }
+    });
+  }
+
+  useGhostCharge() {
+    if (this.ghostCharges <= 0) {
+      if (this.cache.audio.exists('wrongSfx')) {
+        this.sound.play('wrongSfx', { volume: 0.35 });
+      }
+      return;
+    }
+    
+    const remaining = this.activeObjects.filter((object) => !this.foundIds.has(object.id));
+    if (remaining.length === 0) {
+      if (this.cache.audio.exists('wrongSfx')) {
+        this.sound.play('wrongSfx', { volume: 0.35 });
+      }
+      return;
+    }
+    
+    this.ghostCharges -= 1;
+    if (this.ghostButton) {
+      this.ghostButton.setText(`👻 ${this.ghostCharges}`);
+    }
+    
+    const object = remaining[Phaser.Math.Between(0, remaining.length - 1)];
+    const sprite = this.objectSprites.get(object.id);
+    
+    if (this.cache.audio.exists('bonusSfx')) {
+      this.sound.play('bonusSfx', { volume: 0.4, detune: -200 });
+    }
+    
+    if (object.hiddenUnder && !this.openedInteractives.has(object.hiddenUnder)) {
+      const coverSprite = this.interactiveSprites.get(object.hiddenUnder);
+      if (coverSprite) {
+        this.openInteractiveCover(coverSprite);
+      }
+    }
+    
+    const cam = this.cameras.main;
+    this.cameraTargetZoom = 1.62;
+    this.cameraTargetScrollX = object.x - (cam.width / 2) / 1.62;
+    this.cameraTargetScrollY = object.y - (cam.height / 2) / 1.62;
+    this.clampCameraTargetScroll();
+    
+    const replica = this.add.image(object.x, object.y, object.key)
+      .setScale(object.scale)
+      .setDepth(26)
+      .setTint(0x00ffff)
+      .setAlpha(0);
+    this.addToWorld(replica);
+    
+    this.tweens.add({
+      targets: replica,
+      scale: object.scale * 1.35,
+      alpha: 0.85,
+      yoyo: true,
+      repeat: 3,
+      duration: 500,
+      ease: 'Sine.easeInOut',
+      onComplete: () => {
+        replica.destroy();
+      }
+    });
+    
+    for (let i = 0; i < 15; i += 1) {
+      this.time.delayedCall(i * 60, () => {
+        this.playSoftSparkle(object.x + Phaser.Math.Between(-30, 30), object.y + Phaser.Math.Between(-30, 30), 1, 0x00ffff);
+      });
+    }
+  }
+
+  setupKeysPointerControls() {
+    this.keysPointerKeys = this.input.keyboard.addKeys({
+      up: Phaser.Input.Keyboard.KeyCodes.UP,
+      down: Phaser.Input.Keyboard.KeyCodes.DOWN,
+      left: Phaser.Input.Keyboard.KeyCodes.LEFT,
+      right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+      w: Phaser.Input.Keyboard.KeyCodes.W,
+      s: Phaser.Input.Keyboard.KeyCodes.S,
+      a: Phaser.Input.Keyboard.KeyCodes.A,
+      d: Phaser.Input.Keyboard.KeyCodes.D,
+      space: Phaser.Input.Keyboard.KeyCodes.SPACE,
+      enter: Phaser.Input.Keyboard.KeyCodes.ENTER
+    });
+
+    this.input.keyboard.on('keydown', (event) => {
+      if (!loadKeysPointer()) return;
+      if (!this.listOpen) return;
+
+      switch (event.keyCode) {
+        case Phaser.Input.Keyboard.KeyCodes.LEFT:
+        case Phaser.Input.Keyboard.KeyCodes.A:
+          this.navigateKeysPointer(-1);
+          break;
+        case Phaser.Input.Keyboard.KeyCodes.RIGHT:
+        case Phaser.Input.Keyboard.KeyCodes.D:
+          this.navigateKeysPointer(1);
+          break;
+        case Phaser.Input.Keyboard.KeyCodes.SPACE:
+        case Phaser.Input.Keyboard.KeyCodes.ENTER:
+          this.activateKeysPointerSelected();
+          break;
+      }
+    });
+  }
+
+  navigateKeysPointer(dir) {
+    const count = this.activeObjects.length;
+    if (count === 0) return;
+
+    if (this.keysPointerIndex === -1) {
+      this.keysPointerIndex = 0;
+    } else {
+      this.keysPointerIndex = (this.keysPointerIndex + dir + count) % count;
+    }
+
+    this.updateKeysPointerHighlight();
+  }
+
+  activateKeysPointerSelected() {
+    if (this.keysPointerIndex === -1) return;
+    const object = this.activeObjects[this.keysPointerIndex];
+    if (!object) return;
+
+    this.showMascotClueBubble(object);
+
+    if (!this.foundIds.has(object.id)) {
+      this.playCompassRadar(object);
+    }
+  }
+
+  updateKeysPointerHighlight() {
+    this.keysPointerHighlight.clear();
+    if (this.keysPointerIndex === -1 || !this.listOpen || !this.listPanel) return;
+    
+    const object = this.activeObjects[this.keysPointerIndex];
+    const item = this.checklistItems.get(object.id);
+    if (!item || !item.card) return;
+    
+    const cardX = item.card.getData('cardX');
+    const cardY = item.card.getData('cardY');
+    
+    const screenX = this.listPanel.x + cardX;
+    const screenY = this.listPanel.y + cardY;
+    
+    const w = this.checklistCardW + 4;
+    const h = this.checklistCardH + 4;
+    
+    this.keysPointerHighlight.lineStyle(4, 0xffeb3b, 1.0);
+    this.keysPointerHighlight.strokeRoundedRect(screenX - w / 2, screenY - h / 2, w, h, 14);
+    
+    this.keysPointerHighlight.lineStyle(2, 0xffffff, 1.0);
+    this.keysPointerHighlight.strokeRoundedRect(screenX - w / 2 - 1, screenY - h / 2 - 1, w + 2, h + 2, 14);
+  }
 
 
   playFoundFeedback(sprite) {
@@ -1234,6 +1889,9 @@ export class GameScene extends Phaser.Scene {
 
     const object = remaining[0];
     const sprite = this.objectSprites.get(object.id);
+
+    // Call compass radar!
+    this.playCompassRadar(object);
 
     if (object.hiddenUnder && !this.openedInteractives.has(object.hiddenUnder)) {
       const coverSprite = this.interactiveSprites.get(object.hiddenUnder);
