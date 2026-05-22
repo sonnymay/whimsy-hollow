@@ -431,6 +431,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden seeds added in `public/assets/bonus/`: `sunlit_seed_library_golden_seed_01.png`, `sunlit_seed_library_golden_seed_02.png`, and `sunlit_seed_library_golden_seed_03.png`.
   - Uses shared music via `src/data/music.js`, `Seeds 0/3`, `Seed!`, 10 main hidden objects, and three seed-library surprise hotspots.
 
+- Painted Pebble Patio scene added:
+  - Added `Painted Pebble Patio` with id `painted-pebble-patio`, inserted after `sunlit-seed-library` in the level registry.
+  - Background is `public/assets/backgrounds/painted_pebble_patio.png`, generated as a 1920x1080 painterly garden art patio with painted stones, paint pots, brushes, a drying tray, flower pots, vines, morning light, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `painted_pebble_patio_flower_pebble.png`, `painted_pebble_patio_blue_paint_pot.png`, `painted_pebble_patio_round_paintbrush.png`, `painted_pebble_patio_leaf_stencil.png`, `painted_pebble_patio_water_cup.png`, `painted_pebble_patio_paint_cloth.png`, `painted_pebble_patio_drying_tray.png`, `painted_pebble_patio_terracotta_paint_jar.png`, `painted_pebble_patio_apron.png`, and `painted_pebble_patio_chalk_pencil.png`.
+  - Bonus golden pebbles added in `public/assets/bonus/`: `painted_pebble_patio_golden_pebble_01.png`, `painted_pebble_patio_golden_pebble_02.png`, and `painted_pebble_patio_golden_pebble_03.png`.
+  - Uses shared music via `src/data/music.js`, `Pebbles 0/3`, `Pebble!`, 10 main hidden objects, and three pebble-patio surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

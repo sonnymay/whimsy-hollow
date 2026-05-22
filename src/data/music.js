@@ -48,7 +48,8 @@ export const musicByLevel = {
   'starlight-observatory-nook': { music: sharedMusic },
   'honey-candle-workshop': { music: sharedMusic },
   'morning-birdwatching-porch': { music: sharedMusic },
-  'sunlit-seed-library': { music: sharedMusic }
+  'sunlit-seed-library': { music: sharedMusic },
+  'painted-pebble-patio': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;

@@ -34,6 +34,7 @@ import { starlightObservatoryNook } from './levels/starlight-observatory-nook.js
 import { honeyCandleWorkshop } from './levels/honey-candle-workshop.js';
 import { morningBirdwatchingPorch } from './levels/morning-birdwatching-porch.js';
 import { sunlitSeedLibrary } from './levels/sunlit-seed-library.js';
+import { paintedPebblePatio } from './levels/painted-pebble-patio.js';
 
 export {
   mailGarden,
@@ -67,7 +68,8 @@ export {
   starlightObservatoryNook,
   honeyCandleWorkshop,
   morningBirdwatchingPorch,
-  sunlitSeedLibrary
+  sunlitSeedLibrary,
+  paintedPebblePatio
 };
 
 export const levels = [
@@ -102,7 +104,8 @@ export const levels = [
   starlightObservatoryNook,
   honeyCandleWorkshop,
   morningBirdwatchingPorch,
-  sunlitSeedLibrary
+  sunlitSeedLibrary,
+  paintedPebblePatio
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';
