@@ -389,6 +389,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden puzzle pieces added in `public/assets/bonus/`: `sunny_puzzle_parlor_golden_piece_01.png`, `sunny_puzzle_parlor_golden_piece_02.png`, and `sunny_puzzle_parlor_golden_piece_03.png`.
   - Uses shared music via `src/data/music.js`, `Pieces 0/3`, `Piece!`, 10 main hidden objects, and three puzzle-parlor surprise hotspots.
 
+- Moonlit Origami Alcove scene added:
+  - Added `Moonlit Origami Alcove` with id `moonlit-origami-alcove`, inserted after `sunny-puzzle-parlor` in the level registry.
+  - Background is `public/assets/backgrounds/moonlit_origami_alcove.png`, generated as a 1920x1080 painterly moonlit paper-folding nook with origami, lanterns, paper stacks, shelves, cushions, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `moonlit_origami_alcove_blue_crane.png`, `moonlit_origami_alcove_paper_star.png`, `moonlit_origami_alcove_bone_folder.png`, `moonlit_origami_alcove_patterned_sheet.png`, `moonlit_origami_alcove_paper_lantern.png`, `moonlit_origami_alcove_paperweight.png`, `moonlit_origami_alcove_washi_tape.png`, `moonlit_origami_alcove_paper_boat.png`, `moonlit_origami_alcove_paper_fan.png`, and `moonlit_origami_alcove_glue_brush.png`.
+  - Bonus crescent moons added in `public/assets/bonus/`: `moonlit_origami_alcove_crescent_01.png`, `moonlit_origami_alcove_crescent_02.png`, and `moonlit_origami_alcove_crescent_03.png`.
+  - Uses shared music via `src/data/music.js`, `Moons 0/3`, `Moon!`, 10 main hidden objects, and three origami-alcove surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

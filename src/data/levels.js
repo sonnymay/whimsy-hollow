@@ -28,6 +28,7 @@ import { cozyMapRoom } from './levels/cozy-map-room.js';
 import { sunnyGiftWrapNook } from './levels/sunny-gift-wrap-nook.js';
 import { mistyHerbPantry } from './levels/misty-herb-pantry.js';
 import { sunnyPuzzleParlor } from './levels/sunny-puzzle-parlor.js';
+import { moonlitOrigamiAlcove } from './levels/moonlit-origami-alcove.js';
 
 export {
   mailGarden,
@@ -55,7 +56,8 @@ export {
   cozyMapRoom,
   sunnyGiftWrapNook,
   mistyHerbPantry,
-  sunnyPuzzleParlor
+  sunnyPuzzleParlor,
+  moonlitOrigamiAlcove
 };
 
 export const levels = [
@@ -84,7 +86,8 @@ export const levels = [
   cozyMapRoom,
   sunnyGiftWrapNook,
   mistyHerbPantry,
-  sunnyPuzzleParlor
+  sunnyPuzzleParlor,
+  moonlitOrigamiAlcove
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';
