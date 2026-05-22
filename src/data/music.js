@@ -49,7 +49,8 @@ export const musicByLevel = {
   'honey-candle-workshop': { music: sharedMusic },
   'morning-birdwatching-porch': { music: sharedMusic },
   'sunlit-seed-library': { music: sharedMusic },
-  'painted-pebble-patio': { music: sharedMusic }
+  'painted-pebble-patio': { music: sharedMusic },
+  'puppet-theater-alcove': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;

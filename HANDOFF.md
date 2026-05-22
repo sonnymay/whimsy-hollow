@@ -438,6 +438,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden pebbles added in `public/assets/bonus/`: `painted_pebble_patio_golden_pebble_01.png`, `painted_pebble_patio_golden_pebble_02.png`, and `painted_pebble_patio_golden_pebble_03.png`.
   - Uses shared music via `src/data/music.js`, `Pebbles 0/3`, `Pebble!`, 10 main hidden objects, and three pebble-patio surprise hotspots.
 
+- Puppet Theater Alcove scene added:
+  - Added `Puppet Theater Alcove` with id `puppet-theater-alcove`, inserted after `painted-pebble-patio` in the level registry.
+  - Background is `public/assets/backgrounds/puppet_theater_alcove.png`, generated as a 1920x1080 painterly cottage puppet alcove with a tabletop stage, velvet curtains, handmade toy puppets, thread, ribbons, cushions, warm lamp light, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `puppet_theater_alcove_curtain_tassel.png`, `puppet_theater_alcove_puppet_handle.png`, `puppet_theater_alcove_felt_crown.png`, `puppet_theater_alcove_moon_prop.png`, `puppet_theater_alcove_ribbon_spool.png`, `puppet_theater_alcove_stage_lantern.png`, `puppet_theater_alcove_fabric_square.png`, `puppet_theater_alcove_star_wand.png`, `puppet_theater_alcove_sock_puppet.png`, and `puppet_theater_alcove_pincushion.png`.
+  - Bonus golden stage stars added in `public/assets/bonus/`: `puppet_theater_alcove_golden_star_01.png`, `puppet_theater_alcove_golden_star_02.png`, and `puppet_theater_alcove_golden_star_03.png`.
+  - Uses shared music via `src/data/music.js`, `Stars 0/3`, `Star!`, 10 main hidden objects, and three puppet-theater surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
