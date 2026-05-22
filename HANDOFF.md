@@ -473,6 +473,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus silver raindrops added in `public/assets/bonus/`: `rainy_boot_mudroom_silver_raindrop_01.png`, `rainy_boot_mudroom_silver_raindrop_02.png`, and `rainy_boot_mudroom_silver_raindrop_03.png`.
   - Uses shared music via `src/data/music.js`, `Raindrops 0/3`, `Raindrop!`, 10 main hidden objects, and three rainy-boot-mudroom surprise hotspots.
 
+- Cozy Aquarium Corner scene added:
+  - Added `Cozy Aquarium Corner` with id `cozy-aquarium-corner`, inserted after `rainy-boot-mudroom` in the level registry.
+  - Background is `public/assets/backgrounds/cozy_aquarium_corner.webp`, generated as a 1920x1080 painterly cottage reading corner with a softly glowing aquarium, water plants, river stones, warm lamplight, baskets, jars of glass pebbles, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `cozy_aquarium_corner_fish_food_tin.png`, `cozy_aquarium_corner_tiny_net.png`, `cozy_aquarium_corner_pebble_scoop.png`, `cozy_aquarium_corner_shell_charm.png`, `cozy_aquarium_corner_plant_weight.png`, `cozy_aquarium_corner_algae_scraper.png`, `cozy_aquarium_corner_castle_ornament.png`, `cozy_aquarium_corner_driftwood_twig.png`, `cozy_aquarium_corner_waterdrop_bottle.png`, and `cozy_aquarium_corner_care_card.png`.
+  - Bonus pearly bubbles added in `public/assets/bonus/`: `cozy_aquarium_corner_pearly_bubble_01.png`, `cozy_aquarium_corner_pearly_bubble_02.png`, and `cozy_aquarium_corner_pearly_bubble_03.png`.
+  - Uses shared music via `src/data/music.js`, `Bubbles 0/3`, `Bubble!`, 10 main hidden objects, and three cozy-aquarium-corner surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

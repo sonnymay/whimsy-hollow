@@ -38,6 +38,7 @@ import { paintedPebblePatio } from './levels/painted-pebble-patio.js';
 import { puppetTheaterAlcove } from './levels/puppet-theater-alcove.js';
 import { rainbowGlassSunroom } from './levels/rainbow-glass-sunroom.js';
 import { rainyBootMudroom } from './levels/rainy-boot-mudroom.js';
+import { cozyAquariumCorner } from './levels/cozy-aquarium-corner.js';
 
 export {
   mailGarden,
@@ -75,7 +76,8 @@ export {
   paintedPebblePatio,
   puppetTheaterAlcove,
   rainbowGlassSunroom,
-  rainyBootMudroom
+  rainyBootMudroom,
+  cozyAquariumCorner
 };
 
 export const levels = [
@@ -114,7 +116,8 @@ export const levels = [
   paintedPebblePatio,
   puppetTheaterAlcove,
   rainbowGlassSunroom,
-  rainyBootMudroom
+  rainyBootMudroom,
+  cozyAquariumCorner
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

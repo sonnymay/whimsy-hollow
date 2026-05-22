@@ -72,7 +72,8 @@ export const musicByLevel = {
   'painted-pebble-patio': { music: natureMusic },
   'puppet-theater-alcove': { music: cozyMusic },
   'rainbow-glass-sunroom': { music: cozyMusic },
-  'rainy-boot-mudroom': { music: cozyMusic }
+  'rainy-boot-mudroom': { music: cozyMusic },
+  'cozy-aquarium-corner': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
