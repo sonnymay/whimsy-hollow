@@ -410,6 +410,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden stars added in `public/assets/bonus/`: `starlight_observatory_nook_golden_star_01.png`, `starlight_observatory_nook_golden_star_02.png`, and `starlight_observatory_nook_golden_star_03.png`.
   - Uses shared music via `src/data/music.js`, `Stars 0/3`, `Star!`, 10 main hidden objects, and three observatory-nook surprise hotspots.
 
+- Honey Candle Workshop scene added:
+  - Added `Honey Candle Workshop` with id `honey-candle-workshop`, inserted after `starlight-observatory-nook` in the level registry.
+  - Background is `public/assets/backgrounds/honey_candle_workshop.png`, generated as a 1920x1080 painterly cottage candle-making workshop with honey jars, beeswax blocks, wick spools, dried flowers, lantern glow, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `honey_candle_workshop_beeswax_candle.png`, `honey_candle_workshop_honey_jar.png`, `honey_candle_workshop_honey_dipper.png`, `honey_candle_workshop_wick_spool.png`, `honey_candle_workshop_candle_snuffer.png`, `honey_candle_workshop_wax_stamp.png`, `honey_candle_workshop_lavender_bundle.png`, `honey_candle_workshop_label_card.png`, `honey_candle_workshop_tealight_holder.png`, and `honey_candle_workshop_measuring_spoon.png`.
+  - Bonus honey drops added in `public/assets/bonus/`: `honey_candle_workshop_honey_drop_01.png`, `honey_candle_workshop_honey_drop_02.png`, and `honey_candle_workshop_honey_drop_03.png`.
+  - Uses shared music via `src/data/music.js`, `Honey Drops 0/3`, `Honey Drop!`, 10 main hidden objects, and three candle-workshop surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

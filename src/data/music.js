@@ -45,7 +45,8 @@ export const musicByLevel = {
   'sunny-puzzle-parlor': { music: sharedMusic },
   'moonlit-origami-alcove': { music: sharedMusic },
   'cozy-cobbler-nook': { music: sharedMusic },
-  'starlight-observatory-nook': { music: sharedMusic }
+  'starlight-observatory-nook': { music: sharedMusic },
+  'honey-candle-workshop': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;
