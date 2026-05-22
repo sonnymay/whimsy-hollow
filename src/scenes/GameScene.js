@@ -131,11 +131,88 @@ export class GameScene extends Phaser.Scene {
 
     this.checkCompletionState(250);
 
+    // Dual-camera setup so the HUD stays anchored while the painted scene
+    // can zoom and pan. Classification happens once after all create logic.
+    this.setupCameras();
+
+    // Wire scene-level pan handler (no-op until zoomed).
+    this.input.on('pointermove', this.handleScenePan, this);
+
     // First-run tutorial — only on the very first scene the player opens,
     // and only once per profile/device.
     if (this.level.id === 'mail-garden' && !loadOnboarded()) {
       this.time.delayedCall(700, () => this.runFirstRunTutorial());
     }
+  }
+
+  setupCameras() {
+    this.worldLayer = this.add.layer();
+    this.hudLayer = this.add.layer();
+
+    // Anything already in the scene before this point gets sorted into the
+    // right layer. Layers themselves are excluded from the snapshot.
+    const snapshot = this.children.list.slice().filter(
+      (c) => c !== this.worldLayer && c !== this.hudLayer
+    );
+    for (const child of snapshot) {
+      if (child.getData && child.getData('hud')) {
+        this.hudLayer.add(child);
+      } else {
+        this.worldLayer.add(child);
+      }
+    }
+
+    // Main camera renders the world layer (zoomable). UI camera renders the
+    // HUD layer at a fixed 1× zoom, on top.
+    this.cameras.main.ignore(this.hudLayer);
+    this.uiCam = this.cameras.add(0, 0, 1280, 720);
+    this.uiCam.ignore(this.worldLayer);
+
+    this.zoomLevel = 1;
+    this.zoomed = false;
+  }
+
+  // Convenience: route dynamic runtime objects to the correct layer so they
+  // continue to be classified correctly after the cameras are configured.
+  addToHud(obj) {
+    if (this.hudLayer) this.hudLayer.add(obj);
+    return obj;
+  }
+
+  addToWorld(obj) {
+    if (this.worldLayer) this.worldLayer.add(obj);
+    return obj;
+  }
+
+  toggleZoom() {
+    if (!this.cameras || !this.cameras.main) return;
+    this.zoomed = !this.zoomed;
+    const cam = this.cameras.main;
+    if (this.zoomed) {
+      this.zoomLevel = 1.8;
+      cam.setZoom(this.zoomLevel);
+      cam.centerOn(640, 360);
+      this.zoomButton.setLabel('🔎');
+    } else {
+      this.zoomLevel = 1;
+      cam.setZoom(1);
+      cam.setScroll(0, 0);
+      this.zoomButton.setLabel('🔍');
+    }
+  }
+
+  handleScenePan(pointer) {
+    if (!this.zoomed || !pointer.isDown) return;
+    const cam = this.cameras.main;
+    const dx = pointer.x - pointer.prevPosition.x;
+    const dy = pointer.y - pointer.prevPosition.y;
+    cam.scrollX -= dx / cam.zoom;
+    cam.scrollY -= dy / cam.zoom;
+    // Clamp so the camera never shows outside the painted scene.
+    const viewW = cam.width / cam.zoom;
+    const viewH = cam.height / cam.zoom;
+    cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, 1280 - viewW);
+    cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, 720 - viewH);
   }
 
   runFirstRunTutorial() {
@@ -178,6 +255,9 @@ export class GameScene extends Phaser.Scene {
     }).setOrigin(1, 0.5).setDepth(33).setInteractive({ useHandCursor: true });
 
     const tutorialPieces = [overlay, bubble, tip, ring, skip];
+    // Route to HUD layer so they aren't double-rendered (and aren't zoomed)
+    // since they're created after setupCameras().
+    for (const piece of tutorialPieces) this.addToHud(piece);
     const cleanup = () => {
       saveOnboarded();
       for (const piece of tutorialPieces) piece.destroy();
@@ -420,11 +500,13 @@ export class GameScene extends Phaser.Scene {
     const btnH = 48;
     const muteW = 56;
     const pauseW = 56;
+    const zoomW = 56;
     const gap = 12;
     const rightEdge = 1280 - 22;
     const homeX = rightEdge - btnW / 2;
     const pauseX = homeX - btnW / 2 - gap - pauseW / 2;
-    const helpX = pauseX - pauseW / 2 - gap - btnW / 2;
+    const zoomX = pauseX - pauseW / 2 - gap - zoomW / 2;
+    const helpX = zoomX - zoomW / 2 - gap - btnW / 2;
     const listX = helpX - btnW - gap;
     const muteX = listX - btnW / 2 - gap - muteW / 2;
 
@@ -453,6 +535,14 @@ export class GameScene extends Phaser.Scene {
       depth: HUD_DEPTH
     });
 
+    this.zoomButton = createPillButton(this, {
+      x: zoomX, y: theme.hud.y,
+      width: zoomW, height: btnH,
+      label: '🔍', fontSize: 20,
+      onClick: () => this.toggleZoom(),
+      depth: HUD_DEPTH
+    });
+
     this.pauseButton = createPillButton(this, {
       x: pauseX, y: theme.hud.y,
       width: pauseW, height: btnH,
@@ -472,7 +562,7 @@ export class GameScene extends Phaser.Scene {
     // HUD elements that hide while the List panel is open. The List button
     // sits behind the panel visually, so it joins the hideable set; the
     // panel's own × button is the close affordance.
-    this.hudHideable = [this.countPill, this.muteButton, this.listButton, this.hintButton, this.pauseButton, this.homeButton];
+    this.hudHideable = [this.countPill, this.muteButton, this.listButton, this.hintButton, this.zoomButton, this.pauseButton, this.homeButton];
     this.applyListVisibility();
 
     // Centered, only when complete — soft cream, not red
@@ -488,6 +578,17 @@ export class GameScene extends Phaser.Scene {
       depth: HUD_DEPTH + 2
     });
     this.finishButton.setVisible(false);
+
+    // Tag every HUD container so the dual-camera setup at the end of create()
+    // can render them with a separate non-zoomed camera.
+    const hudContainers = [
+      this.countPill.container, this.muteButton.container, this.listButton.container,
+      this.hintButton.container, this.zoomButton.container, this.pauseButton.container,
+      this.homeButton.container, this.listPanel, this.finishButton.container
+    ];
+    for (const c of hudContainers) {
+      if (c && c.setData) c.setData('hud', true);
+    }
   }
 
   applyListVisibility() {
@@ -894,108 +995,12 @@ export class GameScene extends Phaser.Scene {
     this.scene.launch('PauseScene', { from: 'GameScene' });
   }
 
-  createGuide() {
-    // In-game mascot disabled — it occluded the painted scene's lower-left
-    // corner. The title-screen mascot is unaffected. `sayGuide` and
-    // `guideHopTo` already null-check `this.guide` / `this.guideText`,
-    // so leaving them undefined makes them safe no-ops. Toasts and the
-    // Help button's ring/arrow/sparkles still provide feedback.
-    return;
+  // In-game mascot was disabled because it occluded the scene's lower-left
+  // corner. These are safe no-ops — callers don't need to be changed.
+  createGuide() {}
+  sayGuide() {}
+  guideHopTo() {}
 
-    // ---- Original (kept for reference if mascot returns later) ----
-    // eslint-disable-next-line no-unreachable
-    this.guide = this.add.container(92, 642).setDepth(HUD_DEPTH + 1);
-    const shadow = this.add.ellipse(0, 31, 64, 15, 0x23170f, 0.22);
-    const image = this.add.image(0, -8, MASCOT_KEY)
-      .setDisplaySize(74, 74);
-    const bubble = this.add.rectangle(116, -12, 136, 42, 0xfff8dc, 0.94)
-      .setStrokeStyle(2, 0x72552a, 0.76);
-    const tail = this.add.triangle(48, 0, 64, -6, 64, 10, 36, 22, 0xfff8dc, 0.94)
-      .setStrokeStyle(2, 0x72552a, 0.76);
-    this.guideText = this.add.text(116, -12, '', {
-      fontFamily: UI_FONT,
-      fontSize: '15px',
-      color: '#35291d'
-    }).setOrigin(0.5);
-    this.guide.add([shadow, image, tail, bubble, this.guideText]);
-
-    this.tweens.add({
-      targets: this.guide,
-      y: 636,
-      duration: 1200,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut'
-    });
-  }
-
-  sayGuide(message) {
-    if (!this.guideText) {
-      return;
-    }
-
-    this.guideText.setText(message);
-  }
-
-  guideHopTo(sprite) {
-    if (!this.guide || this.listOpen) {
-      return;
-    }
-
-    const homeX = 92;
-    const homeY = 642;
-    const targetX = Phaser.Math.Clamp(sprite.x - 58, 74, 1180);
-    const targetY = Phaser.Math.Clamp(sprite.y + 50, 118, 642);
-    this.guide.setVisible(true);
-    this.guide.setDepth(38);
-    this.tweens.killTweensOf(this.guide);
-
-    for (let i = 1; i < 6; i += 1) {
-      const paw = this.add.circle(homeX + i * ((targetX - homeX) / 6), homeY + i * ((targetY - homeY) / 6), 5, 0xffd1dc, 0.76)
-        .setDepth(37);
-      this.tweens.add({
-        targets: paw,
-        alpha: 0,
-        scale: 0.25,
-        duration: 700 + i * 70,
-        ease: 'Sine.easeOut',
-        onComplete: () => paw.destroy()
-      });
-    }
-
-    this.tweens.add({
-      targets: this.guide,
-      x: targetX,
-      y: targetY,
-      scale: 1.08,
-      duration: 520,
-      ease: 'Back.easeOut',
-      onComplete: () => {
-        this.playSoftSparkle(sprite.x, sprite.y, 7, 0xfff0a8);
-        this.time.delayedCall(900, () => {
-          this.tweens.add({
-            targets: this.guide,
-            x: homeX,
-            y: homeY,
-            scale: 1,
-            duration: 520,
-            ease: 'Sine.easeInOut',
-            onComplete: () => {
-              this.guide.setDepth(HUD_DEPTH + 1);
-              this.tweens.add({
-                targets: this.guide,
-                y: 636,
-                duration: 1200,
-                yoyo: true,
-                repeat: -1,
-                ease: 'Sine.easeInOut'
-              });
-            }
-          });
-        });
-      }
-    });
-  }
 
   playFoundFeedback(sprite) {
     if (this.sound.get('foundChime') || this.cache.audio.exists('foundChime')) {
@@ -1008,6 +1013,7 @@ export class GameScene extends Phaser.Scene {
       const sparkle = this.add.star(sprite.x, sprite.y, 5, 4, 12, 0xfff0a8, 1)
         .setDepth(30)
         .setBlendMode(Phaser.BlendModes.ADD);
+      this.addToWorld(sparkle);
 
       this.tweens.add({
         targets: sparkle,
@@ -1027,6 +1033,7 @@ export class GameScene extends Phaser.Scene {
         fontSize: `${Phaser.Math.Between(18, 28)}px`,
         color: Phaser.Math.RND.pick(['#ffd1dc', '#fff0a8', '#bdf3d3'])
       }).setOrigin(0.5).setDepth(31);
+      this.addToWorld(heart);
 
       this.tweens.add({
         targets: heart,
@@ -1046,6 +1053,7 @@ export class GameScene extends Phaser.Scene {
       const sparkle = this.add.circle(x, y, Phaser.Math.Between(3, 6), color, 0.9)
         .setDepth(32)
         .setBlendMode(Phaser.BlendModes.ADD);
+      this.addToWorld(sparkle);
 
       this.tweens.add({
         targets: sparkle,
@@ -1070,6 +1078,8 @@ export class GameScene extends Phaser.Scene {
       .setDepth(33);
     const dot = this.add.circle(x, y, 5, 0xbfe8ff, 0.72)
       .setDepth(33);
+    this.addToWorld(ripple);
+    this.addToWorld(dot);
 
     this.tweens.add({
       targets: ripple,
@@ -1107,6 +1117,7 @@ export class GameScene extends Phaser.Scene {
     }).setOrigin(0.5);
     toast.add([bg, text]);
     this.toast = toast;
+    this.addToHud(toast);
 
     this.tweens.add({
       targets: toast,
@@ -1171,6 +1182,7 @@ export class GameScene extends Phaser.Scene {
     const ring = this.add.ellipse(sprite.x, sprite.y, Math.max(86, sprite.displayWidth + 48), Math.max(68, sprite.displayHeight + 38))
       .setStrokeStyle(7, 0xffef8a, 1)
       .setDepth(25);
+    this.addToWorld(ring);
 
     sprite.setTint(0xfff0a4);
     this.tweens.add({
@@ -1199,6 +1211,8 @@ export class GameScene extends Phaser.Scene {
       .setBlendMode(Phaser.BlendModes.ADD);
     const arrow = this.add.triangle(sprite.x, sprite.y - 82, -18, 22, 18, 22, 0, -20, 0xffef8a, 0.95)
       .setDepth(34);
+    this.addToWorld(beam);
+    this.addToWorld(arrow);
 
     this.tweens.add({
       targets: beam,

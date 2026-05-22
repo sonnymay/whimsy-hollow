@@ -94,32 +94,7 @@ export class WinScene extends Phaser.Scene {
     });
   }
 
-  createButton(x, y, label, onClick) {
-    const leftCap = this.add.circle(x - 83, y, 33, 0xffd86f, 0.98)
-      .setStrokeStyle(3, 0x583a20);
-    const rightCap = this.add.circle(x + 83, y, 33, 0xffd86f, 0.98)
-      .setStrokeStyle(3, 0x583a20);
-    const bg = this.add.rectangle(x, y, 166, 66, 0xffd86f, 0.98)
-      .setStrokeStyle(3, 0x583a20)
-      .setInteractive({ useHandCursor: true });
-    const text = this.add.text(x, y, label, {
-      fontFamily: UI_FONT,
-      fontSize: '29px',
-      color: '#2d271d'
-    }).setOrigin(0.5);
 
-    const setFill = (color) => {
-      leftCap.setFillStyle(color, 0.98);
-      rightCap.setFillStyle(color, 0.98);
-      bg.setFillStyle(color, 0.98);
-    };
-
-    bg.on('pointerover', () => setFill(0xffee9f));
-    bg.on('pointerout', () => setFill(0xffd86f));
-    bg.on('pointerdown', onClick);
-
-    return { bg, text };
-  }
 
   loadBonusCount() {
     try {

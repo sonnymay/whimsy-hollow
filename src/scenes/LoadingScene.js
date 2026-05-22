@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
+import { theme } from '../ui/theme.js';
 
-const UI_FONT = '"Arial Rounded MT Bold", "Trebuchet MS", "Comic Sans MS", Arial, sans-serif';
+const UI_FONT = theme.font;
 const MASCOT_KEY = 'mailBirdMascot';
 const MASCOT_PATH = 'assets/characters/mail_bird_mascot.png';
 

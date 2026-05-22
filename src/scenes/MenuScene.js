@@ -202,8 +202,12 @@ export class MenuScene extends Phaser.Scene {
       hit.on('pointerover', () => { if (thumb) thumb.setDisplaySize(dotW - 4, dotH - 8); });
       hit.on('pointerout', () => { if (thumb) thumb.setDisplaySize(dotW - 10, dotH - 14); });
       hit.on('pointerdown', () => {
-        window.localStorage.removeItem(level.saveKey);
-        window.localStorage.removeItem(level.bonusSaveKey);
+        // Only wipe progress for completed levels (replay). In-progress
+        // levels resume where the player left off.
+        if (completed.has(level.id)) {
+          window.localStorage.removeItem(level.saveKey);
+          window.localStorage.removeItem(level.bonusSaveKey);
+        }
         this.scene.start('LoadingScene', {
           targetScene: 'GameScene',
           targetData: { levelId: level.id },
