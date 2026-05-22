@@ -147,18 +147,21 @@ export class GameScene extends Phaser.Scene {
     // Soft dim overlay (non-interactive — clicks pass through to the scene)
     const overlay = this.add.rectangle(640, 360, 1280, 720, 0x14110b, 0.34).setDepth(30);
 
-    // Speech bubble near the target
-    const bubbleX = Math.min(Math.max(sprite.x + 90, 220), 1060);
-    const bubbleY = Math.max(sprite.y - 110, 170);
+    // Speech bubble near the target — wider to fit the List hint.
+    const bubbleX = Math.min(Math.max(sprite.x + 100, 260), 1020);
+    const bubbleY = Math.max(sprite.y - 130, 190);
+    const bubbleW = 340;
+    const bubbleH = 108;
     const bubble = this.add.graphics().setDepth(31);
     bubble.fillStyle(0xfff7e3, 0.97);
-    bubble.fillRoundedRect(bubbleX - 140, bubbleY - 40, 280, 80, 18);
+    bubble.fillRoundedRect(bubbleX - bubbleW / 2, bubbleY - bubbleH / 2, bubbleW, bubbleH, 18);
     bubble.lineStyle(2, 0xc9a96e, 0.5);
-    bubble.strokeRoundedRect(bubbleX - 140, bubbleY - 40, 280, 80, 18);
+    bubble.strokeRoundedRect(bubbleX - bubbleW / 2, bubbleY - bubbleH / 2, bubbleW, bubbleH, 18);
 
-    const tip = this.add.text(bubbleX, bubbleY, 'Tap the glowing item!\nFind every cute treasure.', {
-      fontFamily: UI_FONT, fontSize: '16px', color: '#4a3a26', align: 'center'
-    }).setOrigin(0.5).setDepth(32);
+    const tip = this.add.text(bubbleX, bubbleY,
+      'Tap the glowing item to find it!\n\nTap the List button up top\nto see what to look for.',
+      { fontFamily: UI_FONT, fontSize: '15px', color: '#4a3a26', align: 'center' }
+    ).setOrigin(0.5).setDepth(32);
 
     // Pulsing ring on the target
     const ring = this.add.ellipse(sprite.x, sprite.y, 100, 76)
@@ -892,6 +895,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   createGuide() {
+    // In-game mascot disabled — it occluded the painted scene's lower-left
+    // corner. The title-screen mascot is unaffected. `sayGuide` and
+    // `guideHopTo` already null-check `this.guide` / `this.guideText`,
+    // so leaving them undefined makes them safe no-ops. Toasts and the
+    // Help button's ring/arrow/sparkles still provide feedback.
+    return;
+
+    // ---- Original (kept for reference if mascot returns later) ----
+    // eslint-disable-next-line no-unreachable
     this.guide = this.add.container(92, 642).setDepth(HUD_DEPTH + 1);
     const shadow = this.add.ellipse(0, 31, 64, 15, 0x23170f, 0.22);
     const image = this.add.image(0, -8, MASCOT_KEY)
