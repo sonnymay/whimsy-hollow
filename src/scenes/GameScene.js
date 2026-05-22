@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { getLevelById, getNextLevel, mailGarden, markSceneComplete } from '../data/levels.js';
+import { getLevelById, getNextLevel, mailGarden, markSceneComplete, levels } from '../data/levels.js';
 import {
   clearLevelProgress,
   loadBonusIds,
@@ -150,6 +150,8 @@ export class GameScene extends Phaser.Scene {
     if (this.level.id === 'mail-garden' && !loadOnboarded()) {
       this.time.delayedCall(700, () => this.runFirstRunTutorial());
     }
+
+    this.initDevMode();
   }
 
   setupCameras() {
@@ -229,13 +231,44 @@ export class GameScene extends Phaser.Scene {
     cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, Math.max(0, 720 - viewH));
   }
 
-  handleSceneWheel(_pointer, _gameObjects, _dx, dy) {
+  handleSceneWheel(pointer, _gameObjects, _dx, dy) {
     if (!this.cameras || !this.cameras.main) return;
+    
+    if (this.isDevMode && this.hoveredDevObject) {
+      const scaleDelta = dy > 0 ? -0.002 : 0.002;
+      const type = this.hoveredDevObject.getData('type');
+      if (type === 'surprise') {
+        this.hoveredDevObject.width = Math.max(10, this.hoveredDevObject.width + (dy > 0 ? -5 : 5));
+        this.hoveredDevObject.height = Math.max(10, this.hoveredDevObject.height + (dy > 0 ? -5 : 5));
+        this.hoveredDevObject.input.hitArea.width = this.hoveredDevObject.width;
+        this.hoveredDevObject.input.hitArea.height = this.hoveredDevObject.height;
+      } else if (this.hoveredDevObject.list && this.hoveredDevObject.list[1]) {
+        const sprite = this.hoveredDevObject.list[1];
+        const newScale = Math.max(0.005, Math.min(2.0, sprite.scale + scaleDelta));
+        sprite.setScale(newScale);
+        const hitWidth = Math.max(34, sprite.displayWidth);
+        const hitHeight = Math.max(28, sprite.displayHeight);
+        this.hoveredDevObject.input.hitArea.setTo(-hitWidth / 2, -hitHeight / 2, hitWidth, hitHeight);
+      } else {
+        const newScale = Math.max(0.005, Math.min(2.0, this.hoveredDevObject.scale + scaleDelta));
+        this.hoveredDevObject.setScale(newScale);
+        
+        const shadow = this.hoveredDevObject.getData('shadow');
+        if (shadow) {
+          shadow.displayWidth = Math.max(22, this.hoveredDevObject.displayWidth * 0.62);
+          shadow.displayHeight = Math.max(10, this.hoveredDevObject.displayHeight * 0.18);
+          shadow.y = this.hoveredDevObject.y + Math.max(8, this.hoveredDevObject.displayHeight * 0.22);
+        }
+      }
+      this.updateDevPanelInfo(this.hoveredDevObject);
+      return;
+    }
+
     const cam = this.cameras.main;
     // Convert pointer screen position → current world position
-    const pointer = this.input.activePointer;
-    const worldX = pointer.x / cam.zoom + cam.scrollX;
-    const worldY = pointer.y / cam.zoom + cam.scrollY;
+    const pointerObj = this.input.activePointer;
+    const worldX = pointerObj.x / cam.zoom + cam.scrollX;
+    const worldY = pointerObj.y / cam.zoom + cam.scrollY;
     // Scroll up (dy < 0) zooms in. Step size proportional to current zoom
     // so it feels smooth at any level.
     const step = 0.12 * cam.zoom;
@@ -244,6 +277,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleScenePan(pointer) {
+    if (this.isDevMode) return;
     if (!this.zoomed || !pointer.isDown) return;
     const cam = this.cameras.main;
     const dx = pointer.x - pointer.prevPosition.x;
@@ -871,6 +905,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   findBonusEnvelope(envelope, container) {
+    if (this.isDevMode) return;
     if (this.foundBonusIds.has(envelope.id)) {
       return;
     }
@@ -900,11 +935,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   createSceneSurprises() {
+    this.surpriseZones = [];
+    if (!this.level.surprises) return;
     for (const surprise of this.level.surprises) {
-      const zone = this.add.zone(surprise.x, surprise.y, 82, 72)
+      const w = surprise.width ?? 82;
+      const h = surprise.height ?? 72;
+      const zone = this.add.zone(surprise.x, surprise.y, w, h)
         .setInteractive({ useHandCursor: true })
         .setDepth(4);
+      zone.setData('surpriseId', surprise.id);
+      zone.setData('surpriseConfig', surprise);
       zone.on('pointerdown', () => this.playSceneSurprise(surprise));
+      this.surpriseZones.push(zone);
     }
   }
 
@@ -916,6 +958,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleMissTap(pointer) {
+    if (this.isDevMode) return;
     const now = this.time.now;
     if (now - this.lastMissAt < 700 || this.listOpen) {
       return;
@@ -933,12 +976,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   playSceneSurprise(surprise) {
+    if (this.isDevMode) return;
     this.showFoundToast(surprise.label);
     this.sayGuide('Nice!');
     this.playSoftSparkle(surprise.x, surprise.y, 6);
   }
 
   findObject(object) {
+    if (this.isDevMode) return;
     if (this.foundIds.has(object.id)) {
       return;
     }
@@ -1409,4 +1454,731 @@ export class GameScene extends Phaser.Scene {
   saveProgress() { saveFoundIds(this.level, this.foundIds); }
   loadBonusProgress() { return loadBonusIds(this.level); }
   saveBonusProgress() { saveBonusIds(this.level, this.foundBonusIds); }
+
+  initDevMode() {
+    this.isDevMode = false;
+    this.hoveredDevObject = null;
+    this.selectedDevObject = null;
+    this.devGraphics = this.add.graphics().setDepth(15);
+    this.devGridGfx = this.add.graphics().setDepth(2);
+    this.showDevGrid = false;
+
+    // Keyboard events
+    this.input.keyboard.on('keydown-D', (event) => {
+      this.toggleDevMode();
+    });
+
+    // Arrow keys nudge
+    this.input.keyboard.on('keydown-UP', (event) => {
+      if (this.isDevMode && this.hoveredDevObject) {
+        event.preventDefault();
+        this.nudgeDevObject(0, event.shiftKey ? -5 : -1);
+      }
+    });
+    this.input.keyboard.on('keydown-DOWN', (event) => {
+      if (this.isDevMode && this.hoveredDevObject) {
+        event.preventDefault();
+        this.nudgeDevObject(0, event.shiftKey ? 5 : 1);
+      }
+    });
+    this.input.keyboard.on('keydown-LEFT', (event) => {
+      if (this.isDevMode && this.hoveredDevObject) {
+        event.preventDefault();
+        this.nudgeDevObject(event.shiftKey ? -5 : -1, 0);
+      }
+    });
+    this.input.keyboard.on('keydown-RIGHT', (event) => {
+      if (this.isDevMode && this.hoveredDevObject) {
+        event.preventDefault();
+        this.nudgeDevObject(event.shiftKey ? 5 : 1, 0);
+      }
+    });
+
+    // Scale keys [ and ]
+    this.input.keyboard.on('keydown-OPEN_BRACKET', (event) => {
+      if (this.isDevMode && this.hoveredDevObject) {
+        this.scaleDevObject(-0.01);
+      }
+    });
+    this.input.keyboard.on('keydown-CLOSED_BRACKET', (event) => {
+      if (this.isDevMode && this.hoveredDevObject) {
+        this.scaleDevObject(0.01);
+      }
+    });
+
+    // Drag-and-drop setup for Phaser
+    this.input.on('dragstart', (pointer, gameObject) => {
+      if (!this.isDevMode) return;
+      this.hoveredDevObject = gameObject;
+      this.selectedDevObject = gameObject;
+      this.updateDevPanelInfo(gameObject);
+    });
+
+    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+      if (!this.isDevMode) return;
+      
+      const type = gameObject.getData('type');
+      if (type === 'surprise') {
+        gameObject.x = Math.round(dragX);
+        gameObject.y = Math.round(dragY);
+      } else if (gameObject.list && gameObject.list[1]) {
+        // Container
+        gameObject.x = Math.round(dragX);
+        gameObject.y = Math.round(dragY);
+      } else {
+        // Regular sprite
+        gameObject.x = Math.round(dragX);
+        gameObject.y = Math.round(dragY);
+        const clickZone = gameObject.getData('clickZone');
+        if (clickZone) {
+          clickZone.x = gameObject.x;
+          clickZone.y = gameObject.y;
+        }
+        this.syncObjectGraphics(gameObject);
+      }
+      this.updateDevPanelInfo(gameObject);
+      this.drawDevHighlights();
+    });
+
+    this.input.on('dragend', (pointer, gameObject) => {
+      if (!this.isDevMode) return;
+      this.updateDevPanelInfo(gameObject);
+      this.drawDevHighlights();
+    });
+
+    // Check if session storage indicates starting in dev mode
+    const startInDevMode = window.sessionStorage.getItem('whimsy-hollow:dev-mode') === 'true';
+    if (startInDevMode) {
+      this.time.delayedCall(100, () => {
+        this.toggleDevMode();
+      });
+    }
+  }
+
+  toggleDevMode() {
+    this.isDevMode = !this.isDevMode;
+    this.hoveredDevObject = null;
+    this.selectedDevObject = null;
+
+    if (this.isDevMode) {
+      this.showFoundToast("Editor Mode Active");
+      
+      // Make all object sprites visible, interactive, and draggable
+      this.objectSprites.forEach((sprite, id) => {
+        sprite.setVisible(true);
+        sprite.setInteractive({ useHandCursor: true });
+        this.input.setDraggable(sprite, true);
+        sprite.setData('type', 'sprite');
+        
+        // Hide standard click zone
+        const clickZone = sprite.getData('clickZone');
+        if (clickZone) {
+          clickZone.disableInteractive();
+          clickZone.setVisible(false);
+        }
+
+        // Show shadow
+        const shadow = sprite.getData('shadow');
+        if (shadow) shadow.setVisible(true);
+
+        // Hover events
+        sprite.on('pointerover', () => {
+          if (this.isDevMode) {
+            this.hoveredDevObject = sprite;
+            this.updateDevPanelInfo(sprite);
+            this.drawDevHighlights();
+          }
+        });
+        sprite.on('pointerout', () => {
+          if (this.isDevMode && this.hoveredDevObject === sprite) {
+            this.hoveredDevObject = null;
+            this.drawDevHighlights();
+          }
+        });
+      });
+
+      // Make bonus containers visible and draggable
+      this.bonusItems.forEach((container, id) => {
+        container.setVisible(true);
+        container.setInteractive();
+        this.input.setDraggable(container, true);
+        container.setData('type', 'bonus');
+        
+        container.on('pointerover', () => {
+          if (this.isDevMode) {
+            this.hoveredDevObject = container;
+            this.updateDevPanelInfo(container);
+            this.drawDevHighlights();
+          }
+        });
+        container.on('pointerout', () => {
+          if (this.isDevMode && this.hoveredDevObject === container) {
+            this.hoveredDevObject = null;
+            this.drawDevHighlights();
+          }
+        });
+      });
+
+      // Make surprise zones visible (debug rectangle) and draggable
+      if (this.surpriseZones) {
+        this.surpriseZones.forEach((zone) => {
+          zone.setVisible(true);
+          zone.setInteractive();
+          this.input.setDraggable(zone, true);
+          zone.setData('type', 'surprise');
+          
+          zone.on('pointerover', () => {
+            if (this.isDevMode) {
+              this.hoveredDevObject = zone;
+              this.updateDevPanelInfo(zone);
+              this.drawDevHighlights();
+            }
+          });
+          zone.on('pointerout', () => {
+            if (this.isDevMode && this.hoveredDevObject === zone) {
+              this.hoveredDevObject = null;
+              this.drawDevHighlights();
+            }
+          });
+        });
+      }
+
+      this.createDevPanelDOM();
+      this.drawDevGrid();
+      this.drawDevHighlights();
+    } else {
+      this.showFoundToast("Editor Mode Disabled");
+      
+      // Clear storage dev mode toggle
+      window.sessionStorage.removeItem('whimsy-hollow:dev-mode');
+
+      // Cleanup drag & interactive states
+      this.objectSprites.forEach((sprite, id) => {
+        const found = this.foundIds.has(id);
+        const object = this.activeObjects.find(o => o.id === id);
+        const isHidden = object.hiddenUnder && !this.openedInteractives.has(object.hiddenUnder);
+        sprite.setVisible(!found && !isHidden);
+        
+        sprite.disableInteractive();
+        this.input.setDraggable(sprite, false);
+        sprite.off('pointerover');
+        sprite.off('pointerout');
+
+        // Restore standard click zone
+        const clickZone = sprite.getData('clickZone');
+        if (clickZone && !found && !isHidden) {
+          clickZone.setInteractive();
+          clickZone.setVisible(true);
+        }
+
+        // Restore shadow visibility
+        const shadow = sprite.getData('shadow');
+        if (shadow) shadow.setVisible(!found && !isHidden);
+      });
+
+      this.bonusItems.forEach((container, id) => {
+        const found = this.foundBonusIds.has(id);
+        container.setVisible(!found);
+        if (found) {
+          container.disableInteractive();
+        } else {
+          container.setInteractive();
+        }
+        this.input.setDraggable(container, false);
+        container.off('pointerover');
+        container.off('pointerout');
+      });
+
+      if (this.surpriseZones) {
+        this.surpriseZones.forEach((zone) => {
+          zone.setInteractive();
+          this.input.setDraggable(zone, false);
+          zone.off('pointerover');
+          zone.off('pointerout');
+        });
+      }
+
+      // Remove DOM panel & clean graphics
+      if (this.devPanelEl) {
+        this.devPanelEl.remove();
+        this.devPanelEl = null;
+      }
+      this.devGraphics.clear();
+      this.devGridGfx.clear();
+    }
+  }
+
+  drawDevHighlights() {
+    this.devGraphics.clear();
+    if (!this.isDevMode) return;
+
+    // Draw borders around all surprise zones first so the user can see them
+    if (this.surpriseZones) {
+      this.surpriseZones.forEach((zone) => {
+        const isHovered = this.hoveredDevObject === zone;
+        this.devGraphics.lineStyle(2, isHovered ? 0xff0000 : 0xffa500, 0.7);
+        this.devGraphics.strokeRect(zone.x - zone.width / 2, zone.y - zone.height / 2, zone.width, zone.height);
+      });
+    }
+
+    // Highlight hovered object
+    if (this.hoveredDevObject) {
+      const obj = this.hoveredDevObject;
+      const type = obj.getData('type');
+      this.devGraphics.lineStyle(3, 0x00ff00, 1.0);
+      
+      if (type === 'surprise') {
+        this.devGraphics.strokeRect(obj.x - obj.width / 2 - 4, obj.y - obj.height / 2 - 4, obj.width + 8, obj.height + 8);
+      } else if (type === 'bonus') {
+        const width = 64;
+        const height = 48;
+        this.devGraphics.strokeRect(obj.x - width / 2, obj.y - height / 2, width, height);
+      } else {
+        const bounds = obj.getBounds();
+        this.devGraphics.strokeRect(bounds.x - 4, bounds.y - 4, bounds.width + 8, bounds.height + 8);
+      }
+    }
+  }
+
+  drawDevGrid() {
+    this.devGridGfx.clear();
+    if (!this.isDevMode || !this.showDevGrid) return;
+
+    this.devGridGfx.lineStyle(1, 0x999999, 0.25);
+    
+    for (let y = 0; y < 720; y += 50) {
+      this.devGridGfx.lineBetween(0, y, 1280, y);
+    }
+    
+    for (let x = 0; x < 1280; x += 50) {
+      this.devGridGfx.lineBetween(x, 0, x, 720);
+    }
+  }
+
+  createDevPanelDOM() {
+    if (this.devPanelEl) this.devPanelEl.remove();
+
+    const el = document.createElement('div');
+    el.className = 'dev-editor-panel';
+    el.style.cssText = `
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 10000;
+      width: 320px;
+      background: rgba(30, 41, 35, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(201, 169, 110, 0.4);
+      border-radius: 14px;
+      color: #fff4d6;
+      padding: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      pointer-events: auto;
+    `;
+
+    const levelOptions = levels.map(l => 
+      `<option value="${l.id}" ${l.id === this.level.id ? 'selected' : ''}>${l.title.replace('Whimsy Hollow ', '')}</option>`
+    ).join('');
+
+    el.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(201, 169, 110, 0.2); padding-bottom:8px;">
+        <span style="font-size:16px; font-weight:bold; color:#f0d27d;">Hollow Level Editor</span>
+        <button id="dev-close-btn" style="background:none; border:none; color:#c9a96e; cursor:pointer; font-size:16px;">✕</button>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px; color:#eadfc0; margin-bottom:4px;">Level Select</div>
+        <select id="dev-level-select" style="background:rgba(0,0,0,0.4); border:1px solid rgba(201, 169, 110, 0.3); border-radius:6px; color:#ffffff; padding:6px; font-size:13px; width:100%; cursor:pointer;">
+          ${levelOptions}
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px; color:#eadfc0; margin-bottom:4px;">Selected Object</div>
+        <div id="dev-obj-name" style="font-size:14px; font-weight:bold; color:#ffffff; min-height:18px;">None (Hover/Click to select)</div>
+      </div>
+
+      <div style="margin-bottom:12px; display:flex; gap:8px;">
+        <div style="flex:1;">
+          <div style="font-size:11px; color:#eadfc0;">X Coords</div>
+          <input type="number" id="dev-obj-x" style="background:rgba(0,0,0,0.3); border:1px solid rgba(201, 169, 110, 0.3); border-radius:6px; color:#ffffff; padding:6px; font-size:13px; width:90%;" disabled />
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:11px; color:#eadfc0;">Y Coords</div>
+          <input type="number" id="dev-obj-y" style="background:rgba(0,0,0,0.3); border:1px solid rgba(201, 169, 110, 0.3); border-radius:6px; color:#ffffff; padding:6px; font-size:13px; width:90%;" disabled />
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:11px; color:#eadfc0;">Scale</div>
+          <input type="number" step="0.01" id="dev-obj-scale" style="background:rgba(0,0,0,0.3); border:1px solid rgba(201, 169, 110, 0.3); border-radius:6px; color:#ffffff; padding:6px; font-size:13px; width:90%;" disabled />
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="dev-grid-chk" style="cursor:pointer;" ${this.showDevGrid ? 'checked' : ''} />
+        <label for="dev-grid-chk" style="font-size:13px; color:#eadfc0; cursor:pointer; user-select:none;">Show Layout Grid (50px)</label>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button id="dev-copy-btn" style="background:#315642; border:1px solid #c9a96e; border-radius:8px; color:#fff4d6; padding:8px; font-size:13px; cursor:pointer; transition:all 0.2s;">📋 Copy Level JS Code</button>
+        <button id="dev-view-btn" style="background:rgba(201, 169, 110, 0.1); border:1px solid #c9a96e; border-radius:8px; color:#fff4d6; padding:8px; font-size:13px; cursor:pointer; transition:all 0.2s;">🔍 View Code Modal</button>
+      </div>
+
+      <div style="background:rgba(0,0,0,0.25); border-radius:8px; padding:10px; font-size:11px; line-height:1.4; margin-top:12px; border:1px solid rgba(201, 169, 110, 0.1);">
+        <span style="color:#f0d27d; font-weight:bold;">Controls:</span><br/>
+        • <b style="color:#ffffff;">Drag</b> items with mouse.<br/>
+        • Hover + <b style="color:#ffffff;">Scroll Wheel</b> / <b style="color:#ffffff;">[ ]</b> keys to scale.<br/>
+        • Hover + <b style="color:#ffffff;">Arrow Keys</b> to nudge 1px (+Shift for 5px).<br/>
+        • Press <b style="color:#ffffff;">D</b> to toggle Editor Mode.
+      </div>
+    `;
+
+    document.body.appendChild(el);
+    this.devPanelEl = el;
+
+    document.getElementById('dev-close-btn').addEventListener('click', () => this.toggleDevMode());
+    
+    document.getElementById('dev-level-select').addEventListener('change', (e) => {
+      window.sessionStorage.setItem('whimsy-hollow:dev-mode', 'true');
+      this.scene.start('GameScene', { levelId: e.target.value });
+    });
+
+    const gridChk = document.getElementById('dev-grid-chk');
+    gridChk.addEventListener('change', (e) => {
+      this.showDevGrid = e.target.checked;
+      this.drawDevGrid();
+    });
+
+    document.getElementById('dev-copy-btn').addEventListener('click', () => {
+      const code = this.generateLevelJS();
+      navigator.clipboard.writeText(code).then(() => {
+        this.showFoundToast("Copied to Clipboard!");
+      }).catch(err => {
+        alert("Clipboard error. Use View Code Modal instead.");
+      });
+    });
+
+    document.getElementById('dev-view-btn').addEventListener('click', () => {
+      const code = this.generateLevelJS();
+      this.showDevCodeModal(code);
+    });
+
+    const xIn = document.getElementById('dev-obj-x');
+    const yIn = document.getElementById('dev-obj-y');
+    const scIn = document.getElementById('dev-obj-scale');
+
+    const updateObjFromInputs = () => {
+      const obj = this.hoveredDevObject || this.selectedDevObject;
+      if (!obj) return;
+      const type = obj.getData('type');
+      
+      const newX = parseInt(xIn.value, 10);
+      const newY = parseInt(yIn.value, 10);
+      const newScale = parseFloat(scIn.value);
+
+      if (!isNaN(newX)) {
+        obj.x = newX;
+        if (type === 'sprite') {
+          const cz = obj.getData('clickZone');
+          if (cz) cz.x = newX;
+        }
+      }
+      if (!isNaN(newY)) {
+        obj.y = newY;
+        if (type === 'sprite') {
+          const cz = obj.getData('clickZone');
+          if (cz) cz.y = newY;
+        }
+      }
+      if (!isNaN(newScale)) {
+        if (type === 'surprise') {
+          // Surprises don't scale
+        } else if (obj.list && obj.list[1]) {
+          const sprite = obj.list[1];
+          sprite.setScale(newScale);
+          const hitWidth = Math.max(34, sprite.displayWidth);
+          const hitHeight = Math.max(28, sprite.displayHeight);
+          obj.input.hitArea.setTo(-hitWidth / 2, -hitHeight / 2, hitWidth, hitHeight);
+        } else {
+          obj.setScale(newScale);
+        }
+      }
+
+      this.syncObjectGraphics(obj);
+      this.drawDevHighlights();
+    };
+
+    xIn.addEventListener('change', updateObjFromInputs);
+    yIn.addEventListener('change', updateObjFromInputs);
+    scIn.addEventListener('change', updateObjFromInputs);
+  }
+
+  updateDevPanelInfo(gameObject) {
+    if (!this.isDevMode || !this.devPanelEl) return;
+
+    const nameEl = document.getElementById('dev-obj-name');
+    const xIn = document.getElementById('dev-obj-x');
+    const yIn = document.getElementById('dev-obj-y');
+    const scIn = document.getElementById('dev-obj-scale');
+
+    if (!gameObject) {
+      nameEl.innerText = "None (Hover/Click to select)";
+      xIn.value = ""; xIn.disabled = true;
+      yIn.value = ""; yIn.disabled = true;
+      scIn.value = ""; scIn.disabled = true;
+      return;
+    }
+
+    const type = gameObject.getData('type');
+    let name = "Unknown";
+    let scale = 1.0;
+
+    if (type === 'sprite') {
+      name = gameObject.getData('objectName') || gameObject.getData('objectId');
+      scale = gameObject.scale;
+    } else if (type === 'bonus') {
+      name = `Bonus Envelope: ${gameObject.getData('bonusId')}`;
+      if (gameObject.list && gameObject.list[1]) {
+        scale = gameObject.list[1].scale;
+      }
+    } else if (type === 'surprise') {
+      name = `Surprise Zone: ${gameObject.getData('surpriseId')}`;
+      scale = 1.0;
+    }
+
+    nameEl.innerText = `${name} (${type})`;
+    
+    xIn.disabled = false;
+    xIn.value = Math.round(gameObject.x);
+    
+    yIn.disabled = false;
+    yIn.value = Math.round(gameObject.y);
+
+    if (type === 'surprise') {
+      scIn.disabled = true;
+      scIn.value = "";
+    } else {
+      scIn.disabled = false;
+      scIn.value = scale.toFixed(3);
+    }
+  }
+
+  nudgeDevObject(dx, dy) {
+    const obj = this.hoveredDevObject || this.selectedDevObject;
+    if (!obj) return;
+    
+    const type = obj.getData('type');
+    obj.x += dx;
+    obj.y += dy;
+    
+    if (type === 'sprite') {
+      const clickZone = obj.getData('clickZone');
+      if (clickZone) {
+        clickZone.x = obj.x;
+        clickZone.y = obj.y;
+      }
+    }
+    
+    this.syncObjectGraphics(obj);
+    this.updateDevPanelInfo(obj);
+    this.drawDevHighlights();
+  }
+
+  scaleDevObject(scaleDelta) {
+    const obj = this.hoveredDevObject || this.selectedDevObject;
+    if (!obj) return;
+    
+    const type = obj.getData('type');
+    if (type === 'surprise') return;
+
+    if (obj.list && obj.list[1]) {
+      const sprite = obj.list[1];
+      const newScale = Math.max(0.005, Math.min(2.0, sprite.scale + scaleDelta));
+      sprite.setScale(newScale);
+      const hitWidth = Math.max(34, sprite.displayWidth);
+      const hitHeight = Math.max(28, sprite.displayHeight);
+      obj.input.hitArea.setTo(-hitWidth / 2, -hitHeight / 2, hitWidth, hitHeight);
+    } else {
+      const newScale = Math.max(0.005, Math.min(2.0, obj.scale + scaleDelta));
+      obj.setScale(newScale);
+    }
+    
+    this.syncObjectGraphics(obj);
+    this.updateDevPanelInfo(obj);
+    this.drawDevHighlights();
+  }
+
+  syncObjectGraphics(gameObject) {
+    const type = gameObject.getData('type');
+    if (type !== 'sprite') return;
+
+    const shadow = gameObject.getData('shadow');
+    const glow = gameObject.getData('glow');
+
+    if (shadow) {
+      shadow.x = gameObject.x + 2;
+      shadow.y = gameObject.y + Math.max(8, gameObject.displayHeight * 0.22);
+      shadow.displayWidth = Math.max(22, gameObject.displayWidth * 0.62);
+      shadow.displayHeight = Math.max(10, gameObject.displayHeight * 0.18);
+    }
+
+    if (glow) {
+      glow.x = gameObject.x;
+      glow.y = gameObject.y;
+    }
+  }
+
+  generateLevelJS() {
+    const varName = this.level.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    
+    const serializedObjects = this.level.objects.map(obj => {
+      const sprite = this.objectSprites.get(obj.id);
+      const x = sprite ? Math.round(sprite.x) : obj.x;
+      const y = sprite ? Math.round(sprite.y) : obj.y;
+      const scale = sprite ? parseFloat(sprite.scale.toFixed(3)) : obj.scale;
+      
+      const parts = [];
+      parts.push(`    {`);
+      parts.push(`      id: '${obj.id}',`);
+      parts.push(`      name: '${obj.name.replace(/'/g, "\\'")}',`);
+      if (obj.requester) parts.push(`      requester: '${obj.requester.replace(/'/g, "\\'")}',`);
+      if (obj.clue) parts.push(`      clue: '${obj.clue.replace(/'/g, "\\'")}',`);
+      parts.push(`      key: '${obj.key}',`);
+      parts.push(`      asset: '${obj.asset}',`);
+      parts.push(`      x: ${x},`);
+      parts.push(`      y: ${y},`);
+      parts.push(`      scale: ${scale}`);
+      parts.push(`    }`);
+      return parts.join('\n');
+    }).join(',\n');
+
+    const serializedBonusEnvelopes = this.level.bonusEnvelopes.map(bonus => {
+      const container = this.bonusItems.get(bonus.id);
+      const x = container ? Math.round(container.x) : bonus.x;
+      const y = container ? Math.round(container.y) : bonus.y;
+      
+      const parts = [];
+      parts.push(`    {`);
+      parts.push(`      id: '${bonus.id}',`);
+      parts.push(`      x: ${x},`);
+      parts.push(`      y: ${y}`);
+      if (bonus.key) parts.push(`,      key: '${bonus.key}'`);
+      if (bonus.asset) parts.push(`,      asset: '${bonus.asset}'`);
+      if (bonus.key) {
+        let envelopeScale = bonus.scale ?? 0.06;
+        if (container && container.list && container.list[1]) {
+          envelopeScale = parseFloat(container.list[1].scale.toFixed(3));
+        }
+        parts.push(`,      scale: ${envelopeScale}`);
+      }
+      if (bonus.clue) parts.push(`,      clue: '${bonus.clue.replace(/'/g, "\\'")}'`);
+      parts.push(`    }`);
+      return parts.join('\n');
+    }).join(',\n');
+
+    const serializedSurprises = this.level.surprises.map(surprise => {
+      let x = surprise.x;
+      let y = surprise.y;
+      if (this.surpriseZones) {
+        const zone = this.surpriseZones.find(z => z.getData('surpriseId') === surprise.id);
+        if (zone) {
+          x = Math.round(zone.x);
+          y = Math.round(zone.y);
+        }
+      }
+      
+      const parts = [];
+      parts.push(`    {`);
+      parts.push(`      id: '${surprise.id}',`);
+      parts.push(`      x: ${x},`);
+      parts.push(`      y: ${y},`);
+      if (surprise.width) parts.push(`      width: ${surprise.width},`);
+      if (surprise.height) parts.push(`      height: ${surprise.height},`);
+      parts.push(`      label: '${surprise.label.replace(/'/g, "\\'")}'`);
+      parts.push(`    }`);
+      return parts.join('\n');
+    }).join(',\n');
+
+    const foregroundLine = this.level.foreground ? `\n  foreground: '${this.level.foreground}',` : '';
+
+    return `export const ${varName} = {
+  id: '${this.level.id}',
+  title: '${this.level.title.replace(/'/g, "\\'")}',
+  saveKey: '${this.level.saveKey}',
+  bonusSaveKey: '${this.level.bonusSaveKey}',
+  bonusLabel: '${this.level.bonusLabel ? this.level.bonusLabel.replace(/'/g, "\\'") : ''}',
+  bonusFoundText: '${this.level.bonusFoundText ? this.level.bonusFoundText.replace(/'/g, "\\'") : ''}',
+  background: {
+    key: '${this.level.background.key}',
+    path: '${this.level.background.path}'
+  },${foregroundLine}
+  objects: [
+${serializedObjects}
+  ],
+  bonusEnvelopes: [
+${serializedBonusEnvelopes}
+  ],
+  surprises: [
+${serializedSurprises}
+  ]
+};
+`;
+  }
+
+  showDevCodeModal(code) {
+    const existing = document.getElementById('dev-code-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'dev-code-modal';
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(10, 15, 12, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 11000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: system-ui, -apple-system, sans-serif;
+    `;
+
+    modal.innerHTML = `
+      <div style="background: #1e2923; border: 1px solid #c9a96e; border-radius: 16px; width: 680px; max-width: 90vw; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="margin:0; color:#f0d27d; font-size:18px;">Level JavaScript Configuration</h3>
+          <button id="modal-close-btn" style="background:none; border:none; color:#c9a96e; cursor:pointer; font-size:20px;">✕</button>
+        </div>
+        <p style="margin:0; font-size:13px; color:#eadfc0;">Copy this code and replace the entire content of <code style="color:#ffffff; background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:4px;">src/data/levels/${this.level.id}.js</code></p>
+        
+        <textarea readonly style="width:100%; height:400px; background:rgba(0,0,0,0.4); color:#a2fca2; font-family:Courier, monospace; font-size:12px; padding:12px; border:1px solid rgba(201, 169, 110, 0.3); border-radius:8px; resize:none; box-sizing:border-box;">${code}</textarea>
+        
+        <div style="display:flex; gap:12px; justify-content:flex-end;">
+          <button id="modal-copy-btn" style="background:#315642; border:1px solid #c9a96e; border-radius:8px; color:#fff4d6; padding:10px 20px; font-size:14px; cursor:pointer;">Copy Code</button>
+          <button id="modal-done-btn" style="background:none; border:1px solid rgba(201, 169, 110, 0.4); border-radius:8px; color:#c9a96e; padding:10px 20px; font-size:14px; cursor:pointer;">Close</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const close = () => modal.remove();
+    document.getElementById('modal-close-btn').addEventListener('click', close);
+    document.getElementById('modal-done-btn').addEventListener('click', close);
+    
+    document.getElementById('modal-copy-btn').addEventListener('click', () => {
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('modal-copy-btn');
+        btn.innerText = "✓ Copied!";
+        btn.style.background = "#28a745";
+        setTimeout(() => {
+          btn.innerText = "Copy Code";
+          btn.style.background = "#315642";
+        }, 1500);
+      });
+    });
+  }
 }
