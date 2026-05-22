@@ -403,6 +403,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden buttons added in `public/assets/bonus/`: `cozy_cobbler_nook_golden_button_01.png`, `cozy_cobbler_nook_golden_button_02.png`, and `cozy_cobbler_nook_golden_button_03.png`.
   - Uses shared music via `src/data/music.js`, `Buttons 0/3`, `Button!`, 10 main hidden objects, and three cobbler-nook surprise hotspots.
 
+- Starlight Observatory Nook scene added:
+  - Added `Starlight Observatory Nook` with id `starlight-observatory-nook`, inserted after `cozy-cobbler-nook` in the level registry.
+  - Background is `public/assets/backgrounds/starlight_observatory_nook.png`, generated as a 1920x1080 painterly cottage astronomy nook with a telescope, round window, star charts, prisms, journals, lanterns, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `starlight_observatory_nook_telescope.png`, `starlight_observatory_nook_star_chart.png`, `starlight_observatory_nook_moon_globe.png`, `starlight_observatory_nook_lens_cloth.png`, `starlight_observatory_nook_crystal_prism.png`, `starlight_observatory_nook_astrolabe.png`, `starlight_observatory_nook_comet_charm.png`, `starlight_observatory_nook_constellation_notebook.png`, `starlight_observatory_nook_star_key.png`, and `starlight_observatory_nook_tripod_knob.png`.
+  - Bonus golden stars added in `public/assets/bonus/`: `starlight_observatory_nook_golden_star_01.png`, `starlight_observatory_nook_golden_star_02.png`, and `starlight_observatory_nook_golden_star_03.png`.
+  - Uses shared music via `src/data/music.js`, `Stars 0/3`, `Star!`, 10 main hidden objects, and three observatory-nook surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
