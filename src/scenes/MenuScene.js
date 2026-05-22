@@ -15,14 +15,25 @@ export class MenuScene extends Phaser.Scene {
   }
 
   preload() {
-    for (const level of levels) {
-      this.loadImageOnce(level.background.key, level.background.path);
+    // Only the active "Play" scene's background is loaded eagerly. The
+    // other levels load on demand inside GameScene.preload(), so the menu
+    // boots in ~2 MB instead of ~24 MB.
+    const nextScene = getFirstUnfinishedLevel() ?? levels[levels.length - 1];
+    if (nextScene) {
+      this.loadImageOnce(nextScene.background.key, nextScene.background.path);
     }
 
-    this.loadImageOnce('object-magic-recipe-card', 'assets/objects/magic_recipe_card.png');
-    this.loadImageOnce('object-purple-teapot', 'assets/objects/obj_purple_teapot.png');
-    this.loadImageOnce('object-sleepy-cat', 'assets/objects/obj_sleepy_cat.png');
-    this.loadImageOnce('object-bookshop-hourglass', 'assets/objects/bookshop_hourglass.png');
+    // Lightweight preview sprite for the floating decorative card.
+    if (nextScene?.id === 'restaurant-kitchen') {
+      this.loadImageOnce('object-magic-recipe-card', 'assets/objects/magic_recipe_card.png');
+    } else if (nextScene?.id === 'whimsy-living-room') {
+      this.loadImageOnce('object-purple-teapot', 'assets/objects/obj_purple_teapot.png');
+    } else if (nextScene?.id === 'cozy-dream-bedroom') {
+      this.loadImageOnce('object-sleepy-cat', 'assets/objects/obj_sleepy_cat.png');
+    } else if (nextScene?.id === 'forest-bookshop') {
+      this.loadImageOnce('object-bookshop-hourglass', 'assets/objects/bookshop_hourglass.png');
+    }
+
     this.load.image(MASCOT_KEY, MASCOT_PATH);
     queueMusic(this, '__menu__');
   }
@@ -129,9 +140,11 @@ export class MenuScene extends Phaser.Scene {
 
   createPlaceDots(centerX, y, nextId) {
     const completed = loadCompletedSceneIds();
-    const dotW = 110;
-    const dotH = 70;
-    const gap = 18;
+    const maxRowW = 1160;
+    const gap = levels.length > 10 ? 10 : 18;
+    const dotW = Math.max(72, Math.min(110, Math.floor((maxRowW - (levels.length - 1) * gap) / levels.length)));
+    const dotH = Math.max(52, Math.round(dotW * 0.64));
+    const badgeFontSize = dotW < 90 ? 13 : 15;
     const totalW = levels.length * dotW + (levels.length - 1) * gap;
     const startX = centerX - totalW / 2 + dotW / 2;
 
@@ -151,10 +164,23 @@ export class MenuScene extends Phaser.Scene {
       back.fillStyle(0xfff4d6, 0.95);
       back.fillRoundedRect(x - dotW / 2, y - dotH / 2, dotW, dotH, 14);
 
-      // Thumbnail
-      const thumb = this.add.image(x, y, level.background.key)
-        .setDisplaySize(dotW - 10, dotH - 14);
-      if (isDone) thumb.setTint(0xb8b0a0).setAlpha(0.7);
+      // Thumbnail — only if texture is already loaded; otherwise show name
+      let thumb = null;
+      if (this.textures.exists(level.background.key)) {
+        thumb = this.add.image(x, y, level.background.key)
+          .setDisplaySize(dotW - 10, dotH - 14);
+        if (isDone) thumb.setTint(0xb8b0a0).setAlpha(0.7);
+      } else {
+        // Name fallback so we don't show a green "missing texture" rect
+        const shortName = level.title.replace('Whimsy Hollow ', '');
+        this.add.text(x, y, shortName, {
+          fontFamily: UI_FONT,
+          fontSize: `${Math.max(11, Math.min(14, Math.floor(dotW / 8)))}px`,
+          color: '#4a3a26',
+          align: 'center',
+          wordWrap: { width: dotW - 14, useAdvancedWrap: true }
+        }).setOrigin(0.5);
+      }
 
       // Outline
       const frame = this.add.graphics();
@@ -165,7 +191,7 @@ export class MenuScene extends Phaser.Scene {
       const badge = isDone ? '✓ Done' : (isNext ? '★ Next' : 'Tap');
       this.add.text(x, y + dotH / 2 + 16, badge, {
         fontFamily: UI_FONT,
-        fontSize: '15px',
+        fontSize: `${badgeFontSize}px`,
         color: isDone ? '#bdf3d3' : (isNext ? '#ffe09a' : '#f2ead0'),
         stroke: '#2b2018',
         strokeThickness: 3
@@ -173,8 +199,8 @@ export class MenuScene extends Phaser.Scene {
 
       // Click target
       const hit = this.add.zone(x, y, dotW, dotH + 32).setInteractive({ useHandCursor: true });
-      hit.on('pointerover', () => thumb.setDisplaySize(dotW - 4, dotH - 8));
-      hit.on('pointerout', () => thumb.setDisplaySize(dotW - 10, dotH - 14));
+      hit.on('pointerover', () => { if (thumb) thumb.setDisplaySize(dotW - 4, dotH - 8); });
+      hit.on('pointerout', () => { if (thumb) thumb.setDisplaySize(dotW - 10, dotH - 14); });
       hit.on('pointerdown', () => {
         window.localStorage.removeItem(level.saveKey);
         window.localStorage.removeItem(level.bonusSaveKey);

@@ -12,6 +12,10 @@ import { snowyCabinLoft } from './levels/snowy-cabin-loft.js';
 import { seasideLighthouse } from './levels/seaside-lighthouse.js';
 import { springMeadowPicnic } from './levels/spring-meadow-picnic.js';
 import { autumnAppleOrchard } from './levels/autumn-apple-orchard.js';
+import { starlightGreenhouse } from './levels/starlight-greenhouse.js';
+import { moonlitToyAttic } from './levels/moonlit-toy-attic.js';
+import { cloudberryTreehouse } from './levels/cloudberry-treehouse.js';
+import { cozyQuiltWorkshop } from './levels/cozy-quilt-workshop.js';
 
 export {
   mailGarden,
@@ -23,7 +27,11 @@ export {
   snowyCabinLoft,
   seasideLighthouse,
   springMeadowPicnic,
-  autumnAppleOrchard
+  autumnAppleOrchard,
+  starlightGreenhouse,
+  moonlitToyAttic,
+  cloudberryTreehouse,
+  cozyQuiltWorkshop
 };
 
 export const levels = [
@@ -36,7 +44,11 @@ export const levels = [
   snowyCabinLoft,
   seasideLighthouse,
   springMeadowPicnic,
-  autumnAppleOrchard
+  autumnAppleOrchard,
+  starlightGreenhouse,
+  moonlitToyAttic,
+  cloudberryTreehouse,
+  cozyQuiltWorkshop
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

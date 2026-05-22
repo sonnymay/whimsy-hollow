@@ -25,7 +25,12 @@ export const musicByLevel = {
   'forest-bookshop': { music: sharedMusic },
   'snowy-cabin-loft': { music: sharedMusic },
   'seaside-lighthouse': { music: sharedMusic },
-  'spring-meadow-picnic': { music: sharedMusic }
+  'spring-meadow-picnic': { music: sharedMusic },
+  'autumn-apple-orchard': { music: sharedMusic },
+  'starlight-greenhouse': { music: sharedMusic },
+  'moonlit-toy-attic': { music: sharedMusic },
+  'cloudberry-treehouse': { music: sharedMusic },
+  'cozy-quilt-workshop': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;

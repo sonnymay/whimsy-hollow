@@ -261,6 +261,28 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus butterflies added in `public/assets/bonus/`: `butterfly_01.png`, `butterfly_02.png`, and `butterfly_03.png`.
   - Uses shared music via `src/data/music.js`, `Butterflies 0/3`, `Butterfly!`, 10 main hidden objects, and three soft meadow surprise hotspots.
 
+- Autumn Apple Orchard scene finished:
+  - Added `Autumn Apple Orchard` with id `autumn-apple-orchard`, inserted after `spring-meadow-picnic` in the level registry.
+  - Background is `public/assets/backgrounds/autumn_apple_orchard.webp` normalized to 1920x1080.
+  - Main objects added in `public/assets/objects/`: `orchard_red_apple.png`, `orchard_cider_bottle.png`, `orchard_apple_crate.png`, `orchard_brass_lantern.png`, `orchard_plaid_thermos.png`, `orchard_acorn_cap.png`, `orchard_mini_rake.png`, `orchard_pumpkin_cookie.png`, `orchard_harvest_ribbon.png`, and `orchard_copper_watering_can.png`.
+  - Bonus leaves added in `public/assets/bonus/`: `autumn_leaf_01.png`, `autumn_leaf_02.png`, and `autumn_leaf_03.png`.
+  - Uses shared music via `src/data/music.js`, `Leaves 0/3`, `Leaf!`, 10 main hidden objects, and three warm orchard surprise hotspots.
+
+- Starlight Greenhouse scene added:
+  - Added `Starlight Greenhouse` with id `starlight-greenhouse`, inserted after `autumn-apple-orchard` in the level registry.
+  - Background is `public/assets/backgrounds/scene_starlight_greenhouse_bg.png`, copied from Downloads and matching the current painterly storybook style.
+  - Main objects added under stable replacement paths in `public/assets/objects/`: `greenhouse_tiny_lantern.png`, `greenhouse_star_key.png`, `greenhouse_watering_can.png`, `greenhouse_moon_crystal.png`, `greenhouse_flower_button.png`, `greenhouse_glowing_feather.png`, `greenhouse_mushroom_basket.png`, `greenhouse_frog_statue.png`, `greenhouse_honey_dipper.png`, and `greenhouse_old_key.png`.
+  - Bonus glow motes added in `public/assets/bonus/`: `greenhouse_glow_mote_01.png`, `greenhouse_glow_mote_02.png`, and `greenhouse_glow_mote_03.png`.
+  - Uses shared music via `src/data/music.js`, `Glow Motes 0/3`, `Glow!`, 10 main hidden objects, and three greenhouse surprise hotspots.
+  - `MenuScene.createPlaceDots()` now compacts the thumbnail row when scene count exceeds 10, because the 11th scene would overflow the 1280-wide title canvas with the old fixed dot width.
+
+- Moonlit Toy Attic scene added:
+  - Added `Moonlit Toy Attic` with id `moonlit-toy-attic`, inserted after `starlight-greenhouse` in the level registry.
+  - Background is `public/assets/backgrounds/moonlit_toy_attic.png`, generated as a 1920x1080 painterly attic playroom with safe space for hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `moonlit_toy_attic_moon_lantern.png`, `moonlit_toy_attic_patchwork_teddy.png`, `moonlit_toy_attic_spinning_top.png`, `moonlit_toy_attic_silver_thimble.png`, `moonlit_toy_attic_storybook.png`, `moonlit_toy_attic_blue_yarn.png`, `moonlit_toy_attic_brass_telescope.png`, `moonlit_toy_attic_star_button.png`, `moonlit_toy_attic_doll_shoe.png`, and `moonlit_toy_attic_ribbon_spool.png`.
+  - Bonus glow motes added in `public/assets/bonus/`: `moonlit_toy_attic_glow_mote_01.png`, `moonlit_toy_attic_glow_mote_02.png`, and `moonlit_toy_attic_glow_mote_03.png`.
+  - Uses shared music via `src/data/music.js`, `Glow Motes 0/3`, `Glow!`, 10 main hidden objects, and three toy-attic surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
