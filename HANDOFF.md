@@ -375,6 +375,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus paper hearts added in `public/assets/bonus/`: `sunny_gift_wrap_nook_paper_heart_01.png`, `sunny_gift_wrap_nook_paper_heart_02.png`, and `sunny_gift_wrap_nook_paper_heart_03.png`.
   - Uses shared music via `src/data/music.js`, `Hearts 0/3`, `Heart!`, 10 main hidden objects, and three gift-wrap surprise hotspots.
 
+- Misty Herb Pantry scene added:
+  - Added `Misty Herb Pantry` with id `misty-herb-pantry`, inserted after `sunny-gift-wrap-nook` in the level registry.
+  - Background is `public/assets/backgrounds/misty_herb_pantry.png`, generated as a 1920x1080 painterly cottage herb pantry with dried herbs, jars, baskets, a misty window, kettle steam, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `misty_herb_pantry_mortar_pestle.png`, `misty_herb_pantry_blue_herb_jar.png`, `misty_herb_pantry_lavender_bundle.png`, `misty_herb_pantry_copper_kettle.png`, `misty_herb_pantry_honey_spoon.png`, `misty_herb_pantry_linen_sachet.png`, `misty_herb_pantry_seed_bottle.png`, `misty_herb_pantry_rosemary_sprig.png`, `misty_herb_pantry_herb_basket.png`, and `misty_herb_pantry_tea_strainer.png`.
+  - Bonus golden leaves added in `public/assets/bonus/`: `misty_herb_pantry_golden_leaf_01.png`, `misty_herb_pantry_golden_leaf_02.png`, and `misty_herb_pantry_golden_leaf_03.png`.
+  - Uses shared music via `src/data/music.js`, `Leaves 0/3`, `Leaf!`, 10 main hidden objects, and three herb-pantry surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

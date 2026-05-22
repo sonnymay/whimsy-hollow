@@ -40,7 +40,8 @@ export const musicByLevel = {
   'breezy-kite-workshop': { music: sharedMusic },
   'lavender-laundry-room': { music: sharedMusic },
   'cozy-map-room': { music: sharedMusic },
-  'sunny-gift-wrap-nook': { music: sharedMusic }
+  'sunny-gift-wrap-nook': { music: sharedMusic },
+  'misty-herb-pantry': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;

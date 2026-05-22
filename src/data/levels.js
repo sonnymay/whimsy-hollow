@@ -26,6 +26,7 @@ import { breezyKiteWorkshop } from './levels/breezy-kite-workshop.js';
 import { lavenderLaundryRoom } from './levels/lavender-laundry-room.js';
 import { cozyMapRoom } from './levels/cozy-map-room.js';
 import { sunnyGiftWrapNook } from './levels/sunny-gift-wrap-nook.js';
+import { mistyHerbPantry } from './levels/misty-herb-pantry.js';
 
 export {
   mailGarden,
@@ -51,7 +52,8 @@ export {
   breezyKiteWorkshop,
   lavenderLaundryRoom,
   cozyMapRoom,
-  sunnyGiftWrapNook
+  sunnyGiftWrapNook,
+  mistyHerbPantry
 };
 
 export const levels = [
@@ -78,7 +80,8 @@ export const levels = [
   breezyKiteWorkshop,
   lavenderLaundryRoom,
   cozyMapRoom,
-  sunnyGiftWrapNook
+  sunnyGiftWrapNook,
+  mistyHerbPantry
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';
