@@ -305,6 +305,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus quilt stars added in `public/assets/bonus/`: `cozy_quilt_workshop_star_01.png`, `cozy_quilt_workshop_star_02.png`, and `cozy_quilt_workshop_star_03.png`.
   - Uses shared music via `src/data/music.js`, `Stars 0/3`, `Star!`, 10 main hidden objects, and three quilt-workshop surprise hotspots.
 
+- Sleepy Train Car scene added:
+  - Added `Sleepy Train Car` with id `sleepy-train-car`, inserted after `cozy-quilt-workshop` in the level registry.
+  - Background is `public/assets/backgrounds/sleepy_train_car.png`, generated as a 1920x1080 painterly vintage train compartment with sunset window views and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `sleepy_train_car_ticket_punch.png`, `sleepy_train_car_suitcase_tag.png`, `sleepy_train_car_travel_mug.png`, `sleepy_train_car_folded_map.png`, `sleepy_train_car_pocket_watch.png`, `sleepy_train_car_flower_teapot.png`, `sleepy_train_car_striped_scarf.png`, `sleepy_train_car_train_whistle.png`, `sleepy_train_car_star_pillow.png`, and `sleepy_train_car_lavender_bookmark.png`.
+  - Bonus golden tickets added in `public/assets/bonus/`: `sleepy_train_car_ticket_01.png`, `sleepy_train_car_ticket_02.png`, and `sleepy_train_car_ticket_03.png`.
+  - Uses shared music via `src/data/music.js`, `Tickets 0/3`, `Ticket!`, 10 main hidden objects, and three train-car surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
