@@ -73,7 +73,8 @@ export const musicByLevel = {
   'puppet-theater-alcove': { music: cozyMusic },
   'rainbow-glass-sunroom': { music: cozyMusic },
   'rainy-boot-mudroom': { music: cozyMusic },
-  'cozy-aquarium-corner': { music: cozyMusic }
+  'cozy-aquarium-corner': { music: cozyMusic },
+  'cozy-mineral-cabinet': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;

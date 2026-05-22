@@ -480,6 +480,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus pearly bubbles added in `public/assets/bonus/`: `cozy_aquarium_corner_pearly_bubble_01.png`, `cozy_aquarium_corner_pearly_bubble_02.png`, and `cozy_aquarium_corner_pearly_bubble_03.png`.
   - Uses shared music via `src/data/music.js`, `Bubbles 0/3`, `Bubble!`, 10 main hidden objects, and three cozy-aquarium-corner surprise hotspots.
 
+- Cozy Mineral Cabinet scene added:
+  - Added `Cozy Mineral Cabinet` with id `cozy-mineral-cabinet`, inserted after `cozy-aquarium-corner` in the level registry.
+  - Background is `public/assets/backgrounds/cozy_mineral_cabinet.webp`, generated as a 1920x1080 painterly cottage mineral cabinet with crystals, agate slices, geodes, display drawers, velvet trays, warm lamplight, plants, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `cozy_mineral_cabinet_agate_slice.png`, `cozy_mineral_cabinet_geode_half.png`, `cozy_mineral_cabinet_brass_magnifier.png`, `cozy_mineral_cabinet_velvet_pouch.png`, `cozy_mineral_cabinet_mineral_brush.png`, `cozy_mineral_cabinet_label_card.png`, `cozy_mineral_cabinet_display_tray.png`, `cozy_mineral_cabinet_quartz_point.png`, `cozy_mineral_cabinet_jasper_pebble.png`, and `cozy_mineral_cabinet_specimen_jar.png`.
+  - Bonus golden sparkles added in `public/assets/bonus/`: `cozy_mineral_cabinet_golden_sparkle_01.png`, `cozy_mineral_cabinet_golden_sparkle_02.png`, and `cozy_mineral_cabinet_golden_sparkle_03.png`.
+  - Uses shared music via `src/data/music.js`, `Sparkles 0/3`, `Sparkle!`, 10 main hidden objects, and three cozy-mineral-cabinet surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
