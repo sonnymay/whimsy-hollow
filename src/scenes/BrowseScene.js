@@ -92,19 +92,22 @@ export class BrowseScene extends Phaser.Scene {
     // Wheel + drag scroll
     this.input.on('wheel', (_pointer, _objs, _dx, dy) => this.setScroll(this.scrollY + dy * 0.6));
 
-    let dragStart = null;
+    this.dragStart = null;
     this.input.on('pointerdown', (pointer) => {
       if (pointer.y < gridTopY || pointer.y > gridTopY + viewableH) return;
-      dragStart = { y: pointer.y, scroll: this.scrollY, moved: 0 };
+      this.dragStart = { y: pointer.y, scroll: this.scrollY, moved: 0 };
     });
     this.input.on('pointermove', (pointer) => {
-      if (!dragStart || !pointer.isDown) return;
-      const dy = dragStart.y - pointer.y;
-      dragStart.moved = Math.max(dragStart.moved, Math.abs(dy));
-      this.setScroll(dragStart.scroll + dy);
+      if (!this.dragStart || !pointer.isDown) return;
+      const dy = this.dragStart.y - pointer.y;
+      this.dragStart.moved = Math.max(this.dragStart.moved, Math.abs(dy));
+      this.setScroll(this.dragStart.scroll + dy);
     });
-    this.input.on('pointerup', () => { dragStart = null; });
-    this.suppressClickIfDrag = () => dragStart && dragStart.moved > 8;
+    // Defer the global pointerup that nulls dragStart so card handlers can
+    // inspect it first (Phaser fires listeners in registration order).
+    this.input.on('pointerup', () => { this.time.delayedCall(0, () => { this.dragStart = null; }); });
+    this.suppressClickIfDrag = () => this.dragStart && this.dragStart.moved > 8;
+    this.requireSceneOwnedTap = () => this.dragStart !== null;
 
     // Scroll indicator
     if (this.maxScroll > 0) {
@@ -195,6 +198,10 @@ export class BrowseScene extends Phaser.Scene {
     // Click target
     const hit = this.add.zone(cx, cy, w, h).setInteractive({ useHandCursor: true });
     hit.on('pointerup', () => {
+      // Ignore the carry-over pointerup from MenuScene's Places button —
+      // a real tap on a card requires a pointerdown to have fired in
+      // THIS scene first (which sets dragStart via the global handler).
+      if (!this.requireSceneOwnedTap()) return;
       if (this.suppressClickIfDrag && this.suppressClickIfDrag()) return;
       window.localStorage.removeItem(level.saveKey);
       window.localStorage.removeItem(level.bonusSaveKey);
