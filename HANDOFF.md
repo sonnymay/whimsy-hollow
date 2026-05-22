@@ -445,6 +445,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus golden stage stars added in `public/assets/bonus/`: `puppet_theater_alcove_golden_star_01.png`, `puppet_theater_alcove_golden_star_02.png`, and `puppet_theater_alcove_golden_star_03.png`.
   - Uses shared music via `src/data/music.js`, `Stars 0/3`, `Star!`, 10 main hidden objects, and three puppet-theater surprise hotspots.
 
+- Rainbow Glass Sunroom scene added:
+  - Added `Rainbow Glass Sunroom` with id `rainbow-glass-sunroom`, inserted after `puppet-theater-alcove` in the level registry.
+  - Background is `public/assets/backgrounds/rainbow_glass_sunroom.png`, generated as a 1920x1080 painterly cottage sunroom craft nook with stained-glass sun catchers, colorful glass charms, potted plants, a worktable, rainbow light patches, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `rainbow_glass_sunroom_sun_catcher.png`, `rainbow_glass_sunroom_blue_bird_charm.png`, `rainbow_glass_sunroom_heart_ornament.png`, `rainbow_glass_sunroom_glass_pebble.png`, `rainbow_glass_sunroom_ribbon_spool.png`, `rainbow_glass_sunroom_bead_tray.png`, `rainbow_glass_sunroom_hanging_hook.png`, `rainbow_glass_sunroom_flower_tile.png`, `rainbow_glass_sunroom_polishing_cloth.png`, and `rainbow_glass_sunroom_prism_bottle.png`.
+  - Bonus golden prisms added in `public/assets/bonus/`: `rainbow_glass_sunroom_golden_prism_01.png`, `rainbow_glass_sunroom_golden_prism_02.png`, and `rainbow_glass_sunroom_golden_prism_03.png`.
+  - Uses shared music via `src/data/music.js`, `Prisms 0/3`, `Prism!`, 10 main hidden objects, and three rainbow-glass-sunroom surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files

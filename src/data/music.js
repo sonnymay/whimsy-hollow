@@ -50,7 +50,8 @@ export const musicByLevel = {
   'morning-birdwatching-porch': { music: sharedMusic },
   'sunlit-seed-library': { music: sharedMusic },
   'painted-pebble-patio': { music: sharedMusic },
-  'puppet-theater-alcove': { music: sharedMusic }
+  'puppet-theater-alcove': { music: sharedMusic },
+  'rainbow-glass-sunroom': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;
