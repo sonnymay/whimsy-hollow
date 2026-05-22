@@ -135,8 +135,9 @@ export class GameScene extends Phaser.Scene {
     // can zoom and pan. Classification happens once after all create logic.
     this.setupCameras();
 
-    // Wire scene-level pan handler (no-op until zoomed).
+    // Wire scene-level pan + wheel handlers (no-op until zoomed).
     this.input.on('pointermove', this.handleScenePan, this);
+    this.input.on('wheel', this.handleSceneWheel, this);
 
     // First-run tutorial — only on the very first scene the player opens,
     // and only once per profile/device.
@@ -186,19 +187,60 @@ export class GameScene extends Phaser.Scene {
 
   toggleZoom() {
     if (!this.cameras || !this.cameras.main) return;
-    this.zoomed = !this.zoomed;
+    const targetZoom = this.zoomLevel > 1.05 ? 1 : 1.8;
+    this.applyZoom(targetZoom, 640, 360);
+  }
+
+  /**
+   * Set the main camera's zoom, anchoring it on the given scene coords so
+   * what was at (anchorX, anchorY) on screen stays at the same screen point.
+   * Updates this.zoomed + button label, clamps pan within scene bounds.
+   */
+  applyZoom(newZoom, anchorWorldX, anchorWorldY) {
+    if (!this.cameras || !this.cameras.main) return;
     const cam = this.cameras.main;
-    if (this.zoomed) {
-      this.zoomLevel = 1.8;
-      cam.setZoom(this.zoomLevel);
-      cam.centerOn(640, 360);
-      this.zoomButton.setLabel('🔎');
-    } else {
-      this.zoomLevel = 1;
-      cam.setZoom(1);
-      cam.setScroll(0, 0);
-      this.zoomButton.setLabel('🔍');
+    const clamped = Phaser.Math.Clamp(newZoom, 1, 3);
+
+    // Anchor: keep the world point (anchorWorldX, anchorWorldY) at its
+    // current screen position after the zoom change.
+    // Convert world point → screen point under the OLD camera:
+    const screenX = (anchorWorldX - cam.scrollX) * cam.zoom;
+    const screenY = (anchorWorldY - cam.scrollY) * cam.zoom;
+
+    cam.setZoom(clamped);
+
+    // Now solve scroll so (anchorWorldX - newScroll) * newZoom == screenX
+    cam.scrollX = anchorWorldX - screenX / clamped;
+    cam.scrollY = anchorWorldY - screenY / clamped;
+    this.clampCameraScroll();
+
+    this.zoomLevel = clamped;
+    this.zoomed = clamped > 1.0001;
+    if (this.zoomButton) {
+      this.zoomButton.setLabel(this.zoomed ? '🔎' : '🔍');
     }
+  }
+
+  clampCameraScroll() {
+    const cam = this.cameras.main;
+    const viewW = cam.width / cam.zoom;
+    const viewH = cam.height / cam.zoom;
+    cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, Math.max(0, 1280 - viewW));
+    cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, Math.max(0, 720 - viewH));
+  }
+
+  handleSceneWheel(_pointer, _gameObjects, _dx, dy) {
+    if (!this.cameras || !this.cameras.main) return;
+    const cam = this.cameras.main;
+    // Convert pointer screen position → current world position
+    const pointer = this.input.activePointer;
+    const worldX = pointer.x / cam.zoom + cam.scrollX;
+    const worldY = pointer.y / cam.zoom + cam.scrollY;
+    // Scroll up (dy < 0) zooms in. Step size proportional to current zoom
+    // so it feels smooth at any level.
+    const step = 0.12 * cam.zoom;
+    const targetZoom = cam.zoom + (dy < 0 ? step : -step);
+    this.applyZoom(targetZoom, worldX, worldY);
   }
 
   handleScenePan(pointer) {
@@ -208,11 +250,7 @@ export class GameScene extends Phaser.Scene {
     const dy = pointer.y - pointer.prevPosition.y;
     cam.scrollX -= dx / cam.zoom;
     cam.scrollY -= dy / cam.zoom;
-    // Clamp so the camera never shows outside the painted scene.
-    const viewW = cam.width / cam.zoom;
-    const viewH = cam.height / cam.zoom;
-    cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, 1280 - viewW);
-    cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, 720 - viewH);
+    this.clampCameraScroll();
   }
 
   runFirstRunTutorial() {
