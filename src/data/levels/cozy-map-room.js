@@ -7,7 +7,7 @@ export const cozyMapRoom = {
   bonusFoundText: 'Rose!',
   background: {
     key: 'cozyMapRoomBackground',
-    path: 'assets/backgrounds/cozy_map_room.png'
+    path: 'assets/backgrounds/cozy_map_room.webp'
   },
   objects: [
     {

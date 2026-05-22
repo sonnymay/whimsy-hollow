@@ -7,7 +7,7 @@ export const cozyDreamBedroom = {
   bonusFoundText: 'Moth!',
   background: {
     key: 'cozyDreamBedroomBackground',
-    path: 'assets/backgrounds/scene_cozy_dream_bedroom_bg.png'
+    path: 'assets/backgrounds/scene_cozy_dream_bedroom_bg.webp'
   },
   objects: [
     {

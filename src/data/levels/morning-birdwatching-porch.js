@@ -7,7 +7,7 @@ export const morningBirdwatchingPorch = {
   bonusFoundText: 'Feather!',
   background: {
     key: 'morningBirdwatchingPorchBackground',
-    path: 'assets/backgrounds/morning_birdwatching_porch.png'
+    path: 'assets/backgrounds/morning_birdwatching_porch.webp'
   },
   objects: [
     {

@@ -7,7 +7,7 @@ export const willowPondBoathouse = {
   bonusFoundText: 'Dewdrop!',
   background: {
     key: 'willowPondBoathouseBackground',
-    path: 'assets/backgrounds/willow_pond_boathouse.png'
+    path: 'assets/backgrounds/willow_pond_boathouse.webp'
   },
   objects: [
     {

@@ -83,6 +83,9 @@ export function createPillButton(scene, opts) {
     scene.tweens.add({
       targets: container, scale: 0.96, duration: 80, yoyo: true, ease: 'Sine.easeOut'
     });
+    if (scene.cache && scene.cache.audio && scene.cache.audio.exists('clickSfx')) {
+      scene.sound.play('clickSfx', { volume: 0.25 });
+    }
     onClick();
   });
 

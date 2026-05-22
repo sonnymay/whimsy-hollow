@@ -7,7 +7,7 @@ export const sleepyTrainCar = {
   bonusFoundText: 'Ticket!',
   background: {
     key: 'sleepyTrainCarBackground',
-    path: 'assets/backgrounds/sleepy_train_car.png'
+    path: 'assets/backgrounds/sleepy_train_car.webp'
   },
   objects: [
     {

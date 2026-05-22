@@ -7,7 +7,7 @@ export const starlightGreenhouse = {
   bonusFoundText: 'Glow!',
   background: {
     key: 'starlightGreenhouseBackground',
-    path: 'assets/backgrounds/scene_starlight_greenhouse_bg.png'
+    path: 'assets/backgrounds/scene_starlight_greenhouse_bg.webp'
   },
   objects: [
     {

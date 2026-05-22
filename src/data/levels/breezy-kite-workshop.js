@@ -7,7 +7,7 @@ export const breezyKiteWorkshop = {
   bonusFoundText: 'Pinwheel!',
   background: {
     key: 'breezyKiteWorkshopBackground',
-    path: 'assets/backgrounds/breezy_kite_workshop.png'
+    path: 'assets/backgrounds/breezy_kite_workshop.webp'
   },
   objects: [
     {

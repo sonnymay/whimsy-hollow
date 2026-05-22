@@ -7,7 +7,7 @@ export const sunlitSeedLibrary = {
   bonusFoundText: 'Seed!',
   background: {
     key: 'sunlitSeedLibraryBackground',
-    path: 'assets/backgrounds/sunlit_seed_library.png'
+    path: 'assets/backgrounds/sunlit_seed_library.webp'
   },
   objects: [
     {

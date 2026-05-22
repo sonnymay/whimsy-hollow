@@ -7,7 +7,7 @@ export const sunnyPuzzleParlor = {
   bonusFoundText: 'Piece!',
   background: {
     key: 'sunnyPuzzleParlorBackground',
-    path: 'assets/backgrounds/sunny_puzzle_parlor.png'
+    path: 'assets/backgrounds/sunny_puzzle_parlor.webp'
   },
   objects: [
     {

@@ -16,43 +16,63 @@ const sharedMusic = {
   path: 'assets/music/musicforgame.mp3'
 };
 
-export const musicByLevel = {
-  'mail-garden': { music: sharedMusic },
-  'restaurant-kitchen': { music: sharedMusic },
-  'whimsy-living-room': { music: sharedMusic },
-  'cozy-dream-bedroom': { music: sharedMusic },
-  'twilight-tea-garden': { music: sharedMusic },
-  'forest-bookshop': { music: sharedMusic },
-  'snowy-cabin-loft': { music: sharedMusic },
-  'seaside-lighthouse': { music: sharedMusic },
-  'spring-meadow-picnic': { music: sharedMusic },
-  'autumn-apple-orchard': { music: sharedMusic },
-  'starlight-greenhouse': { music: sharedMusic },
-  'moonlit-toy-attic': { music: sharedMusic },
-  'cloudberry-treehouse': { music: sharedMusic },
-  'cozy-quilt-workshop': { music: sharedMusic },
-  'sleepy-train-car': { music: sharedMusic },
-  'sunbeam-pottery-studio': { music: sharedMusic },
-  'candlelit-music-parlor': { music: sharedMusic },
-  'rainy-art-atelier': { music: sharedMusic },
-  'morning-clockmaker-nook': { music: sharedMusic },
-  'willow-pond-boathouse': { music: sharedMusic },
-  'breezy-kite-workshop': { music: sharedMusic },
-  'lavender-laundry-room': { music: sharedMusic },
-  'cozy-map-room': { music: sharedMusic },
-  'sunny-gift-wrap-nook': { music: sharedMusic },
-  'misty-herb-pantry': { music: sharedMusic },
-  'sunny-puzzle-parlor': { music: sharedMusic },
-  'moonlit-origami-alcove': { music: sharedMusic },
-  'cozy-cobbler-nook': { music: sharedMusic },
-  'starlight-observatory-nook': { music: sharedMusic },
-  'honey-candle-workshop': { music: sharedMusic },
-  'morning-birdwatching-porch': { music: sharedMusic },
-  'sunlit-seed-library': { music: sharedMusic },
-  'painted-pebble-patio': { music: sharedMusic },
-  'puppet-theater-alcove': { music: sharedMusic },
-  'rainbow-glass-sunroom': { music: sharedMusic },
-  'rainy-boot-mudroom': { music: sharedMusic }
+const menuMusicTrack = {
+  key: 'music-menu',
+  path: 'assets/music/menu.mp3'
 };
 
-export const menuMusic = sharedMusic;
+const cozyMusic = {
+  key: 'music-cozy',
+  path: 'assets/music/cozy.mp3'
+};
+
+const natureMusic = {
+  key: 'music-nature',
+  path: 'assets/music/nature.mp3'
+};
+
+const dreamyMusic = {
+  key: 'music-dreamy',
+  path: 'assets/music/dreamy.mp3'
+};
+
+export const musicByLevel = {
+  'mail-garden': { music: natureMusic },
+  'restaurant-kitchen': { music: cozyMusic },
+  'whimsy-living-room': { music: cozyMusic },
+  'cozy-dream-bedroom': { music: dreamyMusic },
+  'twilight-tea-garden': { music: natureMusic },
+  'forest-bookshop': { music: dreamyMusic },
+  'snowy-cabin-loft': { music: dreamyMusic },
+  'seaside-lighthouse': { music: natureMusic },
+  'spring-meadow-picnic': { music: natureMusic },
+  'autumn-apple-orchard': { music: natureMusic },
+  'starlight-greenhouse': { music: dreamyMusic },
+  'moonlit-toy-attic': { music: dreamyMusic },
+  'cloudberry-treehouse': { music: cozyMusic },
+  'cozy-quilt-workshop': { music: cozyMusic },
+  'sleepy-train-car': { music: cozyMusic },
+  'sunbeam-pottery-studio': { music: cozyMusic },
+  'candlelit-music-parlor': { music: cozyMusic },
+  'rainy-art-atelier': { music: cozyMusic },
+  'morning-clockmaker-nook': { music: cozyMusic },
+  'willow-pond-boathouse': { music: natureMusic },
+  'breezy-kite-workshop': { music: natureMusic },
+  'lavender-laundry-room': { music: cozyMusic },
+  'cozy-map-room': { music: cozyMusic },
+  'sunny-gift-wrap-nook': { music: cozyMusic },
+  'misty-herb-pantry': { music: cozyMusic },
+  'sunny-puzzle-parlor': { music: cozyMusic },
+  'moonlit-origami-alcove': { music: dreamyMusic },
+  'cozy-cobbler-nook': { music: cozyMusic },
+  'starlight-observatory-nook': { music: dreamyMusic },
+  'honey-candle-workshop': { music: cozyMusic },
+  'morning-birdwatching-porch': { music: natureMusic },
+  'sunlit-seed-library': { music: natureMusic },
+  'painted-pebble-patio': { music: natureMusic },
+  'puppet-theater-alcove': { music: cozyMusic },
+  'rainbow-glass-sunroom': { music: cozyMusic },
+  'rainy-boot-mudroom': { music: cozyMusic }
+};
+
+export const menuMusic = menuMusicTrack;

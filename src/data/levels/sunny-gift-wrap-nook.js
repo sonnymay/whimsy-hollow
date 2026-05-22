@@ -7,7 +7,7 @@ export const sunnyGiftWrapNook = {
   bonusFoundText: 'Heart!',
   background: {
     key: 'sunnyGiftWrapNookBackground',
-    path: 'assets/backgrounds/sunny_gift_wrap_nook.png'
+    path: 'assets/backgrounds/sunny_gift_wrap_nook.webp'
   },
   objects: [
     {

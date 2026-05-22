@@ -7,7 +7,7 @@ export const mailGarden = {
   bonusFoundText: 'Letter!',
   background: {
     key: 'mailGardenBackground',
-    path: 'assets/backgrounds/mail_garden.png'
+    path: 'assets/backgrounds/mail_garden.webp'
   },
   objects: [
     {

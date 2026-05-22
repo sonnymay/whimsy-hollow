@@ -77,6 +77,12 @@ export class GameScene extends Phaser.Scene {
 
     this.load.image(MASCOT_KEY, MASCOT_PATH);
     this.load.audio('foundChime', 'assets/sounds/found.wav');
+    this.load.audio('clickSfx', 'assets/sounds/click.mp3');
+    this.load.audio('wrongSfx', 'assets/sounds/wrong.mp3');
+    this.load.audio('hintSfx', 'assets/sounds/hint.mp3');
+    this.load.audio('winSfx', 'assets/sounds/win.mp3');
+    this.load.audio('coverOpenSfx', 'assets/sounds/cover_open.mp3');
+    this.load.audio('bonusSfx', 'assets/sounds/bonus.mp3');
     queueMusic(this, this.level.id);
 
     if (this.level.foreground) {
@@ -409,6 +415,8 @@ export class GameScene extends Phaser.Scene {
 
     if (config.soundEffect && this.cache.audio.exists(config.soundEffect)) {
       this.sound.play(config.soundEffect, { volume: 0.5 });
+    } else if (this.cache.audio.exists('coverOpenSfx')) {
+      this.sound.play('coverOpenSfx', { volume: 0.35 });
     } else if (this.cache.audio.exists('foundChime')) {
       this.sound.play('foundChime', { volume: 0.3, detune: -600 });
     }
@@ -478,6 +486,8 @@ export class GameScene extends Phaser.Scene {
 
     if (config.soundEffect && this.cache.audio.exists(config.soundEffect)) {
       this.sound.play(config.soundEffect, { volume: 0.5, detune: 200 });
+    } else if (this.cache.audio.exists('coverOpenSfx')) {
+      this.sound.play('coverOpenSfx', { volume: 0.25, detune: 200 });
     } else if (this.cache.audio.exists('foundChime')) {
       this.sound.play('foundChime', { volume: 0.2, detune: -400 });
     }
@@ -867,6 +877,9 @@ export class GameScene extends Phaser.Scene {
 
     this.foundBonusIds.add(envelope.id);
     this.saveBonusProgress();
+    if (this.cache.audio.exists('bonusSfx')) {
+      this.sound.play('bonusSfx', { volume: 0.35 });
+    }
     container.disableInteractive();
     this.showFoundToast(this.getBonusFoundText());
     this.sayGuide(this.getBonusFoundText());
@@ -988,6 +1001,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.mainCompleteNoticeShown = true;
+    if (this.cache.audio.exists('winSfx')) {
+      this.sound.play('winSfx', { volume: 0.35 });
+    }
     if (this.finishButton) {
       this.finishButton.setVisible(true);
     }
@@ -1092,7 +1108,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   playMissFeedback(x, y) {
-    if (this.sound.get('foundChime') || this.cache.audio.exists('foundChime')) {
+    if (this.cache.audio.exists('wrongSfx')) {
+      this.sound.play('wrongSfx', { volume: 0.25 });
+    } else if (this.sound.get('foundChime') || this.cache.audio.exists('foundChime')) {
       this.sound.play('foundChime', { volume: 0.16, detune: -900 });
     }
 
@@ -1157,6 +1175,10 @@ export class GameScene extends Phaser.Scene {
   showHint() {
     if (!this.hintReady) {
       return;
+    }
+
+    if (this.cache.audio.exists('hintSfx')) {
+      this.sound.play('hintSfx', { volume: 0.3 });
     }
 
     const remaining = this.activeObjects.filter((object) => !this.foundIds.has(object.id));

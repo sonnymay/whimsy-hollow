@@ -7,7 +7,7 @@ export const lavenderLaundryRoom = {
   bonusFoundText: 'Bubble!',
   background: {
     key: 'lavenderLaundryRoomBackground',
-    path: 'assets/backgrounds/lavender_laundry_room.png'
+    path: 'assets/backgrounds/lavender_laundry_room.webp'
   },
   objects: [
     {

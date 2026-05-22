@@ -7,7 +7,7 @@ export const rainyBootMudroom = {
   bonusFoundText: 'Raindrop!',
   background: {
     key: 'rainyBootMudroomBackground',
-    path: 'assets/backgrounds/rainy_boot_mudroom.png'
+    path: 'assets/backgrounds/rainy_boot_mudroom.webp'
   },
   objects: [
     {

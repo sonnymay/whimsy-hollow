@@ -7,7 +7,7 @@ export const cozyCobblerNook = {
   bonusFoundText: 'Button!',
   background: {
     key: 'cozyCobblerNookBackground',
-    path: 'assets/backgrounds/cozy_cobbler_nook.png'
+    path: 'assets/backgrounds/cozy_cobbler_nook.webp'
   },
   objects: [
     {

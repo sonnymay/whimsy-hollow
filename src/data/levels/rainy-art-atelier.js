@@ -7,7 +7,7 @@ export const rainyArtAtelier = {
   bonusFoundText: 'Raindrop!',
   background: {
     key: 'rainyArtAtelierBackground',
-    path: 'assets/backgrounds/rainy_art_atelier.png'
+    path: 'assets/backgrounds/rainy_art_atelier.webp'
   },
   objects: [
     {

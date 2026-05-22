@@ -7,7 +7,7 @@ export const paintedPebblePatio = {
   bonusFoundText: 'Pebble!',
   background: {
     key: 'paintedPebblePatioBackground',
-    path: 'assets/backgrounds/painted_pebble_patio.png'
+    path: 'assets/backgrounds/painted_pebble_patio.webp'
   },
   objects: [
     {

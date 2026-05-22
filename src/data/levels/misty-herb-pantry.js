@@ -7,7 +7,7 @@ export const mistyHerbPantry = {
   bonusFoundText: 'Leaf!',
   background: {
     key: 'mistyHerbPantryBackground',
-    path: 'assets/backgrounds/misty_herb_pantry.png'
+    path: 'assets/backgrounds/misty_herb_pantry.webp'
   },
   objects: [
     {

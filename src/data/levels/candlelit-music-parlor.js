@@ -7,7 +7,7 @@ export const candlelitMusicParlor = {
   bonusFoundText: 'Note!',
   background: {
     key: 'candlelitMusicParlorBackground',
-    path: 'assets/backgrounds/candlelit_music_parlor.png'
+    path: 'assets/backgrounds/candlelit_music_parlor.webp'
   },
   objects: [
     {

@@ -7,7 +7,7 @@ export const honeyCandleWorkshop = {
   bonusFoundText: 'Honey Drop!',
   background: {
     key: 'honeyCandleWorkshopBackground',
-    path: 'assets/backgrounds/honey_candle_workshop.png'
+    path: 'assets/backgrounds/honey_candle_workshop.webp'
   },
   objects: [
     {

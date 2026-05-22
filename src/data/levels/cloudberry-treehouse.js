@@ -7,7 +7,7 @@ export const cloudberryTreehouse = {
   bonusFoundText: 'Berry!',
   background: {
     key: 'cloudberryTreehouseBackground',
-    path: 'assets/backgrounds/cloudberry_treehouse.png'
+    path: 'assets/backgrounds/cloudberry_treehouse.webp'
   },
   objects: [
     {

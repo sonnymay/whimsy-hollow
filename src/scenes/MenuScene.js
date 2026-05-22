@@ -35,6 +35,7 @@ export class MenuScene extends Phaser.Scene {
     }
 
     this.load.image(MASCOT_KEY, MASCOT_PATH);
+    this.load.audio('clickSfx', 'assets/sounds/click.mp3');
     queueMusic(this, '__menu__');
   }
 

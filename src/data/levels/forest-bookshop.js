@@ -7,7 +7,7 @@ export const forestBookshop = {
   bonusFoundText: 'Mouse!',
   background: {
     key: 'forestBookshopBackground',
-    path: 'assets/backgrounds/forest_bookshop.png'
+    path: 'assets/backgrounds/forest_bookshop.webp'
   },
   objects: [
     {

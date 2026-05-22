@@ -7,7 +7,7 @@ export const moonlitToyAttic = {
   bonusFoundText: 'Glow!',
   background: {
     key: 'moonlitToyAtticBackground',
-    path: 'assets/backgrounds/moonlit_toy_attic.png'
+    path: 'assets/backgrounds/moonlit_toy_attic.webp'
   },
   objects: [
     {

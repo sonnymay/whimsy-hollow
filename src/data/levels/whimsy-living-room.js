@@ -7,7 +7,7 @@ export const whimsyLivingRoom = {
   bonusFoundText: 'Mouse!',
   background: {
     key: 'whimsyLivingRoomBackground',
-    path: 'assets/backgrounds/scene_whimsy_livingroom_bg.png'
+    path: 'assets/backgrounds/scene_whimsy_livingroom_bg.webp'
   },
   objects: [
     {

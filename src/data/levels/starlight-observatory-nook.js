@@ -7,7 +7,7 @@ export const starlightObservatoryNook = {
   bonusFoundText: 'Star!',
   background: {
     key: 'starlightObservatoryNookBackground',
-    path: 'assets/backgrounds/starlight_observatory_nook.png'
+    path: 'assets/backgrounds/starlight_observatory_nook.webp'
   },
   objects: [
     {

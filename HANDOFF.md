@@ -2,6 +2,20 @@
 
 ## Current Status
 
+- **Audio Integration Pass (2026-05-22)**:
+  - **Custom SFX & Music Loops**: Generated and integrated 6 SFX (`click.mp3`, `wrong.mp3`, `hint.mp3`, `win.mp3`, `cover_open.mp3`, `bonus.mp3`) and 4 music loops (`menu.mp3`, `cozy.mp3`, `nature.mp3`, `dreamy.mp3`) as highly compatible MP3 files.
+  - **Phaser Wiring**: Wired SFX playback into `src/scenes/GameScene.js` (for wrong clicks, hints, wins, bonus collectibles, and interactive cover fallback), `src/scenes/MenuScene.js` (for preloading), and `src/ui/Button.js` (to play `clickSfx` on pointerdown).
+  - **Mood Mapping**: Updated `src/data/music.js` to map the 35 levels to specific mood-based loops: `nature.mp3` for outdoor levels, `dreamy.mp3` for night levels, and `cozy.mp3` for indoor levels. Assigned `menu.mp3` to the game menu.
+  - **Build & Integrity**: Confirmed the project builds successfully via `npm run build` and keeps original files (`found.wav` and `musicforgame.mp3`) untouched.
+
+- **Asset Optimization Pass (2026-05-22)**:
+  - **Size Reduction.** Optimized total asset folder size from **195MB to 30MB** (under the 40MB target, saving 165MB / ~85%). The final production build (`dist/`) size is now **35MB** (down from ~250MB).
+  - **Background Conversion.** Converted all 31 PNG background images in `public/assets/backgrounds/` to WebP at quality 80 with maximum dimensions of 1920x1080.
+  - **Sprite Optimization.** Resized and optimized 337 oversized objects, bonus items, characters, and interactive sprites (any `.png` files >50KB) to fit within 512x512px. Used lossy 8-bit quantization (`palette: true`) with maximum compression to retain transparency while minimizing file size.
+  - **Level Data Updates.** Programmatically updated all 31 corresponding level data files in `src/data/levels/` to reference the new `.webp` background image paths.
+  - **Root-level Backup.** Stored all original uncompressed backgrounds and sprites in a project-root `_originals/` folder (outside `public/assets/` and `dist/`) to prevent them from inflating served assets and build size.
+  - **Script Integration.** Added a reusable, idempotent `scripts/optimize-assets.mjs` script run via `npm run optimize`.
+
 - **Code review bug-fix pass (2026-05-21)**:
   - **Sticker Book scroll fix.** `src/scenes/DeskScene.js` was completely rewritten to use a scrollable container with mouse-wheel + drag-scroll support and a scroll indicator thumb. Previously, with 14 levels × 96px sections = 1,344px of content in a 720px canvas, levels 9–14 were invisible off-screen. Now all content is inside a Phaser container with a geometry mask clipping it to the viewable area between the header and footer. The scroll state tracks `scrollY` clamped to `[0, maxScroll]`, and a small right-side track + thumb shows scroll position.
   - **Menu level-dots save-wipe fix.** `src/scenes/MenuScene.js` `createPlaceDots()` was clearing `localStorage` save data on every dot click — even for in-progress levels. Now save data is only wiped when replaying a completed level (`completed.has(level.id)`). In-progress levels resume where the player left off.

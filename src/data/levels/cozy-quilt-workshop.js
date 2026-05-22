@@ -7,7 +7,7 @@ export const cozyQuiltWorkshop = {
   bonusFoundText: 'Star!',
   background: {
     key: 'cozyQuiltWorkshopBackground',
-    path: 'assets/backgrounds/cozy_quilt_workshop.png'
+    path: 'assets/backgrounds/cozy_quilt_workshop.webp'
   },
   objects: [
     {

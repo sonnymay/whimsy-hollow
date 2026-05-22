@@ -7,7 +7,7 @@ export const moonlitOrigamiAlcove = {
   bonusFoundText: 'Moon!',
   background: {
     key: 'moonlitOrigamiAlcoveBackground',
-    path: 'assets/backgrounds/moonlit_origami_alcove.png'
+    path: 'assets/backgrounds/moonlit_origami_alcove.webp'
   },
   objects: [
     {

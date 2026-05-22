@@ -7,7 +7,7 @@ export const puppetTheaterAlcove = {
   bonusFoundText: 'Star!',
   background: {
     key: 'puppetTheaterAlcoveBackground',
-    path: 'assets/backgrounds/puppet_theater_alcove.png'
+    path: 'assets/backgrounds/puppet_theater_alcove.webp'
   },
   objects: [
     {

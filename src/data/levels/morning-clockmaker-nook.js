@@ -7,7 +7,7 @@ export const morningClockmakerNook = {
   bonusFoundText: 'Gear!',
   background: {
     key: 'morningClockmakerNookBackground',
-    path: 'assets/backgrounds/morning_clockmaker_nook.png'
+    path: 'assets/backgrounds/morning_clockmaker_nook.webp'
   },
   objects: [
     {

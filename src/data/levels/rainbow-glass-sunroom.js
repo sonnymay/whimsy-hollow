@@ -7,7 +7,7 @@ export const rainbowGlassSunroom = {
   bonusFoundText: 'Prism!',
   background: {
     key: 'rainbowGlassSunroomBackground',
-    path: 'assets/backgrounds/rainbow_glass_sunroom.png'
+    path: 'assets/backgrounds/rainbow_glass_sunroom.webp'
   },
   objects: [
     {

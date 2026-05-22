@@ -7,7 +7,7 @@ export const sunbeamPotteryStudio = {
   bonusFoundText: 'Bead!',
   background: {
     key: 'sunbeamPotteryStudioBackground',
-    path: 'assets/backgrounds/sunbeam_pottery_studio.png'
+    path: 'assets/backgrounds/sunbeam_pottery_studio.webp'
   },
   objects: [
     {

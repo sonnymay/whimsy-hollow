@@ -7,7 +7,7 @@ export const restaurantKitchen = {
   bonusFoundText: 'Note!',
   background: {
     key: 'restaurantKitchenBackground',
-    path: 'assets/backgrounds/restaurant_kitchen.png'
+    path: 'assets/backgrounds/restaurant_kitchen.webp'
   },
   objects: [
     {
