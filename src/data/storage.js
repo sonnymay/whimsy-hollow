@@ -164,6 +164,7 @@ export function savePlacedFurniture(list) {
 const HIGH_CONTRAST_KEY = 'whimsy-hollow:high-contrast';
 const KEYS_POINTER_KEY = 'whimsy-hollow:keys-pointer';
 const COLORBLIND_KEY = 'whimsy-hollow:colorblind';
+const REDUCED_MOTION_KEY = 'whimsy-hollow:reduced-motion';
 
 export function loadHighContrast() {
   return window.localStorage.getItem(HIGH_CONTRAST_KEY) === '1';
@@ -187,5 +188,13 @@ export function loadColorblind() {
 
 export function saveColorblind(mode) {
   window.localStorage.setItem(COLORBLIND_KEY, mode);
+}
+
+export function loadReducedMotion() {
+  return window.localStorage.getItem(REDUCED_MOTION_KEY) === '1';
+}
+
+export function saveReducedMotion(on) {
+  window.localStorage.setItem(REDUCED_MOTION_KEY, on ? '1' : '0');
 }
 

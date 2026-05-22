@@ -8,7 +8,8 @@ import {
   loadAmbientVolume, saveAmbientVolume,
   loadHighContrast, saveHighContrast,
   loadKeysPointer, saveKeysPointer,
-  loadColorblind, saveColorblind
+  loadColorblind, saveColorblind,
+  loadReducedMotion, saveReducedMotion
 } from '../data/storage.js';
 import { refreshMusicSettings } from '../audio/music.js';
 
@@ -76,6 +77,11 @@ export class SettingsScene extends Phaser.Scene {
     y += 55;
     this.addToggleRow(width / 2, y, 'Keyboard Pointer', loadKeysPointer, (on) => {
       saveKeysPointer(on);
+    });
+
+    y += 55;
+    this.addToggleRow(width / 2, y, 'Reduced Motion', loadReducedMotion, (on) => {
+      saveReducedMotion(on);
     });
 
     y += 55;

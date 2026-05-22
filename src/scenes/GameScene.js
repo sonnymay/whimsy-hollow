@@ -12,7 +12,8 @@ import {
   saveOnboarded,
   loadHighContrast,
   loadKeysPointer,
-  loadColorblind
+  loadColorblind,
+  loadReducedMotion
 } from '../data/storage.js';
 import { createPillButton, createStatusPill } from '../ui/Button.js';
 import { setBackdrop } from '../ui/backdrop.js';
@@ -1128,22 +1129,61 @@ export class GameScene extends Phaser.Scene {
       onComplete: () => shadow.setVisible(false)
     });
 
-    this.tweens.add({
-      targets: sprite,
-      alpha: 0,
-      scale: sprite.scale * 1.24,
-      duration: 260,
-      ease: 'Sine.easeOut',
-      onComplete: () => {
-        sprite.setVisible(false);
-        if (glow) {
-          glow.setVisible(false);
+    const reduced = loadReducedMotion();
+    if (reduced) {
+      this.tweens.add({
+        targets: sprite,
+        alpha: 0,
+        scale: sprite.scale * 1.24,
+        duration: 260,
+        ease: 'Sine.easeOut',
+        onComplete: () => {
+          sprite.setVisible(false);
+          if (glow) glow.setVisible(false);
         }
-      }
-    });
+      });
+    } else {
+      this.playPluckAnimation(sprite, glow);
+    }
 
     this.updateHud();
     this.checkCompletionState(550);
+  }
+
+  /**
+   * Satisfying "pluck" feedback for a found item: a quick lift, gentle scale-up,
+   * then a soft fade with a small sparkle ring. Skip via Reduced Motion.
+   */
+  playPluckAnimation(sprite, glow) {
+    const startY = sprite.y;
+    const startScale = sprite.scale;
+    this.playSoftSparkle(sprite.x, sprite.y, 5);
+
+    // Lift + pop
+    this.tweens.add({
+      targets: sprite,
+      y: startY - 22,
+      scale: startScale * 1.18,
+      duration: 160,
+      ease: 'Back.easeOut',
+      onComplete: () => {
+        // Fade and float upward
+        this.tweens.add({
+          targets: sprite,
+          y: startY - 60,
+          alpha: 0,
+          scale: startScale * 0.92,
+          duration: 280,
+          ease: 'Sine.easeIn',
+          onComplete: () => {
+            sprite.setVisible(false);
+            sprite.y = startY;
+            sprite.setScale(startScale);
+            if (glow) glow.setVisible(false);
+          }
+        });
+      }
+    });
   }
 
   checkCompletionState() {
