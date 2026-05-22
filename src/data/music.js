@@ -37,7 +37,8 @@ export const musicByLevel = {
   'rainy-art-atelier': { music: sharedMusic },
   'morning-clockmaker-nook': { music: sharedMusic },
   'willow-pond-boathouse': { music: sharedMusic },
-  'breezy-kite-workshop': { music: sharedMusic }
+  'breezy-kite-workshop': { music: sharedMusic },
+  'lavender-laundry-room': { music: sharedMusic }
 };
 
 export const menuMusic = sharedMusic;

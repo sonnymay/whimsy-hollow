@@ -354,6 +354,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Bonus pinwheels added in `public/assets/bonus/`: `breezy_kite_workshop_pinwheel_01.png`, `breezy_kite_workshop_pinwheel_02.png`, and `breezy_kite_workshop_pinwheel_03.png`.
   - Uses shared music via `src/data/music.js`, `Pinwheels 0/3`, `Pinwheel!`, 10 main hidden objects, and three kite-workshop surprise hotspots.
 
+- Lavender Laundry Room scene added:
+  - Added `Lavender Laundry Room` with id `lavender-laundry-room`, inserted after `breezy-kite-workshop` in the level registry.
+  - Background is `public/assets/backgrounds/lavender_laundry_room.png`, generated as a 1920x1080 painterly cottage laundry room with lavender bundles, basin, drying rack, folded linens, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `lavender_laundry_room_clothespin.png`, `lavender_laundry_room_washboard.png`, `lavender_laundry_room_soap_bar.png`, `lavender_laundry_room_sachet.png`, `lavender_laundry_room_linen_sock.png`, `lavender_laundry_room_brass_thimble.png`, `lavender_laundry_room_handkerchief.png`, `lavender_laundry_room_laundry_scoop.png`, `lavender_laundry_room_folded_towel.png`, and `lavender_laundry_room_button_card.png`.
+  - Bonus soap bubbles added in `public/assets/bonus/`: `lavender_laundry_room_bubble_01.png`, `lavender_laundry_room_bubble_02.png`, and `lavender_laundry_room_bubble_03.png`.
+  - Uses shared music via `src/data/music.js`, `Bubbles 0/3`, `Bubble!`, 10 main hidden objects, and three laundry-room surprise hotspots.
+
 GitHub repo: `sonnymay/whimsy-hollow`
 
 ## Key Files
