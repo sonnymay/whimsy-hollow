@@ -983,3 +983,12 @@ If continuing from this commit, the highest-leverage path is:
 
 If working on individual tasks, every task above is self-contained with its
 own acceptance criteria — pick whichever maps to the open issue and execute.
+
+## Scene Production Update — Moonbeam Bakery Shelf
+
+- Added `Moonbeam Bakery Shelf` with id `moonbeam-bakery-shelf`, inserted after `cozy-dollhouse-workshop` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/moonbeam_bakery_shelf.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/moonbeam_bakery_shelf_*.png`.
+- Created 3 transparent bonus moon-charm PNGs under `public/assets/bonus/moonbeam_bakery_shelf_moon_charm_*.png`.
+- Wired `src/data/levels/moonbeam-bakery-shelf.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: left side is intentionally filled with the moon window, plants, hanging tools, baskets, stool, towels, shelves, and props. Do not accept future generated backgrounds with a large empty left wall beyond the narrow sidebar buffer.
