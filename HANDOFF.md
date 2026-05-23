@@ -1118,3 +1118,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-moss-star PNGs under `public/assets/bonus/teacup_bonsai_bench_golden_moss_star_*.png`.
 - Wired `src/data/levels/teacup-bonsai-bench.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with window trim, ivy, plant shelves, baskets, potted herbs, bench drawers, teacup bonsai, jars, cloth folds, and garden tools, with no large blank wall/table/floor area.
+
+## Scene Production Update — Rainy Umbrella Repair Stand
+
+- Added `Rainy Umbrella Repair Stand` with id `rainy-umbrella-repair-stand`, inserted after `teacup-bonsai-bench` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/rainy_umbrella_repair_stand.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/rainy_umbrella_repair_stand_*.png`.
+- Created 3 transparent bonus golden-raindrop PNGs under `public/assets/bonus/rainy_umbrella_repair_stand_golden_raindrop_*.png`.
+- Wired `src/data/levels/rainy-umbrella-repair-stand.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with rain window trim, ivy, umbrella hooks, potted plants, baskets, stool, folded oilcloth, umbrella canes, repair counter detail, jars, and tools, with no large blank wall/table/floor area.

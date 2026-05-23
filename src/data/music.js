@@ -95,7 +95,8 @@ export const musicByLevel = {
   'blueberry-jam-pantry-window': { music: cozyMusic },
   'maple-cocoa-breakfast-nook': { music: cozyMusic },
   'dandelion-wind-chime-porch': { music: natureMusic },
-  'teacup-bonsai-bench': { music: natureMusic }
+  'teacup-bonsai-bench': { music: natureMusic },
+  'rainy-umbrella-repair-stand': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
