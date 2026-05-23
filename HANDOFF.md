@@ -36,6 +36,12 @@
   - Added 10 transparent bead-studio object PNGs and 3 transparent golden-bead bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
   - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
 
+- **Cozy Dollhouse Workshop Scene (2026-05-23)**:
+  - Added a new non-duplicate cozy miniature-workshop level after `sunny-bead-studio`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/cozy_dollhouse_workshop.webp` as a 1920x1080 painterly cottage dollhouse workshop, with the left side deliberately filled by plants, window, shelf, basket, and miniature props instead of blank wall.
+  - Added 10 transparent dollhouse-workshop object PNGs and 3 transparent golden-house-charm bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Audio Integration Pass (2026-05-22)**:
   - **Custom SFX & Music Loops**: Generated and integrated 6 SFX (`click.mp3`, `wrong.mp3`, `hint.mp3`, `win.mp3`, `cover_open.mp3`, `bonus.mp3`) and 4 music loops (`menu.mp3`, `cozy.mp3`, `nature.mp3`, `dreamy.mp3`) as highly compatible MP3 files.
   - **Phaser Wiring**: Wired SFX playback into `src/scenes/GameScene.js` (for wrong clicks, hints, wins, bonus collectibles, and interactive cover fallback), `src/scenes/MenuScene.js` (for preloading), and `src/ui/Button.js` (to play `clickSfx` on pointerdown).
@@ -555,6 +561,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Main objects added in `public/assets/objects/`: `sunny_bead_studio_bead_jar.png`, `sunny_bead_studio_pearl_bracelet.png`, `sunny_bead_studio_brass_charm.png`, `sunny_bead_studio_blue_ribbon_spool.png`, `sunny_bead_studio_velvet_bead_tray.png`, `sunny_bead_studio_wooden_bead_scoop.png`, `sunny_bead_studio_magnifying_loupe.png`, `sunny_bead_studio_clasp_ring.png`, `sunny_bead_studio_lavender_pouch.png`, and `sunny_bead_studio_colorful_bead_string.png`.
   - Bonus golden beads added in `public/assets/bonus/`: `sunny_bead_studio_golden_bead_01.png`, `sunny_bead_studio_golden_bead_02.png`, and `sunny_bead_studio_golden_bead_03.png`.
   - Uses cozy music via `src/data/music.js`, `Beads 0/3`, `Bead!`, 10 main hidden objects, and three sunny-bead-studio surprise hotspots.
+
+- Cozy Dollhouse Workshop scene added:
+  - Added `Cozy Dollhouse Workshop` with id `cozy-dollhouse-workshop`, inserted after `sunny-bead-studio` in the level registry.
+  - Background is `public/assets/backgrounds/cozy_dollhouse_workshop.webp`, generated as a 1920x1080 painterly cottage miniature workshop with a dollhouse, tiny furniture, wallpaper rolls, paints, plants, shelves, baskets, warm window light, and no large empty left-side wall.
+  - Main objects added in `public/assets/objects/`: `cozy_dollhouse_workshop_tiny_chair.png`, `cozy_dollhouse_workshop_blue_roof_tile.png`, `cozy_dollhouse_workshop_wallpaper_roll.png`, `cozy_dollhouse_workshop_blue_paint_pot.png`, `cozy_dollhouse_workshop_brass_doorknob.png`, `cozy_dollhouse_workshop_mini_table.png`, `cozy_dollhouse_workshop_window_frame.png`, `cozy_dollhouse_workshop_tiny_ladder.png`, `cozy_dollhouse_workshop_fabric_rug_sample.png`, and `cozy_dollhouse_workshop_tool_caddy.png`.
+  - Bonus golden house charms added in `public/assets/bonus/`: `cozy_dollhouse_workshop_golden_house_charm_01.png`, `cozy_dollhouse_workshop_golden_house_charm_02.png`, and `cozy_dollhouse_workshop_golden_house_charm_03.png`.
+  - Uses cozy music via `src/data/music.js`, `Charms 0/3`, `Charm!`, 10 main hidden objects, and three cozy-dollhouse-workshop surprise hotspots.
 
 GitHub repo: `sonnymay/whimsy-hollow`
 
