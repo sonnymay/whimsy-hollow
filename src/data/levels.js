@@ -54,6 +54,7 @@ import { sunlitMarbleRunPlayroom } from './levels/sunlit-marble-run-playroom.js'
 import { fireflyCandleWindow } from './levels/firefly-candle-window.js';
 import { rainyTerrariumTable } from './levels/rainy-terrarium-table.js';
 import { lanternPaperConservatory } from './levels/lantern-paper-conservatory.js';
+import { seashellCraftNook } from './levels/seashell-craft-nook.js';
 
 export {
   mailGarden,
@@ -107,7 +108,8 @@ export {
   sunlitMarbleRunPlayroom,
   fireflyCandleWindow,
   rainyTerrariumTable,
-  lanternPaperConservatory
+  lanternPaperConservatory,
+  seashellCraftNook
 };
 
 export const levels = [
@@ -162,7 +164,8 @@ export const levels = [
   sunlitMarbleRunPlayroom,
   fireflyCandleWindow,
   rainyTerrariumTable,
-  lanternPaperConservatory
+  lanternPaperConservatory,
+  seashellCraftNook
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

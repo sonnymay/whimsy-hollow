@@ -1055,3 +1055,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus glow-moth PNGs under `public/assets/bonus/lantern_paper_conservatory_glow_moth_*.png`.
 - Wired `src/data/levels/lantern-paper-conservatory.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with window frames, trailing plants, plant stands, cubbies, baskets, shelves, lantern papers, and tools, with no broad empty wall/table/floor area.
+
+## Scene Production Update — Seashell Craft Nook
+
+- Added `Seashell Craft Nook` with id `seashell-craft-nook`, inserted after `lantern-paper-conservatory` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/seashell_craft_nook.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/seashell_craft_nook_*.png`.
+- Created 3 transparent bonus golden sea-glass PNGs under `public/assets/bonus/seashell_craft_nook_golden_sea_glass_*.png`.
+- Wired `src/data/levels/seashell-craft-nook.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with window trim, hanging plants, a shelf, shell garlands, a small drawer unit, baskets, cloth folds, table legs, and craft supplies, with no large blank wall/table/floor area.
