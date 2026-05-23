@@ -47,6 +47,7 @@ import { sunlitPhotoCorner } from './levels/sunlit-photo-corner.js';
 import { sunnyBeadStudio } from './levels/sunny-bead-studio.js';
 import { cozyDollhouseWorkshop } from './levels/cozy-dollhouse-workshop.js';
 import { moonbeamBakeryShelf } from './levels/moonbeam-bakery-shelf.js';
+import { bellflowerFloristCart } from './levels/bellflower-florist-cart.js';
 
 export {
   mailGarden,
@@ -93,7 +94,8 @@ export {
   sunlitPhotoCorner,
   sunnyBeadStudio,
   cozyDollhouseWorkshop,
-  moonbeamBakeryShelf
+  moonbeamBakeryShelf,
+  bellflowerFloristCart
 };
 
 export const levels = [
@@ -141,7 +143,8 @@ export const levels = [
   sunlitPhotoCorner,
   sunnyBeadStudio,
   cozyDollhouseWorkshop,
-  moonbeamBakeryShelf
+  moonbeamBakeryShelf,
+  bellflowerFloristCart
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

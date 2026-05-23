@@ -992,3 +992,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus moon-charm PNGs under `public/assets/bonus/moonbeam_bakery_shelf_moon_charm_*.png`.
 - Wired `src/data/levels/moonbeam-bakery-shelf.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: left side is intentionally filled with the moon window, plants, hanging tools, baskets, stool, towels, shelves, and props. Do not accept future generated backgrounds with a large empty left wall beyond the narrow sidebar buffer.
+
+## Scene Production Update — Bellflower Florist Cart
+
+- Added `Bellflower Florist Cart` with id `bellflower-florist-cart`, inserted after `moonbeam-bakery-shelf` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/bellflower_florist_cart.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/bellflower_florist_cart_*.png`.
+- Created 3 transparent bonus golden-petal PNGs under `public/assets/bonus/bellflower_florist_cart_golden_petal_*.png`.
+- Wired `src/data/levels/bellflower-florist-cart.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the left side is filled with the florist cart structure, baskets, buckets, vines, flowers, crates, and path detail, with only the narrow sidebar buffer kept calm.

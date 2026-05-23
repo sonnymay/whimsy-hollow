@@ -81,7 +81,8 @@ export const musicByLevel = {
   'sunlit-photo-corner': { music: cozyMusic },
   'sunny-bead-studio': { music: cozyMusic },
   'cozy-dollhouse-workshop': { music: cozyMusic },
-  'moonbeam-bakery-shelf': { music: cozyMusic }
+  'moonbeam-bakery-shelf': { music: cozyMusic },
+  'bellflower-florist-cart': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;
