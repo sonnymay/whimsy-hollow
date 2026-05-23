@@ -89,7 +89,8 @@ export const musicByLevel = {
   'firefly-candle-window': { music: dreamyMusic },
   'rainy-terrarium-table': { music: natureMusic },
   'lantern-paper-conservatory': { music: natureMusic },
-  'seashell-craft-nook': { music: natureMusic }
+  'seashell-craft-nook': { music: natureMusic },
+  'cloud-loom-weaving-nook': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
