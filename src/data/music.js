@@ -78,7 +78,8 @@ export const musicByLevel = {
   'cozy-stamp-desk': { music: cozyMusic },
   'sunny-wardrobe-nook': { music: cozyMusic },
   'cozy-bath-nook': { music: cozyMusic },
-  'sunlit-photo-corner': { music: cozyMusic }
+  'sunlit-photo-corner': { music: cozyMusic },
+  'sunny-bead-studio': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;

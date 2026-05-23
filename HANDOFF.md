@@ -30,6 +30,12 @@
   - Added 10 transparent photo-object PNGs and 3 transparent golden-photo-star bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
   - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
 
+- **Sunny Bead Studio Scene (2026-05-23)**:
+  - Added a new non-duplicate cozy bead-crafting level after `sunlit-photo-corner`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/sunny_bead_studio.webp` as a 1920x1080 painterly cottage craft studio with balanced safe UI spacing.
+  - Added 10 transparent bead-studio object PNGs and 3 transparent golden-bead bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Audio Integration Pass (2026-05-22)**:
   - **Custom SFX & Music Loops**: Generated and integrated 6 SFX (`click.mp3`, `wrong.mp3`, `hint.mp3`, `win.mp3`, `cover_open.mp3`, `bonus.mp3`) and 4 music loops (`menu.mp3`, `cozy.mp3`, `nature.mp3`, `dreamy.mp3`) as highly compatible MP3 files.
   - **Phaser Wiring**: Wired SFX playback into `src/scenes/GameScene.js` (for wrong clicks, hints, wins, bonus collectibles, and interactive cover fallback), `src/scenes/MenuScene.js` (for preloading), and `src/ui/Button.js` (to play `clickSfx` on pointerdown).
@@ -542,6 +548,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Main objects added in `public/assets/objects/`: `sunlit_photo_corner_vintage_camera.png`, `sunlit_photo_corner_brass_lens_cap.png`, `sunlit_photo_corner_photo_album.png`, `sunlit_photo_corner_picture_frame.png`, `sunlit_photo_corner_film_roll.png`, `sunlit_photo_corner_snapshot.png`, `sunlit_photo_corner_tiny_tripod.png`, `sunlit_photo_corner_blue_ribbon_spool.png`, `sunlit_photo_corner_dried_flower_sprig.png`, and `sunlit_photo_corner_keepsake_envelope.png`.
   - Bonus golden photo stars added in `public/assets/bonus/`: `sunlit_photo_corner_golden_photo_star_01.png`, `sunlit_photo_corner_golden_photo_star_02.png`, and `sunlit_photo_corner_golden_photo_star_03.png`.
   - Uses cozy music via `src/data/music.js`, `Stars 0/3`, `Star!`, 10 main hidden objects, and three sunlit-photo-corner surprise hotspots.
+
+- Sunny Bead Studio scene added:
+  - Added `Sunny Bead Studio` with id `sunny-bead-studio`, inserted after `sunlit-photo-corner` in the level registry.
+  - Background is `public/assets/backgrounds/sunny_bead_studio.webp`, generated as a 1920x1080 painterly cottage bead-crafting studio with bead jars, bracelets, ribbon racks, charm boards, velvet trays, warm window light, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `sunny_bead_studio_bead_jar.png`, `sunny_bead_studio_pearl_bracelet.png`, `sunny_bead_studio_brass_charm.png`, `sunny_bead_studio_blue_ribbon_spool.png`, `sunny_bead_studio_velvet_bead_tray.png`, `sunny_bead_studio_wooden_bead_scoop.png`, `sunny_bead_studio_magnifying_loupe.png`, `sunny_bead_studio_clasp_ring.png`, `sunny_bead_studio_lavender_pouch.png`, and `sunny_bead_studio_colorful_bead_string.png`.
+  - Bonus golden beads added in `public/assets/bonus/`: `sunny_bead_studio_golden_bead_01.png`, `sunny_bead_studio_golden_bead_02.png`, and `sunny_bead_studio_golden_bead_03.png`.
+  - Uses cozy music via `src/data/music.js`, `Beads 0/3`, `Bead!`, 10 main hidden objects, and three sunny-bead-studio surprise hotspots.
 
 GitHub repo: `sonnymay/whimsy-hollow`
 

@@ -44,6 +44,7 @@ import { cozyStampDesk } from './levels/cozy-stamp-desk.js';
 import { sunnyWardrobeNook } from './levels/sunny-wardrobe-nook.js';
 import { cozyBathNook } from './levels/cozy-bath-nook.js';
 import { sunlitPhotoCorner } from './levels/sunlit-photo-corner.js';
+import { sunnyBeadStudio } from './levels/sunny-bead-studio.js';
 
 export {
   mailGarden,
@@ -87,7 +88,8 @@ export {
   cozyStampDesk,
   sunnyWardrobeNook,
   cozyBathNook,
-  sunlitPhotoCorner
+  sunlitPhotoCorner,
+  sunnyBeadStudio
 };
 
 export const levels = [
@@ -132,7 +134,8 @@ export const levels = [
   cozyStampDesk,
   sunnyWardrobeNook,
   cozyBathNook,
-  sunlitPhotoCorner
+  sunlitPhotoCorner,
+  sunnyBeadStudio
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';
