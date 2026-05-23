@@ -84,7 +84,8 @@ export const musicByLevel = {
   'moonbeam-bakery-shelf': { music: cozyMusic },
   'bellflower-florist-cart': { music: natureMusic },
   'sugarplum-candy-counter': { music: cozyMusic },
-  'button-tin-craft-desk': { music: cozyMusic }
+  'button-tin-craft-desk': { music: cozyMusic },
+  'sunlit-marble-run-playroom': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;

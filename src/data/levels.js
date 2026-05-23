@@ -50,6 +50,7 @@ import { moonbeamBakeryShelf } from './levels/moonbeam-bakery-shelf.js';
 import { bellflowerFloristCart } from './levels/bellflower-florist-cart.js';
 import { sugarplumCandyCounter } from './levels/sugarplum-candy-counter.js';
 import { buttonTinCraftDesk } from './levels/button-tin-craft-desk.js';
+import { sunlitMarbleRunPlayroom } from './levels/sunlit-marble-run-playroom.js';
 
 export {
   mailGarden,
@@ -99,7 +100,8 @@ export {
   moonbeamBakeryShelf,
   bellflowerFloristCart,
   sugarplumCandyCounter,
-  buttonTinCraftDesk
+  buttonTinCraftDesk,
+  sunlitMarbleRunPlayroom
 };
 
 export const levels = [
@@ -150,7 +152,8 @@ export const levels = [
   moonbeamBakeryShelf,
   bellflowerFloristCart,
   sugarplumCandyCounter,
-  buttonTinCraftDesk
+  buttonTinCraftDesk,
+  sunlitMarbleRunPlayroom
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

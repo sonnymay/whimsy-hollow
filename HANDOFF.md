@@ -1019,3 +1019,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-button PNGs under `public/assets/bonus/button_tin_craft_desk_golden_button_*.png`.
 - Wired `src/data/levels/button-tin-craft-desk.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the left side is filled with shelf cubbies, plant leaves, baskets, button tins, drawers, fabric, and thread spools, with no broad empty wall or tabletop area.
+
+## Scene Production Update — Sunlit Marble Run Playroom
+
+- Added `Sunlit Marble Run Playroom` with id `sunlit-marble-run-playroom`, inserted after `button-tin-craft-desk` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/sunlit_marble_run_playroom.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/sunlit_marble_run_playroom_*.png`.
+- Created 3 transparent bonus golden-marble PNGs under `public/assets/bonus/sunlit_marble_run_playroom_golden_marble_*.png`.
+- Wired `src/data/levels/sunlit-marble-run-playroom.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the left side is filled with plant leaves, shelf cubbies, baskets, bead maze, blocks, drawers, ramps, and tray detail, with no broad empty wall/table/floor area.
