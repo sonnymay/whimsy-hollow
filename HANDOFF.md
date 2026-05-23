@@ -1028,3 +1028,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-marble PNGs under `public/assets/bonus/sunlit_marble_run_playroom_golden_marble_*.png`.
 - Wired `src/data/levels/sunlit-marble-run-playroom.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the left side is filled with plant leaves, shelf cubbies, baskets, bead maze, blocks, drawers, ramps, and tray detail, with no broad empty wall/table/floor area.
+
+## Scene Production Update — Firefly Candle Window
+
+- Added `Firefly Candle Window` with id `firefly-candle-window`, inserted after `sunlit-marble-run-playroom` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/firefly_candle_window.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/firefly_candle_window_*.png`.
+- Created 3 transparent bonus golden-glow PNGs under `public/assets/bonus/firefly_candle_window_golden_glow_*.png`.
+- Wired `src/data/levels/firefly-candle-window.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the left side is filled with window frame, ivy, curtain folds, candle shelves, jars, books, quilt, drawers, and small candle props, with no large blank wall/table/floor space.

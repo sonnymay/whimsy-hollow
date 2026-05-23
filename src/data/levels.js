@@ -51,6 +51,7 @@ import { bellflowerFloristCart } from './levels/bellflower-florist-cart.js';
 import { sugarplumCandyCounter } from './levels/sugarplum-candy-counter.js';
 import { buttonTinCraftDesk } from './levels/button-tin-craft-desk.js';
 import { sunlitMarbleRunPlayroom } from './levels/sunlit-marble-run-playroom.js';
+import { fireflyCandleWindow } from './levels/firefly-candle-window.js';
 
 export {
   mailGarden,
@@ -101,7 +102,8 @@ export {
   bellflowerFloristCart,
   sugarplumCandyCounter,
   buttonTinCraftDesk,
-  sunlitMarbleRunPlayroom
+  sunlitMarbleRunPlayroom,
+  fireflyCandleWindow
 };
 
 export const levels = [
@@ -153,7 +155,8 @@ export const levels = [
   bellflowerFloristCart,
   sugarplumCandyCounter,
   buttonTinCraftDesk,
-  sunlitMarbleRunPlayroom
+  sunlitMarbleRunPlayroom,
+  fireflyCandleWindow
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';
