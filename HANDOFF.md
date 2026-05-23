@@ -1037,3 +1037,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-glow PNGs under `public/assets/bonus/firefly_candle_window_golden_glow_*.png`.
 - Wired `src/data/levels/firefly-candle-window.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the left side is filled with window frame, ivy, curtain folds, candle shelves, jars, books, quilt, drawers, and small candle props, with no large blank wall/table/floor space.
+
+## Scene Production Update — Rainy Terrarium Table
+
+- Added `Rainy Terrarium Table` with id `rainy-terrarium-table`, inserted after `firefly-candle-window` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/rainy_terrarium_table.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/rainy_terrarium_table_*.png`.
+- Created 3 transparent bonus golden-raindrop PNGs under `public/assets/bonus/rainy_terrarium_table_golden_raindrop_*.png`.
+- Wired `src/data/levels/rainy-terrarium-table.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the left side is filled with rain window frame, ivy, moss trays, glass jars, baskets, drawers, cloth folds, and plant tools, with no large blank wall/table/floor space.

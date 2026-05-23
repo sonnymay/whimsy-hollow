@@ -52,6 +52,7 @@ import { sugarplumCandyCounter } from './levels/sugarplum-candy-counter.js';
 import { buttonTinCraftDesk } from './levels/button-tin-craft-desk.js';
 import { sunlitMarbleRunPlayroom } from './levels/sunlit-marble-run-playroom.js';
 import { fireflyCandleWindow } from './levels/firefly-candle-window.js';
+import { rainyTerrariumTable } from './levels/rainy-terrarium-table.js';
 
 export {
   mailGarden,
@@ -103,7 +104,8 @@ export {
   sugarplumCandyCounter,
   buttonTinCraftDesk,
   sunlitMarbleRunPlayroom,
-  fireflyCandleWindow
+  fireflyCandleWindow,
+  rainyTerrariumTable
 };
 
 export const levels = [
@@ -156,7 +158,8 @@ export const levels = [
   sugarplumCandyCounter,
   buttonTinCraftDesk,
   sunlitMarbleRunPlayroom,
-  fireflyCandleWindow
+  fireflyCandleWindow,
+  rainyTerrariumTable
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

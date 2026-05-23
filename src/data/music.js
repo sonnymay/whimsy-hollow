@@ -86,7 +86,8 @@ export const musicByLevel = {
   'sugarplum-candy-counter': { music: cozyMusic },
   'button-tin-craft-desk': { music: cozyMusic },
   'sunlit-marble-run-playroom': { music: cozyMusic },
-  'firefly-candle-window': { music: dreamyMusic }
+  'firefly-candle-window': { music: dreamyMusic },
+  'rainy-terrarium-table': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;
