@@ -59,6 +59,7 @@ import { cloudLoomWeavingNook } from './levels/cloud-loom-weaving-nook.js';
 import { sunflowerPressingTable } from './levels/sunflower-pressing-table.js';
 import { blueberryJamPantryWindow } from './levels/blueberry-jam-pantry-window.js';
 import { mapleCocoaBreakfastNook } from './levels/maple-cocoa-breakfast-nook.js';
+import { dandelionWindChimePorch } from './levels/dandelion-wind-chime-porch.js';
 
 export {
   mailGarden,
@@ -117,7 +118,8 @@ export {
   cloudLoomWeavingNook,
   sunflowerPressingTable,
   blueberryJamPantryWindow,
-  mapleCocoaBreakfastNook
+  mapleCocoaBreakfastNook,
+  dandelionWindChimePorch
 };
 
 export const levels = [
@@ -177,7 +179,8 @@ export const levels = [
   cloudLoomWeavingNook,
   sunflowerPressingTable,
   blueberryJamPantryWindow,
-  mapleCocoaBreakfastNook
+  mapleCocoaBreakfastNook,
+  dandelionWindChimePorch
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

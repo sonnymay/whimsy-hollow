@@ -1100,3 +1100,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-leaf PNGs under `public/assets/bonus/maple_cocoa_breakfast_nook_golden_leaf_*.png`.
 - Wired `src/data/levels/maple-cocoa-breakfast-nook.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with shelves, window trim, hanging plants, baskets, jars, a blanket basket, table legs, and breakfast props, with no large blank wall/table/floor area.
+
+## Scene Production Update — Dandelion Wind Chime Porch
+
+- Added `Dandelion Wind Chime Porch` with id `dandelion-wind-chime-porch`, inserted after `maple-cocoa-breakfast-nook` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/dandelion_wind_chime_porch.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/dandelion_wind_chime_porch_*.png`.
+- Created 3 transparent bonus golden-puff PNGs under `public/assets/bonus/dandelion_wind_chime_porch_golden_puff_*.png`.
+- Wired `src/data/levels/dandelion-wind-chime-porch.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with trellis vines, plant shelves, potted herbs, porch rail, hanging chimes, baskets, cloth folds, jars, table legs, and craft props, with no large blank wall/table/floor area.
