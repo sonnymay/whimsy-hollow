@@ -1127,3 +1127,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-raindrop PNGs under `public/assets/bonus/rainy_umbrella_repair_stand_golden_raindrop_*.png`.
 - Wired `src/data/levels/rainy-umbrella-repair-stand.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with rain window trim, ivy, umbrella hooks, potted plants, baskets, stool, folded oilcloth, umbrella canes, repair counter detail, jars, and tools, with no large blank wall/table/floor area.
+
+## Scene Production Update — Cranberry Garland Hearth
+
+- Added `Cranberry Garland Hearth` with id `cranberry-garland-hearth`, inserted after `rainy-umbrella-repair-stand` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/cranberry_garland_hearth.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/cranberry_garland_hearth_*.png`.
+- Created 3 transparent bonus golden-cranberry PNGs under `public/assets/bonus/cranberry_garland_hearth_golden_cranberry_*.png`.
+- Wired `src/data/levels/cranberry-garland-hearth.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with mantel shelves, potted greenery, firewood baskets, cranberry garlands, quilt folds, stool, hearth tools, jars, table edges, and craft props, with no large blank wall/table/floor area.
