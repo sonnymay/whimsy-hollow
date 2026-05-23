@@ -1010,3 +1010,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden sugar-star PNGs under `public/assets/bonus/sugarplum_candy_counter_golden_sugar_star_*.png`.
 - Wired `src/data/levels/sugarplum-candy-counter.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the left side is filled with candy shelves, jars, lamp, counter drawers, hooks, cloth, and small props instead of blank wall or empty counter space.
+
+## Scene Production Update — Button Tin Craft Desk
+
+- Added `Button Tin Craft Desk` with id `button-tin-craft-desk`, inserted after `sugarplum-candy-counter` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/button_tin_craft_desk.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/button_tin_craft_desk_*.png`.
+- Created 3 transparent bonus golden-button PNGs under `public/assets/bonus/button_tin_craft_desk_golden_button_*.png`.
+- Wired `src/data/levels/button-tin-craft-desk.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the left side is filled with shelf cubbies, plant leaves, baskets, button tins, drawers, fabric, and thread spools, with no broad empty wall or tabletop area.
