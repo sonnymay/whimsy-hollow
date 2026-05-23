@@ -1136,3 +1136,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-cranberry PNGs under `public/assets/bonus/cranberry_garland_hearth_golden_cranberry_*.png`.
 - Wired `src/data/levels/cranberry-garland-hearth.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with mantel shelves, potted greenery, firewood baskets, cranberry garlands, quilt folds, stool, hearth tools, jars, table edges, and craft props, with no large blank wall/table/floor area.
+
+## Scene Production Update — Little Library Return Cart
+
+- Added `Little Library Return Cart` with id `little-library-return-cart`, inserted after `cranberry-garland-hearth` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/little_library_return_cart.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/little_library_return_cart_*.png`.
+- Created 3 transparent bonus golden-bookmark PNGs under `public/assets/bonus/little_library_return_cart_golden_bookmark_*.png`.
+- Wired `src/data/levels/little-library-return-cart.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with trailing vines, wood shelves, wicker baskets, a return box, a stool, books, ribbons, plants, cart edges, and reading props, with no large blank wall/table/floor area.
