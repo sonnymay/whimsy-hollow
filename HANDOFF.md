@@ -1001,3 +1001,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-petal PNGs under `public/assets/bonus/bellflower_florist_cart_golden_petal_*.png`.
 - Wired `src/data/levels/bellflower-florist-cart.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the left side is filled with the florist cart structure, baskets, buckets, vines, flowers, crates, and path detail, with only the narrow sidebar buffer kept calm.
+
+## Scene Production Update — Sugarplum Candy Counter
+
+- Added `Sugarplum Candy Counter` with id `sugarplum-candy-counter`, inserted after `bellflower-florist-cart` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/sugarplum_candy_counter.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/sugarplum_candy_counter_*.png`.
+- Created 3 transparent bonus golden sugar-star PNGs under `public/assets/bonus/sugarplum_candy_counter_golden_sugar_star_*.png`.
+- Wired `src/data/levels/sugarplum-candy-counter.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the left side is filled with candy shelves, jars, lamp, counter drawers, hooks, cloth, and small props instead of blank wall or empty counter space.
