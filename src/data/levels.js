@@ -57,6 +57,7 @@ import { lanternPaperConservatory } from './levels/lantern-paper-conservatory.js
 import { seashellCraftNook } from './levels/seashell-craft-nook.js';
 import { cloudLoomWeavingNook } from './levels/cloud-loom-weaving-nook.js';
 import { sunflowerPressingTable } from './levels/sunflower-pressing-table.js';
+import { blueberryJamPantryWindow } from './levels/blueberry-jam-pantry-window.js';
 
 export {
   mailGarden,
@@ -113,7 +114,8 @@ export {
   lanternPaperConservatory,
   seashellCraftNook,
   cloudLoomWeavingNook,
-  sunflowerPressingTable
+  sunflowerPressingTable,
+  blueberryJamPantryWindow
 };
 
 export const levels = [
@@ -171,7 +173,8 @@ export const levels = [
   lanternPaperConservatory,
   seashellCraftNook,
   cloudLoomWeavingNook,
-  sunflowerPressingTable
+  sunflowerPressingTable,
+  blueberryJamPantryWindow
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

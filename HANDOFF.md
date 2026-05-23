@@ -1082,3 +1082,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-petal PNGs under `public/assets/bonus/sunflower_pressing_table_golden_petal_*.png`.
 - Wired `src/data/levels/sunflower-pressing-table.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with window trim, trailing plants, a wall shelf, drawer unit, baskets, lantern, sunflower vase, dried bundles, cloth folds, and table craft details, with no large blank wall/table/floor area.
+
+## Scene Production Update — Blueberry Jam Pantry Window
+
+- Added `Blueberry Jam Pantry Window` with id `blueberry-jam-pantry-window`, inserted after `sunflower-pressing-table` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/blueberry_jam_pantry_window.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/blueberry_jam_pantry_window_*.png`.
+- Created 3 transparent bonus golden-blueberry PNGs under `public/assets/bonus/blueberry_jam_pantry_window_golden_blueberry_*.png`.
+- Wired `src/data/levels/blueberry-jam-pantry-window.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with window trim, hanging plants, utensil cup, drawer unit, baskets, berry crates, gingham cloth, jars, and table/floor pantry details, with no large blank wall/table/floor area.
