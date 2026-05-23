@@ -92,7 +92,8 @@ export const musicByLevel = {
   'seashell-craft-nook': { music: natureMusic },
   'cloud-loom-weaving-nook': { music: cozyMusic },
   'sunflower-pressing-table': { music: natureMusic },
-  'blueberry-jam-pantry-window': { music: cozyMusic }
+  'blueberry-jam-pantry-window': { music: cozyMusic },
+  'maple-cocoa-breakfast-nook': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
