@@ -14,8 +14,14 @@
 
 - **Sunny Wardrobe Nook Scene (2026-05-22)**:
   - Added a new non-duplicate cozy dressing-nook level after `cozy-stamp-desk`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
-  - Generated and normalized `public/assets/backgrounds/sunny_wardrobe_nook.webp` as a 1920x1080 painterly cottage wardrobe scene with a calm HUD/list safe area.
+  - Regenerated and normalized `public/assets/backgrounds/sunny_wardrobe_nook.webp` as a fuller 1920x1080 painterly cottage wardrobe scene, replacing the too-empty left-side composition while preserving HUD/list safe areas.
   - Added 10 transparent wardrobe-object PNGs and 3 transparent golden-hatpin bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
+- **Cozy Bath Nook Scene (2026-05-22)**:
+  - Added a new non-duplicate cozy bathroom level after `sunny-wardrobe-nook`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/cozy_bath_nook.webp` as a 1920x1080 painterly cottage bath nook, cropped to avoid a large empty left wall while keeping safe UI spacing.
+  - Added 10 transparent bath-object PNGs and 3 transparent pearly-bubble bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
   - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
 
 - **Audio Integration Pass (2026-05-22)**:
@@ -512,10 +518,17 @@ Repo is a Vite + Phaser 3 browser game with:
 
 - Sunny Wardrobe Nook scene added:
   - Added `Sunny Wardrobe Nook` with id `sunny-wardrobe-nook`, inserted after `cozy-stamp-desk` in the level registry.
-  - Background is `public/assets/backgrounds/sunny_wardrobe_nook.webp`, generated as a 1920x1080 painterly cottage dressing nook with a wardrobe, hatboxes, scarves, lace, baskets, vanity mirror, warm window light, and safe hidden-object placement.
+  - Background is `public/assets/backgrounds/sunny_wardrobe_nook.webp`, regenerated as a fuller 1920x1080 painterly cottage dressing nook with a wardrobe, hatboxes, scarves, lace, baskets, vanity mirror, warm window light, and balanced left-side detail.
   - Main objects added in `public/assets/objects/`: `sunny_wardrobe_nook_straw_sunhat.png`, `sunny_wardrobe_nook_blue_silk_scarf.png`, `sunny_wardrobe_nook_pearl_hairpin.png`, `sunny_wardrobe_nook_lavender_sachet.png`, `sunny_wardrobe_nook_velvet_glove.png`, `sunny_wardrobe_nook_hat_brush.png`, `sunny_wardrobe_nook_oval_hand_mirror.png`, `sunny_wardrobe_nook_button_card.png`, `sunny_wardrobe_nook_lace_collar.png`, and `sunny_wardrobe_nook_ribbon_brooch.png`.
   - Bonus golden hatpins added in `public/assets/bonus/`: `sunny_wardrobe_nook_hatpin_01.png`, `sunny_wardrobe_nook_hatpin_02.png`, and `sunny_wardrobe_nook_hatpin_03.png`.
   - Uses cozy music via `src/data/music.js`, `Hatpins 0/3`, `Hatpin!`, 10 main hidden objects, and three sunny-wardrobe-nook surprise hotspots.
+
+- Cozy Bath Nook scene added:
+  - Added `Cozy Bath Nook` with id `cozy-bath-nook`, inserted after `sunny-wardrobe-nook` in the level registry.
+  - Background is `public/assets/backgrounds/cozy_bath_nook.webp`, generated as a 1920x1080 painterly cottage bathroom with a clawfoot tub, towel ladder, baskets, plants, shelves of soaps and jars, warm window light, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `cozy_bath_nook_rubber_duck.png`, `cozy_bath_nook_seashell_soap.png`, `cozy_bath_nook_bath_brush.png`, `cozy_bath_nook_blue_towel.png`, `cozy_bath_nook_lavender_shampoo.png`, `cozy_bath_nook_loofah_puff.png`, `cozy_bath_nook_bath_sponge.png`, `cozy_bath_nook_toy_boat.png`, `cozy_bath_nook_bath_salts_jar.png`, and `cozy_bath_nook_pearl_comb.png`.
+  - Bonus pearly bubbles added in `public/assets/bonus/`: `cozy_bath_nook_pearly_bubble_01.png`, `cozy_bath_nook_pearly_bubble_02.png`, and `cozy_bath_nook_pearly_bubble_03.png`.
+  - Uses cozy music via `src/data/music.js`, `Bubbles 0/3`, `Bubble!`, 10 main hidden objects, and three cozy-bath-nook surprise hotspots.
 
 GitHub repo: `sonnymay/whimsy-hollow`
 
