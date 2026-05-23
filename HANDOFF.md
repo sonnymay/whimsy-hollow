@@ -12,6 +12,12 @@
   - **Accessibility Settings (`SettingsScene.js`)**: Exposes settings toggles for **High-Contrast Outlines** (dual yellow/white border on hover), **Keyboard Pointer Controls** (tray card navigation via WASD/Arrows + Space), and **Colorblind Filters** (Protanopia, Deuteranopia, and Tritanopia matrix post-effects on camera layers).
   - **Developer Level Editor**: Pressing `D` in any level opens a developer panel. Drag, scale, and nudge objects, and copy/view updated JS coordinate structures to save directly into level data files.
 
+- **Sunny Wardrobe Nook Scene (2026-05-22)**:
+  - Added a new non-duplicate cozy dressing-nook level after `cozy-stamp-desk`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/sunny_wardrobe_nook.webp` as a 1920x1080 painterly cottage wardrobe scene with a calm HUD/list safe area.
+  - Added 10 transparent wardrobe-object PNGs and 3 transparent golden-hatpin bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Audio Integration Pass (2026-05-22)**:
   - **Custom SFX & Music Loops**: Generated and integrated 6 SFX (`click.mp3`, `wrong.mp3`, `hint.mp3`, `win.mp3`, `cover_open.mp3`, `bonus.mp3`) and 4 music loops (`menu.mp3`, `cozy.mp3`, `nature.mp3`, `dreamy.mp3`) as highly compatible MP3 files.
   - **Phaser Wiring**: Wired SFX playback into `src/scenes/GameScene.js` (for wrong clicks, hints, wins, bonus collectibles, and interactive cover fallback), `src/scenes/MenuScene.js` (for preloading), and `src/ui/Button.js` (to play `clickSfx` on pointerdown).
@@ -503,6 +509,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Main objects added in `public/assets/objects/`: `cozy_stamp_desk_stamp_album.png`, `cozy_stamp_desk_stamp_tongs.png`, `cozy_stamp_desk_butterfly_postcard.png`, `cozy_stamp_desk_green_ink_pad.png`, `cozy_stamp_desk_wax_seal_stamp.png`, `cozy_stamp_desk_perforation_gauge.png`, `cozy_stamp_desk_ribbon_bundle.png`, `cozy_stamp_desk_envelope_stack.png`, `cozy_stamp_desk_flower_stamp_sheet.png`, and `cozy_stamp_desk_sorting_tray.png`.
   - Bonus golden stamps added in `public/assets/bonus/`: `cozy_stamp_desk_golden_stamp_01.png`, `cozy_stamp_desk_golden_stamp_02.png`, and `cozy_stamp_desk_golden_stamp_03.png`.
   - Uses shared music via `src/data/music.js`, `Stamps 0/3`, `Stamp!`, 10 main hidden objects, and three cozy-stamp-desk surprise hotspots.
+
+- Sunny Wardrobe Nook scene added:
+  - Added `Sunny Wardrobe Nook` with id `sunny-wardrobe-nook`, inserted after `cozy-stamp-desk` in the level registry.
+  - Background is `public/assets/backgrounds/sunny_wardrobe_nook.webp`, generated as a 1920x1080 painterly cottage dressing nook with a wardrobe, hatboxes, scarves, lace, baskets, vanity mirror, warm window light, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `sunny_wardrobe_nook_straw_sunhat.png`, `sunny_wardrobe_nook_blue_silk_scarf.png`, `sunny_wardrobe_nook_pearl_hairpin.png`, `sunny_wardrobe_nook_lavender_sachet.png`, `sunny_wardrobe_nook_velvet_glove.png`, `sunny_wardrobe_nook_hat_brush.png`, `sunny_wardrobe_nook_oval_hand_mirror.png`, `sunny_wardrobe_nook_button_card.png`, `sunny_wardrobe_nook_lace_collar.png`, and `sunny_wardrobe_nook_ribbon_brooch.png`.
+  - Bonus golden hatpins added in `public/assets/bonus/`: `sunny_wardrobe_nook_hatpin_01.png`, `sunny_wardrobe_nook_hatpin_02.png`, and `sunny_wardrobe_nook_hatpin_03.png`.
+  - Uses cozy music via `src/data/music.js`, `Hatpins 0/3`, `Hatpin!`, 10 main hidden objects, and three sunny-wardrobe-nook surprise hotspots.
 
 GitHub repo: `sonnymay/whimsy-hollow`
 
