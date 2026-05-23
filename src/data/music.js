@@ -87,7 +87,8 @@ export const musicByLevel = {
   'button-tin-craft-desk': { music: cozyMusic },
   'sunlit-marble-run-playroom': { music: cozyMusic },
   'firefly-candle-window': { music: dreamyMusic },
-  'rainy-terrarium-table': { music: natureMusic }
+  'rainy-terrarium-table': { music: natureMusic },
+  'lantern-paper-conservatory': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;

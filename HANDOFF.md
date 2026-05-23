@@ -1046,3 +1046,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-raindrop PNGs under `public/assets/bonus/rainy_terrarium_table_golden_raindrop_*.png`.
 - Wired `src/data/levels/rainy-terrarium-table.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the left side is filled with rain window frame, ivy, moss trays, glass jars, baskets, drawers, cloth folds, and plant tools, with no large blank wall/table/floor space.
+
+## Scene Production Update — Lantern Paper Conservatory
+
+- Added `Lantern Paper Conservatory` with id `lantern-paper-conservatory`, inserted after `rainy-terrarium-table` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/lantern_paper_conservatory.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/lantern_paper_conservatory_*.png`.
+- Created 3 transparent bonus glow-moth PNGs under `public/assets/bonus/lantern_paper_conservatory_glow_moth_*.png`.
+- Wired `src/data/levels/lantern-paper-conservatory.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with window frames, trailing plants, plant stands, cubbies, baskets, shelves, lantern papers, and tools, with no broad empty wall/table/floor area.
