@@ -24,6 +24,12 @@
   - Added 10 transparent bath-object PNGs and 3 transparent pearly-bubble bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
   - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
 
+- **Sunlit Photo Corner Scene (2026-05-23)**:
+  - Added a new non-duplicate cozy photo-memory level after `cozy-bath-nook`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/sunlit_photo_corner.webp` as a 1920x1080 painterly cottage photo corner with balanced safe UI spacing.
+  - Added 10 transparent photo-object PNGs and 3 transparent golden-photo-star bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Audio Integration Pass (2026-05-22)**:
   - **Custom SFX & Music Loops**: Generated and integrated 6 SFX (`click.mp3`, `wrong.mp3`, `hint.mp3`, `win.mp3`, `cover_open.mp3`, `bonus.mp3`) and 4 music loops (`menu.mp3`, `cozy.mp3`, `nature.mp3`, `dreamy.mp3`) as highly compatible MP3 files.
   - **Phaser Wiring**: Wired SFX playback into `src/scenes/GameScene.js` (for wrong clicks, hints, wins, bonus collectibles, and interactive cover fallback), `src/scenes/MenuScene.js` (for preloading), and `src/ui/Button.js` (to play `clickSfx` on pointerdown).
@@ -529,6 +535,13 @@ Repo is a Vite + Phaser 3 browser game with:
   - Main objects added in `public/assets/objects/`: `cozy_bath_nook_rubber_duck.png`, `cozy_bath_nook_seashell_soap.png`, `cozy_bath_nook_bath_brush.png`, `cozy_bath_nook_blue_towel.png`, `cozy_bath_nook_lavender_shampoo.png`, `cozy_bath_nook_loofah_puff.png`, `cozy_bath_nook_bath_sponge.png`, `cozy_bath_nook_toy_boat.png`, `cozy_bath_nook_bath_salts_jar.png`, and `cozy_bath_nook_pearl_comb.png`.
   - Bonus pearly bubbles added in `public/assets/bonus/`: `cozy_bath_nook_pearly_bubble_01.png`, `cozy_bath_nook_pearly_bubble_02.png`, and `cozy_bath_nook_pearly_bubble_03.png`.
   - Uses cozy music via `src/data/music.js`, `Bubbles 0/3`, `Bubble!`, 10 main hidden objects, and three cozy-bath-nook surprise hotspots.
+
+- Sunlit Photo Corner scene added:
+  - Added `Sunlit Photo Corner` with id `sunlit-photo-corner`, inserted after `cozy-bath-nook` in the level registry.
+  - Background is `public/assets/backgrounds/sunlit_photo_corner.webp`, generated as a 1920x1080 painterly cottage photo-memory corner with a vintage camera, photo board, album desk, shelves, baskets, warm window light, and safe hidden-object placement.
+  - Main objects added in `public/assets/objects/`: `sunlit_photo_corner_vintage_camera.png`, `sunlit_photo_corner_brass_lens_cap.png`, `sunlit_photo_corner_photo_album.png`, `sunlit_photo_corner_picture_frame.png`, `sunlit_photo_corner_film_roll.png`, `sunlit_photo_corner_snapshot.png`, `sunlit_photo_corner_tiny_tripod.png`, `sunlit_photo_corner_blue_ribbon_spool.png`, `sunlit_photo_corner_dried_flower_sprig.png`, and `sunlit_photo_corner_keepsake_envelope.png`.
+  - Bonus golden photo stars added in `public/assets/bonus/`: `sunlit_photo_corner_golden_photo_star_01.png`, `sunlit_photo_corner_golden_photo_star_02.png`, and `sunlit_photo_corner_golden_photo_star_03.png`.
+  - Uses cozy music via `src/data/music.js`, `Stars 0/3`, `Star!`, 10 main hidden objects, and three sunlit-photo-corner surprise hotspots.
 
 GitHub repo: `sonnymay/whimsy-hollow`
 
