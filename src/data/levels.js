@@ -56,6 +56,7 @@ import { rainyTerrariumTable } from './levels/rainy-terrarium-table.js';
 import { lanternPaperConservatory } from './levels/lantern-paper-conservatory.js';
 import { seashellCraftNook } from './levels/seashell-craft-nook.js';
 import { cloudLoomWeavingNook } from './levels/cloud-loom-weaving-nook.js';
+import { sunflowerPressingTable } from './levels/sunflower-pressing-table.js';
 
 export {
   mailGarden,
@@ -111,7 +112,8 @@ export {
   rainyTerrariumTable,
   lanternPaperConservatory,
   seashellCraftNook,
-  cloudLoomWeavingNook
+  cloudLoomWeavingNook,
+  sunflowerPressingTable
 };
 
 export const levels = [
@@ -168,7 +170,8 @@ export const levels = [
   rainyTerrariumTable,
   lanternPaperConservatory,
   seashellCraftNook,
-  cloudLoomWeavingNook
+  cloudLoomWeavingNook,
+  sunflowerPressingTable
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

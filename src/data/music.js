@@ -90,7 +90,8 @@ export const musicByLevel = {
   'rainy-terrarium-table': { music: natureMusic },
   'lantern-paper-conservatory': { music: natureMusic },
   'seashell-craft-nook': { music: natureMusic },
-  'cloud-loom-weaving-nook': { music: cozyMusic }
+  'cloud-loom-weaving-nook': { music: cozyMusic },
+  'sunflower-pressing-table': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;
