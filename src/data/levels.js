@@ -77,6 +77,7 @@ import { cozySockDarningBasket } from './levels/cozy-sock-darning-basket.js';
 import { copperWeatherVaneWorkbench } from './levels/copper-weather-vane-workbench.js';
 import { snowglobePackingTable } from './levels/snowglobe-packing-table.js';
 import { goldenAcornSortingTray } from './levels/golden-acorn-sorting-tray.js';
+import { feltStarMobileWorkbench } from './levels/felt-star-mobile-workbench.js';
 
 export {
   mailGarden,
@@ -153,7 +154,8 @@ export {
   cozySockDarningBasket,
   copperWeatherVaneWorkbench,
   snowglobePackingTable,
-  goldenAcornSortingTray
+  goldenAcornSortingTray,
+  feltStarMobileWorkbench
 };
 
 export const levels = [
@@ -231,7 +233,8 @@ export const levels = [
   cozySockDarningBasket,
   copperWeatherVaneWorkbench,
   snowglobePackingTable,
-  goldenAcornSortingTray
+  goldenAcornSortingTray,
+  feltStarMobileWorkbench
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

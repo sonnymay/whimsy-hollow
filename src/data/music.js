@@ -111,7 +111,8 @@ export const musicByLevel = {
   'cozy-sock-darning-basket': { music: cozyMusic },
   'copper-weather-vane-workbench': { music: cozyMusic },
   'snowglobe-packing-table': { music: dreamyMusic },
-  'golden-acorn-sorting-tray': { music: natureMusic }
+  'golden-acorn-sorting-tray': { music: natureMusic },
+  'felt-star-mobile-workbench': { music: dreamyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
