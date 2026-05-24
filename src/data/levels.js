@@ -72,6 +72,7 @@ import { cozyYarnDyeingCorner } from './levels/cozy-yarn-dyeing-corner.js';
 import { mushroomLanternWorkshop } from './levels/mushroom-lantern-workshop.js';
 import { meadowBasketWeavingNook } from './levels/meadow-basket-weaving-nook.js';
 import { cloverCharmTinkeringTray } from './levels/clover-charm-tinkering-tray.js';
+import { hummingbirdFeederPaintShelf } from './levels/hummingbird-feeder-paint-shelf.js';
 
 export {
   mailGarden,
@@ -143,7 +144,8 @@ export {
   cozyYarnDyeingCorner,
   mushroomLanternWorkshop,
   meadowBasketWeavingNook,
-  cloverCharmTinkeringTray
+  cloverCharmTinkeringTray,
+  hummingbirdFeederPaintShelf
 };
 
 export const levels = [
@@ -216,7 +218,8 @@ export const levels = [
   cozyYarnDyeingCorner,
   mushroomLanternWorkshop,
   meadowBasketWeavingNook,
-  cloverCharmTinkeringTray
+  cloverCharmTinkeringTray,
+  hummingbirdFeederPaintShelf
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

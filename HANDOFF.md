@@ -1217,3 +1217,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-clover PNGs under `public/assets/bonus/clover_charm_tinkering_tray_golden_clover_*.png`.
 - Wired `src/data/levels/clover-charm-tinkering-tray.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with tall bead shelves, clover plants, hanging ribbons, baskets, folded cloth, wooden trays, hooks, small tools, stool edges, and charm supplies, with no large blank wall/table/floor area.
+
+## Scene Production Update — Hummingbird Feeder Paint Shelf
+
+- Added `Hummingbird Feeder Paint Shelf` with id `hummingbird-feeder-paint-shelf`, inserted after `clover-charm-tinkering-tray` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/hummingbird_feeder_paint_shelf.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/hummingbird_feeder_paint_shelf_*.png`.
+- Created 3 transparent bonus golden-nectar-drop PNGs under `public/assets/bonus/hummingbird_feeder_paint_shelf_golden_nectar_drop_*.png`.
+- Wired `src/data/levels/hummingbird-feeder-paint-shelf.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with tall paint shelves, small glass feeders, potted flowers, baskets, folded cloth, wooden trays, hooks, brushes, paint jars, stool edges, and feeder supplies, with no large blank wall/table/floor area.
