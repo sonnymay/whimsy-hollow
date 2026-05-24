@@ -116,7 +116,8 @@ export const musicByLevel = {
   'wooden-whistle-carving-bench': { music: cozyMusic },
   'storybook-mask-making-table': { music: cozyMusic },
   'rainstick-bead-filling-table': { music: cozyMusic },
-  'cinnamon-pomander-window-table': { music: cozyMusic }
+  'cinnamon-pomander-window-table': { music: cozyMusic },
+  'painted-egg-keepsake-table': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;
