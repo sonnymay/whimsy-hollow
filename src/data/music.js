@@ -108,7 +108,8 @@ export const musicByLevel = {
   'meadow-basket-weaving-nook': { music: natureMusic },
   'clover-charm-tinkering-tray': { music: cozyMusic },
   'hummingbird-feeder-paint-shelf': { music: natureMusic },
-  'cozy-sock-darning-basket': { music: cozyMusic }
+  'cozy-sock-darning-basket': { music: cozyMusic },
+  'copper-weather-vane-workbench': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;

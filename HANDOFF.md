@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Copper Weather Vane Workbench Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy weather-vane craft level after `cozy-sock-darning-basket`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/copper_weather_vane_workbench.webp` as a 1920x1080 painterly cottage workshop. The left side was visually inspected and filled with window, plants, shelves, baskets, cloth, jars, and small craft props instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent weather-vane object PNGs and 3 transparent golden-wind-swirl bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Cozy Sock Darning Basket Scene (2026-05-24)**:
   - Added a new non-duplicate cozy mending-basket level after `hummingbird-feeder-paint-shelf`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/cozy_sock_darning_basket.webp` as a 1920x1080 painterly cottage mending nook. The left side was visually inspected and intentionally filled with window, shelf, basket, plant, fabric, and craft details instead of blank wall beyond the narrow sidebar buffer.
