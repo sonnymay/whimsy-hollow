@@ -115,7 +115,8 @@ export const musicByLevel = {
   'felt-star-mobile-workbench': { music: dreamyMusic },
   'wooden-whistle-carving-bench': { music: cozyMusic },
   'storybook-mask-making-table': { music: cozyMusic },
-  'rainstick-bead-filling-table': { music: cozyMusic }
+  'rainstick-bead-filling-table': { music: cozyMusic },
+  'cinnamon-pomander-window-table': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
