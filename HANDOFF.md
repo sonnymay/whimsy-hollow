@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Cozy Sock Darning Basket Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy mending-basket level after `hummingbird-feeder-paint-shelf`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/cozy_sock_darning_basket.webp` as a 1920x1080 painterly cottage mending nook. The left side was visually inspected and intentionally filled with window, shelf, basket, plant, fabric, and craft details instead of blank wall beyond the narrow sidebar buffer.
+  - Added 10 transparent sock-darning object PNGs and 3 transparent golden-yarn-star bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Cozy Mechanics & Settings Pass (2026-05-22)**:
   - **Progression Hub & Customization (`HubScene.js`)**: Implemented a fully interactive Hub Office where players can decorate their room by dragging and placing furniture.
   - **Boutique Shop**: Players can access the shop inside the Hub, spending coins earned from side quests to purchase items. All coins and placements persist via `localStorage` tracking (`src/data/storage.js`).
