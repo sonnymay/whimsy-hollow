@@ -118,7 +118,8 @@ export const musicByLevel = {
   'rainstick-bead-filling-table': { music: cozyMusic },
   'cinnamon-pomander-window-table': { music: cozyMusic },
   'painted-egg-keepsake-table': { music: natureMusic },
-  'quilled-paper-blossom-desk': { music: cozyMusic }
+  'quilled-paper-blossom-desk': { music: cozyMusic },
+  'wind-up-music-box-desk': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
