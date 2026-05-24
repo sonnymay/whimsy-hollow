@@ -1163,3 +1163,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-coin PNGs under `public/assets/bonus/ribbon_wishing_well_golden_coin_*.png`.
 - Wired `src/data/levels/ribbon-wishing-well.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with trellis vines, hanging ribbons, flower shelves, clay pots, wicker baskets, painted pebbles, pails, stools, stone paths, and garden props, with no large blank wall/table/floor area.
+
+## Scene Production Update — Pastel Birdhouse Painting Bench
+
+- Added `Pastel Birdhouse Painting Bench` with id `pastel-birdhouse-painting-bench`, inserted after `ribbon-wishing-well` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/pastel_birdhouse_painting_bench.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/pastel_birdhouse_painting_bench_*.png`.
+- Created 3 transparent bonus golden-feather PNGs under `public/assets/bonus/pastel_birdhouse_painting_bench_golden_feather_*.png`.
+- Wired `src/data/levels/pastel-birdhouse-painting-bench.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with trailing vines, pegboard tools, paint jars, shelves, baskets, flower crates, stool, birdhouse blanks, folded cloth, and craft props, with no large blank wall/table/floor area.

@@ -100,7 +100,8 @@ export const musicByLevel = {
   'cranberry-garland-hearth': { music: cozyMusic },
   'little-library-return-cart': { music: cozyMusic },
   'cottage-key-rack-entryway': { music: cozyMusic },
-  'ribbon-wishing-well': { music: natureMusic }
+  'ribbon-wishing-well': { music: natureMusic },
+  'pastel-birdhouse-painting-bench': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;
