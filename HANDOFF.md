@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Paper Boat Rainy Window Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy rainy paper-boat craft level after `wind-up-music-box-desk`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/paper_boat_rainy_window.webp` as a 1920x1080 painterly rainy-window craft table. The left side was visually inspected and filled with window, rain droplets, vines, curtain, paper basket, chair, blanket, potted plant, and tabletop craft props instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent paper-boat object PNGs and 3 transparent rain-charm bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Wind-Up Music Box Desk Scene (2026-05-24)**:
   - Added a new non-duplicate cozy music-box repair level after `quilled-paper-blossom-desk`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/wind_up_music_box_desk.webp` as a 1920x1080 painterly cottage music-box worktable. The left side was visually inspected and filled with window, vines, potted plants, ribbon basket, chair, cloth, shelf, and tabletop craft props instead of empty wall beyond the narrow sidebar buffer.
