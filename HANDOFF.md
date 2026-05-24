@@ -1190,3 +1190,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-yarn-star PNGs under `public/assets/bonus/cozy_yarn_dyeing_corner_golden_yarn_star_*.png`.
 - Wired `src/data/levels/cozy-yarn-dyeing-corner.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with shelves, hanging yarn skeins, baskets, dye jars, plants, folded cloth, hooks, a stool, and workbench tools, with no large blank wall/table/floor area.
+
+## Scene Production Update — Mushroom Lantern Workshop
+
+- Added `Mushroom Lantern Workshop` with id `mushroom-lantern-workshop`, inserted after `cozy-yarn-dyeing-corner` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/mushroom_lantern_workshop.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/mushroom_lantern_workshop_*.png`.
+- Created 3 transparent bonus golden-glow-mushroom PNGs under `public/assets/bonus/mushroom_lantern_workshop_golden_glow_mushroom_*.png`.
+- Wired `src/data/levels/mushroom-lantern-workshop.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with shelves, hanging lantern frames, baskets, moss jars, plants, folded cloth, hooks, wire hoops, stool edges, and workbench tools, with no large blank wall/table/floor area.

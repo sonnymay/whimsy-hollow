@@ -69,6 +69,7 @@ import { ribbonWishingWell } from './levels/ribbon-wishing-well.js';
 import { pastelBirdhousePaintingBench } from './levels/pastel-birdhouse-painting-bench.js';
 import { lavenderSoapStampSink } from './levels/lavender-soap-stamp-sink.js';
 import { cozyYarnDyeingCorner } from './levels/cozy-yarn-dyeing-corner.js';
+import { mushroomLanternWorkshop } from './levels/mushroom-lantern-workshop.js';
 
 export {
   mailGarden,
@@ -137,7 +138,8 @@ export {
   ribbonWishingWell,
   pastelBirdhousePaintingBench,
   lavenderSoapStampSink,
-  cozyYarnDyeingCorner
+  cozyYarnDyeingCorner,
+  mushroomLanternWorkshop
 };
 
 export const levels = [
@@ -207,7 +209,8 @@ export const levels = [
   ribbonWishingWell,
   pastelBirdhousePaintingBench,
   lavenderSoapStampSink,
-  cozyYarnDyeingCorner
+  cozyYarnDyeingCorner,
+  mushroomLanternWorkshop
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

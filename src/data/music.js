@@ -103,7 +103,8 @@ export const musicByLevel = {
   'ribbon-wishing-well': { music: natureMusic },
   'pastel-birdhouse-painting-bench': { music: natureMusic },
   'lavender-soap-stamp-sink': { music: cozyMusic },
-  'cozy-yarn-dyeing-corner': { music: cozyMusic }
+  'cozy-yarn-dyeing-corner': { music: cozyMusic },
+  'mushroom-lantern-workshop': { music: dreamyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
