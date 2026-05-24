@@ -1181,3 +1181,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-lavender PNGs under `public/assets/bonus/lavender_soap_stamp_sink_golden_lavender_*.png`.
 - Wired `src/data/levels/lavender-soap-stamp-sink.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with shelves, hanging lavender, vines, towels, wicker baskets, soap molds, jars, stool, folded linens, and workbench props, with no large blank wall/table/floor area.
+
+## Scene Production Update — Cozy Yarn Dyeing Corner
+
+- Added `Cozy Yarn Dyeing Corner` with id `cozy-yarn-dyeing-corner`, inserted after `lavender-soap-stamp-sink` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/cozy_yarn_dyeing_corner.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/cozy_yarn_dyeing_corner_*.png`.
+- Created 3 transparent bonus golden-yarn-star PNGs under `public/assets/bonus/cozy_yarn_dyeing_corner_golden_yarn_star_*.png`.
+- Wired `src/data/levels/cozy-yarn-dyeing-corner.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with shelves, hanging yarn skeins, baskets, dye jars, plants, folded cloth, hooks, a stool, and workbench tools, with no large blank wall/table/floor area.
