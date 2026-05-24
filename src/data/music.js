@@ -98,7 +98,8 @@ export const musicByLevel = {
   'teacup-bonsai-bench': { music: natureMusic },
   'rainy-umbrella-repair-stand': { music: cozyMusic },
   'cranberry-garland-hearth': { music: cozyMusic },
-  'little-library-return-cart': { music: cozyMusic }
+  'little-library-return-cart': { music: cozyMusic },
+  'cottage-key-rack-entryway': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
