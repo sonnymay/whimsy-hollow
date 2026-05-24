@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Snowglobe Packing Table Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy snowglobe gift-packing level after `copper-weather-vane-workbench`, with data-only registration in `src/data/levels.js` and a dreamy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/snowglobe_packing_table.webp` as a 1920x1080 painterly cottage packing table. The left side was visually inspected and filled with window, tree, shelves, baskets, boxes, ribbons, stool, and wrapping supplies instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent snowglobe-packing object PNGs and 3 transparent golden-snowflake bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Copper Weather Vane Workbench Scene (2026-05-24)**:
   - Added a new non-duplicate cozy weather-vane craft level after `cozy-sock-darning-basket`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/copper_weather_vane_workbench.webp` as a 1920x1080 painterly cottage workshop. The left side was visually inspected and filled with window, plants, shelves, baskets, cloth, jars, and small craft props instead of empty wall beyond the narrow sidebar buffer.
