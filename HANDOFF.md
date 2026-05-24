@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Quilled Paper Blossom Desk Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy paper-quilling level after `painted-egg-keepsake-table`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/quilled_paper_blossom_desk.webp` as a 1920x1080 painterly cottage quilling desk. The left side was visually inspected and filled with window, vines, paper-strip basket, chair, cloth, jars, shelves, plants, and quilling craft props instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent quilled-paper object PNGs and 3 transparent golden-curl bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Painted Egg Keepsake Table Scene (2026-05-24)**:
   - Added a new non-duplicate cozy painted-keepsake level after `cinnamon-pomander-window-table`, with data-only registration in `src/data/levels.js` and a nature music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/painted_egg_keepsake_table.webp` as a 1920x1080 painterly cottage egg-painting table. The left side was visually inspected and filled with window, vines, potted flowers, baskets, chair, cloth, egg cups, jars, and craft props instead of empty wall beyond the narrow sidebar buffer.
