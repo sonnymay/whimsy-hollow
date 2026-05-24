@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Wooden Whistle Carving Bench Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy woodcraft level after `felt-star-mobile-workbench`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/wooden_whistle_carving_bench.webp` as a 1920x1080 painterly cottage carving bench. The left side was visually inspected and filled with window, plants, shelves, baskets, wood strips, jars, folded cloth, and carving props instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent wooden-whistle object PNGs and 3 transparent golden-note bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Felt Star Mobile Workbench Scene (2026-05-24)**:
   - Added a new non-duplicate cozy felt mobile sewing level after `golden-acorn-sorting-tray`, with data-only registration in `src/data/levels.js` and a dreamy music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/felt_star_mobile_workbench.webp` as a 1920x1080 painterly cottage sewing nook. The left side was visually inspected and filled with window, hanging felt shapes, plants, shelves, baskets, jars, folded cloth, and sewing props instead of empty wall beyond the narrow sidebar buffer.
