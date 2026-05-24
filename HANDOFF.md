@@ -1199,3 +1199,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-glow-mushroom PNGs under `public/assets/bonus/mushroom_lantern_workshop_golden_glow_mushroom_*.png`.
 - Wired `src/data/levels/mushroom-lantern-workshop.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with shelves, hanging lantern frames, baskets, moss jars, plants, folded cloth, hooks, wire hoops, stool edges, and workbench tools, with no large blank wall/table/floor area.
+
+## Scene Production Update — Meadow Basket Weaving Nook
+
+- Added `Meadow Basket Weaving Nook` with id `meadow-basket-weaving-nook`, inserted after `mushroom-lantern-workshop` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/meadow_basket_weaving_nook.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/meadow_basket_weaving_nook_*.png`.
+- Created 3 transparent bonus golden-wicker-heart PNGs under `public/assets/bonus/meadow_basket_weaving_nook_golden_wicker_heart_*.png`.
+- Wired `src/data/levels/meadow-basket-weaving-nook.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with tall basket shelves, hanging willow reeds, potted plants, wicker trays, folded cloth, jars, stool edges, workbench props, hooks, tools, and reed bundles, with no large blank wall/table/floor area.

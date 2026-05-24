@@ -104,7 +104,8 @@ export const musicByLevel = {
   'pastel-birdhouse-painting-bench': { music: natureMusic },
   'lavender-soap-stamp-sink': { music: cozyMusic },
   'cozy-yarn-dyeing-corner': { music: cozyMusic },
-  'mushroom-lantern-workshop': { music: dreamyMusic }
+  'mushroom-lantern-workshop': { music: dreamyMusic },
+  'meadow-basket-weaving-nook': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;
