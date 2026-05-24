@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Rainstick Bead Filling Table Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy rainstick craft level after `storybook-mask-making-table`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/rainstick_bead_filling_table.webp` as a 1920x1080 painterly cottage bead-filling table. The left side was visually inspected and filled with window, vines, shelf, baskets, stool, jars, cloth, tubes, and craft props instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent rainstick-bead object PNGs and 3 transparent raindrop-charm bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Storybook Mask Making Table Scene (2026-05-24)**:
   - Added a new non-duplicate cozy paper-mask craft level after `wooden-whistle-carving-bench`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/storybook_mask_making_table.webp` as a 1920x1080 painterly cottage mask-making table. The left side was visually inspected and filled with window, vines, stacked colored paper, basket, chair, shelf, jars, plants, ribbon, and craft props instead of empty wall beyond the narrow sidebar buffer.

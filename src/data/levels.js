@@ -80,6 +80,7 @@ import { goldenAcornSortingTray } from './levels/golden-acorn-sorting-tray.js';
 import { feltStarMobileWorkbench } from './levels/felt-star-mobile-workbench.js';
 import { woodenWhistleCarvingBench } from './levels/wooden-whistle-carving-bench.js';
 import { storybookMaskMakingTable } from './levels/storybook-mask-making-table.js';
+import { rainstickBeadFillingTable } from './levels/rainstick-bead-filling-table.js';
 
 export {
   mailGarden,
@@ -159,7 +160,8 @@ export {
   goldenAcornSortingTray,
   feltStarMobileWorkbench,
   woodenWhistleCarvingBench,
-  storybookMaskMakingTable
+  storybookMaskMakingTable,
+  rainstickBeadFillingTable
 };
 
 export const levels = [
@@ -240,7 +242,8 @@ export const levels = [
   goldenAcornSortingTray,
   feltStarMobileWorkbench,
   woodenWhistleCarvingBench,
-  storybookMaskMakingTable
+  storybookMaskMakingTable,
+  rainstickBeadFillingTable
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';
