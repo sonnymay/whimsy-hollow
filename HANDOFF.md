@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Storybook Mask Making Table Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy paper-mask craft level after `wooden-whistle-carving-bench`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/storybook_mask_making_table.webp` as a 1920x1080 painterly cottage mask-making table. The left side was visually inspected and filled with window, vines, stacked colored paper, basket, chair, shelf, jars, plants, ribbon, and craft props instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent storybook-mask object PNGs and 3 transparent golden-star-sequin bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Wooden Whistle Carving Bench Scene (2026-05-24)**:
   - Added a new non-duplicate cozy woodcraft level after `felt-star-mobile-workbench`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/wooden_whistle_carving_bench.webp` as a 1920x1080 painterly cottage carving bench. The left side was visually inspected and filled with window, plants, shelves, baskets, wood strips, jars, folded cloth, and carving props instead of empty wall beyond the narrow sidebar buffer.
