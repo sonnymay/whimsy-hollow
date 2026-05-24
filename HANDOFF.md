@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Golden Acorn Sorting Tray Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy woodland sorting level after `snowglobe-packing-table`, with data-only registration in `src/data/levels.js` and a nature music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/golden_acorn_sorting_tray.webp` as a 1920x1080 painterly cottage sorting table. The left side was visually inspected and filled with window, plants, shelves, baskets, jars, fabric rolls, and acorn props instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent golden-acorn object PNGs and 3 transparent golden-oak-leaf charm bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Snowglobe Packing Table Scene (2026-05-24)**:
   - Added a new non-duplicate cozy snowglobe gift-packing level after `copper-weather-vane-workbench`, with data-only registration in `src/data/levels.js` and a dreamy music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/snowglobe_packing_table.webp` as a 1920x1080 painterly cottage packing table. The left side was visually inspected and filled with window, tree, shelves, baskets, boxes, ribbons, stool, and wrapping supplies instead of empty wall beyond the narrow sidebar buffer.

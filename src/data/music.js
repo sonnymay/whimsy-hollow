@@ -110,7 +110,8 @@ export const musicByLevel = {
   'hummingbird-feeder-paint-shelf': { music: natureMusic },
   'cozy-sock-darning-basket': { music: cozyMusic },
   'copper-weather-vane-workbench': { music: cozyMusic },
-  'snowglobe-packing-table': { music: dreamyMusic }
+  'snowglobe-packing-table': { music: dreamyMusic },
+  'golden-acorn-sorting-tray': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;
