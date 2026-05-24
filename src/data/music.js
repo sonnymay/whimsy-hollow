@@ -99,7 +99,8 @@ export const musicByLevel = {
   'rainy-umbrella-repair-stand': { music: cozyMusic },
   'cranberry-garland-hearth': { music: cozyMusic },
   'little-library-return-cart': { music: cozyMusic },
-  'cottage-key-rack-entryway': { music: cozyMusic }
+  'cottage-key-rack-entryway': { music: cozyMusic },
+  'ribbon-wishing-well': { music: natureMusic }
 };
 
 export const menuMusic = menuMusicTrack;

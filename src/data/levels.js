@@ -65,6 +65,7 @@ import { rainyUmbrellaRepairStand } from './levels/rainy-umbrella-repair-stand.j
 import { cranberryGarlandHearth } from './levels/cranberry-garland-hearth.js';
 import { littleLibraryReturnCart } from './levels/little-library-return-cart.js';
 import { cottageKeyRackEntryway } from './levels/cottage-key-rack-entryway.js';
+import { ribbonWishingWell } from './levels/ribbon-wishing-well.js';
 
 export {
   mailGarden,
@@ -129,7 +130,8 @@ export {
   rainyUmbrellaRepairStand,
   cranberryGarlandHearth,
   littleLibraryReturnCart,
-  cottageKeyRackEntryway
+  cottageKeyRackEntryway,
+  ribbonWishingWell
 };
 
 export const levels = [
@@ -195,7 +197,8 @@ export const levels = [
   rainyUmbrellaRepairStand,
   cranberryGarlandHearth,
   littleLibraryReturnCart,
-  cottageKeyRackEntryway
+  cottageKeyRackEntryway,
+  ribbonWishingWell
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

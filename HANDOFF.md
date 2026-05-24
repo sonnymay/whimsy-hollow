@@ -1154,3 +1154,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-key PNGs under `public/assets/bonus/cottage_key_rack_entryway_golden_key_*.png`.
 - Wired `src/data/levels/cottage-key-rack-entryway.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with trailing vines, coat hooks, hats, hanging scarves, wicker trunks, a bench, baskets, shoes, key rack details, and table props, with no large blank wall/table/floor area.
+
+## Scene Production Update — Ribbon Wishing Well
+
+- Added `Ribbon Wishing Well` with id `ribbon-wishing-well`, inserted after `cottage-key-rack-entryway` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/ribbon_wishing_well.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/ribbon_wishing_well_*.png`.
+- Created 3 transparent bonus golden-coin PNGs under `public/assets/bonus/ribbon_wishing_well_golden_coin_*.png`.
+- Wired `src/data/levels/ribbon-wishing-well.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with trellis vines, hanging ribbons, flower shelves, clay pots, wicker baskets, painted pebbles, pails, stools, stone paths, and garden props, with no large blank wall/table/floor area.
