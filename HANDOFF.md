@@ -1208,3 +1208,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-wicker-heart PNGs under `public/assets/bonus/meadow_basket_weaving_nook_golden_wicker_heart_*.png`.
 - Wired `src/data/levels/meadow-basket-weaving-nook.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with tall basket shelves, hanging willow reeds, potted plants, wicker trays, folded cloth, jars, stool edges, workbench props, hooks, tools, and reed bundles, with no large blank wall/table/floor area.
+
+## Scene Production Update — Clover Charm Tinkering Tray
+
+- Added `Clover Charm Tinkering Tray` with id `clover-charm-tinkering-tray`, inserted after `meadow-basket-weaving-nook` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/clover_charm_tinkering_tray.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/clover_charm_tinkering_tray_*.png`.
+- Created 3 transparent bonus golden-clover PNGs under `public/assets/bonus/clover_charm_tinkering_tray_golden_clover_*.png`.
+- Wired `src/data/levels/clover-charm-tinkering-tray.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with tall bead shelves, clover plants, hanging ribbons, baskets, folded cloth, wooden trays, hooks, small tools, stool edges, and charm supplies, with no large blank wall/table/floor area.

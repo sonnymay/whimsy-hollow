@@ -105,7 +105,8 @@ export const musicByLevel = {
   'lavender-soap-stamp-sink': { music: cozyMusic },
   'cozy-yarn-dyeing-corner': { music: cozyMusic },
   'mushroom-lantern-workshop': { music: dreamyMusic },
-  'meadow-basket-weaving-nook': { music: natureMusic }
+  'meadow-basket-weaving-nook': { music: natureMusic },
+  'clover-charm-tinkering-tray': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;
