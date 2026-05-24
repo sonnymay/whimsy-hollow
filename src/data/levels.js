@@ -67,6 +67,7 @@ import { littleLibraryReturnCart } from './levels/little-library-return-cart.js'
 import { cottageKeyRackEntryway } from './levels/cottage-key-rack-entryway.js';
 import { ribbonWishingWell } from './levels/ribbon-wishing-well.js';
 import { pastelBirdhousePaintingBench } from './levels/pastel-birdhouse-painting-bench.js';
+import { lavenderSoapStampSink } from './levels/lavender-soap-stamp-sink.js';
 
 export {
   mailGarden,
@@ -133,7 +134,8 @@ export {
   littleLibraryReturnCart,
   cottageKeyRackEntryway,
   ribbonWishingWell,
-  pastelBirdhousePaintingBench
+  pastelBirdhousePaintingBench,
+  lavenderSoapStampSink
 };
 
 export const levels = [
@@ -201,7 +203,8 @@ export const levels = [
   littleLibraryReturnCart,
   cottageKeyRackEntryway,
   ribbonWishingWell,
-  pastelBirdhousePaintingBench
+  pastelBirdhousePaintingBench,
+  lavenderSoapStampSink
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

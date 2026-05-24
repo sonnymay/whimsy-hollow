@@ -101,7 +101,8 @@ export const musicByLevel = {
   'little-library-return-cart': { music: cozyMusic },
   'cottage-key-rack-entryway': { music: cozyMusic },
   'ribbon-wishing-well': { music: natureMusic },
-  'pastel-birdhouse-painting-bench': { music: natureMusic }
+  'pastel-birdhouse-painting-bench': { music: natureMusic },
+  'lavender-soap-stamp-sink': { music: cozyMusic }
 };
 
 export const menuMusic = menuMusicTrack;

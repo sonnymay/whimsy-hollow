@@ -1172,3 +1172,12 @@ own acceptance criteria — pick whichever maps to the open issue and execute.
 - Created 3 transparent bonus golden-feather PNGs under `public/assets/bonus/pastel_birdhouse_painting_bench_golden_feather_*.png`.
 - Wired `src/data/levels/pastel-birdhouse-painting-bench.js`, `src/data/levels.js`, and `src/data/music.js`.
 - Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with trailing vines, pegboard tools, paint jars, shelves, baskets, flower crates, stool, birdhouse blanks, folded cloth, and craft props, with no large blank wall/table/floor area.
+
+## Scene Production Update — Lavender Soap Stamp Sink
+
+- Added `Lavender Soap Stamp Sink` with id `lavender-soap-stamp-sink`, inserted after `pastel-birdhouse-painting-bench` in the level registry.
+- Created the painted 1920x1080 background at `public/assets/backgrounds/lavender_soap_stamp_sink.webp`.
+- Created 10 transparent hidden-object PNGs under `public/assets/objects/lavender_soap_stamp_sink_*.png`.
+- Created 3 transparent bonus golden-lavender PNGs under `public/assets/bonus/lavender_soap_stamp_sink_golden_lavender_*.png`.
+- Wired `src/data/levels/lavender-soap-stamp-sink.js`, `src/data/levels.js`, and `src/data/music.js`.
+- Background composition note: the far-left sidebar buffer is calm, but the rest of the left side is filled with shelves, hanging lavender, vines, towels, wicker baskets, soap molds, jars, stool, folded linens, and workbench props, with no large blank wall/table/floor area.
