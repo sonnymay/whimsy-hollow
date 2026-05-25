@@ -86,6 +86,7 @@ import { paintedEggKeepsakeTable } from './levels/painted-egg-keepsake-table.js'
 import { quilledPaperBlossomDesk } from './levels/quilled-paper-blossom-desk.js';
 import { windUpMusicBoxDesk } from './levels/wind-up-music-box-desk.js';
 import { paperBoatRainyWindow } from './levels/paper-boat-rainy-window.js';
+import { kaleidoscopeRepairDesk } from './levels/kaleidoscope-repair-desk.js';
 
 export {
   mailGarden,
@@ -171,7 +172,8 @@ export {
   paintedEggKeepsakeTable,
   quilledPaperBlossomDesk,
   windUpMusicBoxDesk,
-  paperBoatRainyWindow
+  paperBoatRainyWindow,
+  kaleidoscopeRepairDesk
 };
 
 export const levels = [
@@ -258,7 +260,8 @@ export const levels = [
   paintedEggKeepsakeTable,
   quilledPaperBlossomDesk,
   windUpMusicBoxDesk,
-  paperBoatRainyWindow
+  paperBoatRainyWindow,
+  kaleidoscopeRepairDesk
 ];
 
 export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';

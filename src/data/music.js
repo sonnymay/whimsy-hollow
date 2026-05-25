@@ -120,7 +120,8 @@ export const musicByLevel = {
   'painted-egg-keepsake-table': { music: natureMusic },
   'quilled-paper-blossom-desk': { music: cozyMusic },
   'wind-up-music-box-desk': { music: cozyMusic },
-  'paper-boat-rainy-window': { music: cozyMusic }
+  'paper-boat-rainy-window': { music: cozyMusic },
+  'kaleidoscope-repair-desk': { music: dreamyMusic }
 };
 
 export const menuMusic = menuMusicTrack;

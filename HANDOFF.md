@@ -2,6 +2,12 @@
 
 ## Current Status
 
+- **Kaleidoscope Repair Desk Scene (2026-05-24)**:
+  - Added a new non-duplicate cozy kaleidoscope repair level after `paper-boat-rainy-window`, with data-only registration in `src/data/levels.js` and a dreamy music mapping in `src/data/music.js`.
+  - Generated and normalized `public/assets/backgrounds/kaleidoscope_repair_desk.webp` as a 1920x1080 painterly cottage prism repair table. The left side was visually inspected and filled with window, vines, potted plant, wicker basket, chair, blanket, colored papers, shelf, jars, and prism props instead of empty wall beyond the narrow sidebar buffer.
+  - Added 10 transparent kaleidoscope object PNGs and 3 transparent prism-charm bonus PNGs under `public/assets/objects/` and `public/assets/bonus/`.
+  - Verification for this pass: registry/progression/music check, PNG/WebP asset integrity check, `git diff --check`, and `npm run build`.
+
 - **Paper Boat Rainy Window Scene (2026-05-24)**:
   - Added a new non-duplicate cozy rainy paper-boat craft level after `wind-up-music-box-desk`, with data-only registration in `src/data/levels.js` and a cozy music mapping in `src/data/music.js`.
   - Generated and normalized `public/assets/backgrounds/paper_boat_rainy_window.webp` as a 1920x1080 painterly rainy-window craft table. The left side was visually inspected and filled with window, rain droplets, vines, curtain, paper basket, chair, blanket, potted plant, and tabletop craft props instead of empty wall beyond the narrow sidebar buffer.
