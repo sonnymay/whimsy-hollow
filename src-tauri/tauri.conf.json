@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "whimsy-hollow",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "productName": "Whimsy Hollow",
+  "version": "1.0.0",
+  "identifier": "com.whimsyhollow.game",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://127.0.0.1:5173",
@@ -15,8 +15,11 @@
         "title": "Whimsy Hollow",
         "width": 1280,
         "height": 720,
+        "minWidth": 960,
+        "minHeight": 540,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "center": true
       }
     ],
     "security": {
@@ -26,6 +29,11 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "category": "Game",
+    "shortDescription": "A cozy hidden-object game for tired adults and kids.",
+    "longDescription": "Whimsy Hollow is a cozy hidden-object game with no timer — just tiny treasures. Solve 5 story cases, explore 50+ cozy places, decorate your office between visits, and uncover hidden rooms, spirits, and surprises.",
+    "copyright": "Copyright (c) 2026 Whimsy Hollow",
+    "publisher": "Whimsy Hollow",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

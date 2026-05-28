@@ -1,5 +1,7 @@
 export const restaurantKitchen = {
   id: 'restaurant-kitchen',
+  tier: 'hero',
+  caseId: 'case-2-kitchen',
   title: 'Busy Kitchen',
   saveKey: 'whimsy-hollow:restaurant-kitchen',
   bonusSaveKey: 'whimsy-hollow:restaurant-kitchen:bonus',
@@ -121,6 +123,39 @@ export const restaurantKitchen = {
       scale: 0.075
     }
   ],
+  optionalObjectives: [],
+  jujus: [
+    {
+      id: 'juju-ladle',
+      key: 'juju-kitchen-ladle',
+      asset: 'assets/objects/golden_soup_ladle.png',
+      x: 200,
+      y: 480,
+      scale: 0.1,
+      puzzleClue: 'Golden and long — it stirs what simmers.',
+      linkedObjectId: 'golden-soup-ladle'
+    },
+    {
+      id: 'juju-recipe',
+      key: 'juju-kitchen-recipe',
+      asset: 'assets/objects/magic_recipe_card.png',
+      x: 800,
+      y: 540,
+      scale: 0.06,
+      puzzleClue: 'Magic words hide near the stove — look low on the counter.',
+      linkedObjectId: 'magic-recipe-card'
+    },
+    {
+      id: 'juju-hat',
+      key: 'juju-kitchen-hat',
+      asset: 'assets/objects/chef_hat.png',
+      x: 1120,
+      y: 100,
+      scale: 0.06,
+      puzzleClue: 'White and tall — it crowns the highest shelf.',
+      linkedObjectId: 'chef-hat'
+    }
+  ],
   bonusEnvelopes: [
     {
       id: 'window-recipe-note',
@@ -141,32 +176,14 @@ export const restaurantKitchen = {
       clue: 'Sweet note'
     }
   ],
-  surprises: [
-    {
-      id: 'left-lantern',
-      x: 60,
-      y: 86,
-      label: 'The lantern glows like warm soup.'
-    },
-    {
-      id: 'stove-fire',
-      x: 738,
-      y: 520,
-      label: 'The stove gives a cozy pop.'
-    },
-    {
-      id: 'blue-tiles',
-      x: 904,
-      y: 156,
-      label: 'Painted flowers sparkle on the blue tiles.'
-    },
-    {
-      id: 'right-cookies',
-      x: 1196,
-      y: 444,
-      label: 'Cookies smell like tiny stars.'
-    }
+  sceneProps: [
+    { id: 'prop-lantern', x: 60, y: 86, w: 48, h: 48, label: 'The lantern glows like warm soup.', sfx: 'clickSfx' },
+    { id: 'prop-stove', x: 738, y: 520, w: 56, h: 48, label: 'The stove gives a cozy pop.', sfx: 'clickSfx' },
+    { id: 'prop-tiles', x: 904, y: 156, w: 48, h: 48, label: 'Painted flowers sparkle on the blue tiles.', sfx: 'clickSfx' },
+    { id: 'prop-cookies', x: 1196, y: 444, w: 48, h: 40, label: 'Cookies smell like tiny stars.', sfx: 'clickSfx' }
   ],
+  interactives: [],
+  subScenes: { main: {} },
   previousLevelId: 'mail-garden'
 };
 

@@ -1,5 +1,7 @@
 export const cozyDreamBedroom = {
   id: 'cozy-dream-bedroom',
+  tier: 'hero',
+  caseId: 'case-4-bedroom',
   title: 'Cozy Dream Bedroom',
   saveKey: 'whimsy-hollow:cozy-dream-bedroom',
   bonusSaveKey: 'whimsy-hollow:cozy-dream-bedroom:bonus',
@@ -121,6 +123,39 @@ export const cozyDreamBedroom = {
       scale: 0.06
     }
   ],
+  optionalObjectives: [],
+  jujus: [
+    {
+      id: 'juju-teddy',
+      key: 'juju-bedroom-teddy',
+      asset: 'assets/objects/obj_sleepy_teddy_bear.png',
+      x: 880,
+      y: 500,
+      scale: 0.05,
+      puzzleClue: 'Soft and brown — a hug waits by the quilt.',
+      linkedObjectId: 'sleepy-teddy-bear'
+    },
+    {
+      id: 'juju-crystal',
+      key: 'juju-bedroom-crystal',
+      asset: 'assets/objects/obj_dream_crystal.png',
+      x: 980,
+      y: 320,
+      scale: 0.045,
+      puzzleClue: 'Glints on the moonlit windowsill.',
+      linkedObjectId: 'dream-crystal'
+    },
+    {
+      id: 'juju-cat',
+      key: 'juju-bedroom-cat',
+      asset: 'assets/objects/obj_sleepy_cat.png',
+      x: 820,
+      y: 600,
+      scale: 0.05,
+      puzzleClue: 'Purrs on the floor where slippers should be.',
+      linkedObjectId: 'sleepy-cat'
+    }
+  ],
   bonusEnvelopes: [
     {
       id: 'dream-moth-lamp',
@@ -150,32 +185,14 @@ export const cozyDreamBedroom = {
       scale: 0.04
     }
   ],
-  surprises: [
-    {
-      id: 'bedroom-lamp-glow',
-      x: 176,
-      y: 346,
-      label: 'Nice!'
-    },
-    {
-      id: 'bedroom-curtain-sparkle',
-      x: 430,
-      y: 170,
-      label: 'Look!'
-    },
-    {
-      id: 'bedroom-toy-chest-wiggle',
-      x: 990,
-      y: 462,
-      label: 'Nice!'
-    },
-    {
-      id: 'bedroom-moon-window-shimmer',
-      x: 1032,
-      y: 210,
-      label: 'Look!'
-    }
+  sceneProps: [
+    { id: 'prop-lamp', x: 176, y: 346, w: 48, h: 48, label: 'Nice!', sfx: 'clickSfx' },
+    { id: 'prop-curtain', x: 430, y: 170, w: 48, h: 48, label: 'Look!', sfx: 'clickSfx' },
+    { id: 'prop-chest', x: 990, y: 462, w: 56, h: 48, label: 'Nice!', sfx: 'clickSfx' },
+    { id: 'prop-window', x: 1032, y: 210, w: 48, h: 48, label: 'Look!', sfx: 'clickSfx' }
   ],
+  interactives: [],
+  subScenes: { main: {} },
   previousLevelId: 'whimsy-living-room'
 };
 

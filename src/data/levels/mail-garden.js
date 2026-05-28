@@ -1,5 +1,7 @@
 export const mailGarden = {
   id: 'mail-garden',
+  tier: 'hero',
+  caseId: 'case-1-mail',
   title: 'Whimsy Hollow Mail Garden',
   saveKey: 'whimsy-hollow:mail-garden',
   bonusSaveKey: 'whimsy-hollow:mail-garden:bonus',
@@ -25,13 +27,12 @@ export const mailGarden = {
       id: 'golden-key',
       name: 'Golden Key',
       requester: 'The garden baker',
-      clue: 'A small gold key slipped onto the parcel table by the cottage.',
+      clue: 'A small gold key rests on the parcel table by the cottage.',
       key: 'object-golden-key',
       asset: 'assets/objects/golden_key.png',
       x: 696,
       y: 410,
-      scale: 0.5,
-      hiddenUnder: 'garden-hatch'
+      scale: 0.5
     },
     {
       id: 'blue-crystal',
@@ -122,6 +123,42 @@ export const mailGarden = {
       scale: 0.44
     }
   ],
+  optionalObjectives: [],
+  jujus: [
+    {
+      id: 'juju-mailbox',
+      key: 'juju-mail-mailbox',
+      asset: 'assets/objects/magical_mailbox.png',
+      x: 120,
+      y: 540,
+      scale: 0.22,
+      wobble: true,
+      puzzleClue: 'Where letters nest — look for purple wood, not the path.',
+      linkedObjectId: 'magical-mailbox'
+    },
+    {
+      id: 'juju-crystal',
+      key: 'juju-mail-crystal',
+      asset: 'assets/objects/blue_crystal.png',
+      x: 1020,
+      y: 280,
+      scale: 0.2,
+      wobble: true,
+      puzzleClue: 'Sky-colored glass loves the highest blooms.',
+      linkedObjectId: 'blue-crystal'
+    },
+    {
+      id: 'juju-key',
+      key: 'juju-mail-key',
+      asset: 'assets/objects/golden_key.png',
+      x: 750,
+      y: 360,
+      scale: 0.18,
+      wobble: true,
+      puzzleClue: 'Gold waits on the parcel table near the cottage door.',
+      linkedObjectId: 'golden-key'
+    }
+  ],
   bonusEnvelopes: [
     {
       id: 'left-fence-letter',
@@ -142,44 +179,14 @@ export const mailGarden = {
       clue: 'Cottage note'
     }
   ],
-  surprises: [
-    {
-      id: 'birdhouse',
-      x: 702,
-      y: 422,
-      label: 'Something chirps inside the tiny post house.'
-    },
-    {
-      id: 'lantern',
-      x: 142,
-      y: 222,
-      label: 'The lantern gives a sleepy golden blink.'
-    },
-    {
-      id: 'parcel-stack',
-      x: 870,
-      y: 454,
-      label: 'A parcel rustles, then settles down.'
-    },
-    {
-      id: 'blue-flowers',
-      x: 1062,
-      y: 616,
-      label: 'Blue flowers sparkle with garden gossip.'
-    }
+  sceneProps: [
+    { id: 'prop-birdhouse', x: 702, y: 422, w: 56, h: 48, label: 'Something chirps inside the tiny post house.', sfx: 'clickSfx' },
+    { id: 'prop-lantern', x: 142, y: 222, w: 48, h: 48, label: 'The lantern gives a sleepy golden blink.', sfx: 'clickSfx' },
+    { id: 'prop-parcel', x: 870, y: 454, w: 64, h: 48, label: 'A parcel rustles, then settles down.', sfx: 'clickSfx' },
+    { id: 'prop-flowers', x: 1062, y: 616, w: 56, h: 40, label: 'Blue flowers sparkle with garden gossip.', sfx: 'clickSfx' }
   ],
-  interactives: [
-    {
-      id: 'garden-hatch',
-      key: 'garden-hatch',
-      asset: 'assets/interactives/garden_hatch.png',
-      x: 696,
-      y: 410,
-      scale: 0.5,
-      type: 'slide-y',
-      slideDistance: -80,
-      soundEffect: 'coverOpenSfx'
-    }
-  ]
+  interactives: [],
+  subScenes: {
+    main: {}
+  }
 };
-

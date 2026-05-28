@@ -264,7 +264,11 @@ export const levels = [
   kaleidoscopeRepairDesk
 ];
 
-export const COMPLETED_SCENES_KEY = 'whimsy-hollow:completed-scenes';
+import { getNextCase } from './campaign.js';
+import { loadCompletedSceneIds } from './storage.js';
+
+export { getCaseForLevel, getNextCase, getCompletedCaseCount, cases } from './campaign.js';
+export { loadCompletedSceneIds, markSceneComplete } from './storage.js';
 
 export function getLevelById(levelId) {
   return levels.find((level) => level.id === levelId) ?? mailGarden;
@@ -275,20 +279,8 @@ export function getNextLevel(levelId) {
   return index >= 0 ? levels[index + 1] : null;
 }
 
-export function loadCompletedSceneIds() {
-  try {
-    const value = globalThis.localStorage?.getItem(COMPLETED_SCENES_KEY);
-    const parsed = value ? JSON.parse(value) : [];
-    return new Set(Array.isArray(parsed) ? parsed : []);
-  } catch {
-    return new Set();
-  }
-}
-
-export function markSceneComplete(levelId) {
-  const completed = loadCompletedSceneIds();
-  completed.add(levelId);
-  globalThis.localStorage?.setItem(COMPLETED_SCENES_KEY, JSON.stringify([...completed]));
+export function getHeroLevels() {
+  return levels.filter((level) => level.tier === 'hero');
 }
 
 export function getFirstUnfinishedLevel() {
@@ -299,4 +291,16 @@ export function getFirstUnfinishedLevel() {
 export function getCompletedSceneCount() {
   const completed = loadCompletedSceneIds();
   return levels.filter((level) => completed.has(level.id)).length;
+}
+
+export function getPlayTarget() {
+  const nextCase = getNextCase();
+  if (nextCase) {
+    return { type: 'case', case: nextCase, level: getLevelById(nextCase.levelId) };
+  }
+  const level = getFirstUnfinishedLevel();
+  if (level) {
+    return { type: 'level', level };
+  }
+  return { type: 'level', level: levels[levels.length - 1] };
 }

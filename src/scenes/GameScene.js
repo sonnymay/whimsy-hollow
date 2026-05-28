@@ -17,8 +17,10 @@ import {
 } from '../data/storage.js';
 import { createPillButton, createStatusPill } from '../ui/Button.js';
 import { setBackdrop } from '../ui/backdrop.js';
+import { startAmbientParticles } from '../ui/AmbientParticles.js';
 import { theme } from '../ui/theme.js';
 import { playMusicForLevel, queueMusic } from '../audio/music.js';
+import { HeroLevelController, isHeroLevel } from '../game/HeroLevelController.js';
 
 const HINT_COOLDOWN_MS = 30000;
 const HINT_DURATION_MS = 3600;
@@ -49,6 +51,13 @@ export class GameScene extends Phaser.Scene {
 
   init(data = {}) {
     this.level = getLevelById(data.levelId);
+    if (!this.level) {
+      // Unknown/missing levelId. Don't touch level fields here or init throws
+      // and create() never runs, leaving the player stuck on a blank screen.
+      // create() detects the missing level and bounces to the menu.
+      console.error('[whimsy-hollow] GameScene: unknown levelId', data.levelId);
+      return;
+    }
     this.isDaily = Boolean(data.daily);
     const baseObjects = this.isDaily ? this.level.objects.slice(0, 3) : this.level.objects;
     this.activeObjects = baseObjects.map((obj) => {
@@ -59,21 +68,26 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image(this.level.background.key, this.level.background.path);
+    if (!this.level) return;
+    if (!this.textures.exists(this.level.background.key)) {
+      this.load.image(this.level.background.key, this.level.background.path);
+    }
 
     for (const object of this.level.objects) {
-      this.load.image(object.key, object.asset);
+      if (!this.textures.exists(object.key)) {
+        this.load.image(object.key, object.asset);
+      }
     }
 
     for (const bonus of this.level.bonusEnvelopes) {
-      if (bonus.key && bonus.asset) {
+      if (bonus.key && bonus.asset && !this.textures.exists(bonus.key)) {
         this.load.image(bonus.key, bonus.asset);
       }
     }
 
     if (this.level.interactives) {
       for (const interactive of this.level.interactives) {
-        if (interactive.key && interactive.asset) {
+        if (interactive.key && interactive.asset && !this.textures.exists(interactive.key)) {
           this.load.image(interactive.key, interactive.asset);
         }
       }
@@ -92,9 +106,51 @@ export class GameScene extends Phaser.Scene {
     if (this.level.foreground) {
       this.load.image(`fg-${this.level.id}`, this.level.foreground);
     }
+
+    if (isHeroLevel(this.level)) {
+      new HeroLevelController(this).preload();
+    }
   }
 
   create() {
+    if (!this.level) {
+      console.error('[whimsy-hollow] GameScene.create: missing level, returning to menu');
+      this.scene.start('MenuScene');
+      return;
+    }
+    // Any exception while building the scene used to leave the player frozen
+    // on the blank (green) canvas with no input. Recover to the menu instead
+    // and log which level failed so the root cause is visible.
+    try {
+      this.buildScene();
+    } catch (err) {
+      console.error('[whimsy-hollow] GameScene build failed for level', this.level?.id, err);
+      this.scene.start('MenuScene');
+    }
+  }
+
+  buildScene() {
+    // Phaser reuses the same scene instance across restarts. Stale Layer
+    // references from the previous run can survive shutdown (the Layer's
+    // children.list is nulled but the property reference remains truthy),
+    // so any early addToHud/addToWorld would crash inside Phaser's
+    // Display.List.Add when it does indexOf on the nulled list. Reset the
+    // refs at the top of every create() and recreate the layers below.
+    this.hudLayer = null;
+    this.worldLayer = null;
+    this.uiCam = null;
+    // Same hazard for the ghost/juju HUD button: on hero levels hero.setup()
+    // calls updateJujuHud() BEFORE createHud() recreates this button, so a
+    // stale reference to the previous run's destroyed Text would have setText
+    // called on its nulled canvas (drawImage of null) — the green-screen hang.
+    this.ghostButton = null;
+
+    // Build the layers FIRST so addToHud/addToWorld helpers used later in
+    // create() have a live Layer to write into. Camera configuration +
+    // classification of existing children happens later in setupCameras().
+    this.worldLayer = this.add.layer();
+    this.hudLayer = this.add.layer();
+
     this.muted = loadMuted();
     this.sound.mute = this.muted;
     this.foundIds = this.loadProgress();
@@ -119,7 +175,8 @@ export class GameScene extends Phaser.Scene {
 
     setBackdrop(this.level.background.path);
     playMusicForLevel(this, this.level.id);
-    this.add.image(640, 360, this.level.background.key).setDisplaySize(1280, 720);
+    this.bgImage = this.add.image(640, 360, this.level.background.key).setDisplaySize(1280, 720);
+    this.hero = isHeroLevel(this.level) ? new HeroLevelController(this) : null;
     this.add.rectangle(640, 360, 1280, 720, 0xfff8dc, 0.05).setBlendMode(Phaser.BlendModes.SCREEN);
     this.add.rectangle(640, 20, 1280, 40, 0x315642, 0.14);
     this.add.rectangle(640, 700, 1280, 40, 0x315642, 0.14);
@@ -127,13 +184,25 @@ export class GameScene extends Phaser.Scene {
     this.createObjects();
     this.createInteractives();
     this.createBonusEnvelopes();
-    this.spawnHiddenGhost();
-    this.createSceneSurprises();
+    if (this.hero) {
+      this.hero.setup();
+    } else {
+      this.spawnHiddenGhost();
+    }
+    if (!this.hero) {
+      this.createSceneSurprises();
+    }
     this.createMissTapZone();
 
     // Optional foreground occlusion layer drawn above objects but below HUD.
     if (this.level.foreground && this.textures.exists(`fg-${this.level.id}`)) {
       this.add.image(640, 360, `fg-${this.level.id}`).setDisplaySize(1280, 720).setDepth(8);
+    }
+
+    // Atmosphere — snow/fireflies/petals/dust based on level id keywords.
+    // Respect reduced-motion preference.
+    if (!loadReducedMotion()) {
+      startAmbientParticles(this, this.level.id);
     }
 
     this.createHud();
@@ -179,11 +248,31 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.initDevMode();
+
+    // On shutdown / destroy, drop layer references so the next create()
+    // can't accidentally write into a torn-down Layer.
+    this.events.once('shutdown', () => {
+      this.hudLayer = null;
+      this.worldLayer = null;
+      this.uiCam = null;
+    });
+    this.events.once('destroy', () => {
+      this.hudLayer = null;
+      this.worldLayer = null;
+      this.uiCam = null;
+    });
   }
 
   setupCameras() {
-    this.worldLayer = this.add.layer();
-    this.hudLayer = this.add.layer();
+    // Layers were created at the top of create() so addToHud/addToWorld
+    // could be used during scene build-up. Now reparent any remaining
+    // unparented children into the right layer.
+    if (!this.worldLayer || !this.worldLayer.scene) {
+      this.worldLayer = this.add.layer();
+    }
+    if (!this.hudLayer || !this.hudLayer.scene) {
+      this.hudLayer = this.add.layer();
+    }
 
     // Anything already in the scene before this point gets sorted into the
     // right layer. Layers themselves are excluded from the snapshot.
@@ -233,13 +322,16 @@ export class GameScene extends Phaser.Scene {
 
   // Convenience: route dynamic runtime objects to the correct layer so they
   // continue to be classified correctly after the cameras are configured.
+  // Guards check for layer.scene to avoid writing into a destroyed Layer
+  // whose children.list was nulled out during shutdown (which would crash
+  // inside Phaser's Display.List.Add on undefined.indexOf).
   addToHud(obj) {
-    if (this.hudLayer) this.hudLayer.add(obj);
+    if (this.hudLayer && this.hudLayer.scene) this.hudLayer.add(obj);
     return obj;
   }
 
   addToWorld(obj) {
-    if (this.worldLayer) this.worldLayer.add(obj);
+    if (this.worldLayer && this.worldLayer.scene) this.worldLayer.add(obj);
     return obj;
   }
 
@@ -447,8 +539,9 @@ export class GameScene extends Phaser.Scene {
       sprite.setData('clickZone', clickZone);
 
       const isHidden = object.hiddenUnder && !this.openedInteractives.has(object.hiddenUnder);
+      const heroHidden = this.hero && !this.hero.objectVisible(object);
 
-      if (this.foundIds.has(object.id) || isHidden) {
+      if (this.foundIds.has(object.id) || isHidden || heroHidden) {
         glow.setVisible(false);
         shadow.setVisible(false);
         sprite.setVisible(false);
@@ -461,11 +554,48 @@ export class GameScene extends Phaser.Scene {
         this.findObject(object);
       });
       clickZone.on('pointerover', () => {
+        // Always-on subtle hover feedback so play feels responsive without
+        // requiring the high-contrast accessibility toggle. High-contrast
+        // mode layers a stronger outline on top.
+        if (sprite.visible) {
+          glow.setVisible(true);
+          this.tweens.killTweensOf(glow);
+          glow.setAlpha(0).setScale(1);
+          this.tweens.add({
+            targets: glow,
+            alpha: 0.32,
+            scale: 1.15,
+            duration: 180,
+            ease: 'Sine.easeOut'
+          });
+          this.tweens.add({
+            targets: sprite,
+            scale: object.scale * 1.04,
+            duration: 180,
+            ease: 'Sine.easeOut'
+          });
+        }
         if (loadHighContrast()) {
           this.drawHoverOutline(sprite);
         }
       });
       clickZone.on('pointerout', () => {
+        if (sprite.visible) {
+          this.tweens.killTweensOf(glow);
+          this.tweens.add({
+            targets: glow,
+            alpha: 0,
+            duration: 220,
+            ease: 'Sine.easeIn',
+            onComplete: () => glow.setVisible(false)
+          });
+          this.tweens.add({
+            targets: sprite,
+            scale: object.scale,
+            duration: 220,
+            ease: 'Sine.easeIn'
+          });
+        }
         this.clearHoverOutline();
       });
       sprite.setData('glow', glow);
@@ -478,10 +608,16 @@ export class GameScene extends Phaser.Scene {
     if (!this.level.interactives) return;
 
     for (const interactive of this.level.interactives) {
+      if (interactive.requiresFlag && this.hero && !this.hero.hasFlag(interactive.requiresFlag)) {
+        continue;
+      }
+
       const hiddenObjects = this.activeObjects.filter(obj => obj.hiddenUnder === interactive.id);
       const allFound = hiddenObjects.length > 0 && hiddenObjects.every(obj => this.foundIds.has(obj.id));
 
-      const startOpen = allFound || this.openedInteractives.has(interactive.id);
+      const startOpen = allFound
+        || this.openedInteractives.has(interactive.id)
+        || (interactive.type === 'toggle' && this.hero?.hasFlag(interactive.setsFlag));
       
       let currentX = interactive.x;
       let currentY = interactive.y;
@@ -521,6 +657,17 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleInteractiveTap(sprite) {
+    const config = sprite.getData('config');
+    if (config.type === 'toggle') {
+      const isOpen = sprite.getData('isOpen');
+      if (isOpen) {
+        this.closeInteractiveCover(sprite);
+      } else {
+        this.openInteractiveCover(sprite);
+      }
+      return;
+    }
+
     const isOpen = sprite.getData('isOpen');
     if (isOpen) {
       this.closeInteractiveCover(sprite);
@@ -540,6 +687,21 @@ export class GameScene extends Phaser.Scene {
 
     sprite.setData('isOpen', true);
     this.openedInteractives.add(config.id);
+
+    if (config.type === 'toggle') {
+      if (config.soundEffect && this.cache.audio.exists(config.soundEffect)) {
+        this.sound.play(config.soundEffect, { volume: 0.5 });
+      } else if (this.cache.audio.exists('clickSfx')) {
+        this.sound.play('clickSfx', { volume: 0.35 });
+      }
+      sprite.setAlpha(0.4);
+      this.revealObjectsUnderCover(config.id);
+      if (this.hero) {
+        this.hero.handleInteractiveOpened(config);
+      }
+      if (callback) callback();
+      return;
+    }
 
     if (config.soundEffect && this.cache.audio.exists(config.soundEffect)) {
       this.sound.play(config.soundEffect, { volume: 0.5 });
@@ -574,35 +736,43 @@ export class GameScene extends Phaser.Scene {
           duration: 400,
           ease: 'Back.easeOut',
           onComplete: () => {
-            this.activeObjects.forEach(obj => {
-              if (obj.hiddenUnder === config.id && !this.foundIds.has(obj.id)) {
-                const objSprite = this.objectSprites.get(obj.id);
-                if (objSprite) {
-                  objSprite.setVisible(true);
-                  const shadow = objSprite.getData('shadow');
-                  if (shadow) shadow.setVisible(true);
-                  const clickZone = objSprite.getData('clickZone');
-                  if (clickZone) {
-                    clickZone.setVisible(true);
-                    clickZone.setInteractive();
-                  }
+            this.revealObjectsUnderCover(config.id);
 
-                  objSprite.setScale(0);
-                  this.tweens.add({
-                    targets: objSprite,
-                    scale: obj.scale,
-                    duration: 300,
-                    ease: 'Back.easeOut'
-                  });
-
-                  this.playSoftSparkle(objSprite.x, objSprite.y, 8, 0xfff0a8);
-                }
-              }
-            });
+            if (this.hero) {
+              this.hero.handleInteractiveOpened(config);
+            }
 
             if (callback) callback();
           }
         });
+      }
+    });
+  }
+
+  revealObjectsUnderCover(coverId) {
+    this.activeObjects.forEach(obj => {
+      if (obj.hiddenUnder === coverId && !this.foundIds.has(obj.id)) {
+        const objSprite = this.objectSprites.get(obj.id);
+        if (objSprite) {
+          objSprite.setVisible(true);
+          const shadow = objSprite.getData('shadow');
+          if (shadow) shadow.setVisible(true);
+          const clickZone = objSprite.getData('clickZone');
+          if (clickZone) {
+            clickZone.setVisible(true);
+            clickZone.setInteractive();
+          }
+
+          objSprite.setScale(0);
+          this.tweens.add({
+            targets: objSprite,
+            scale: obj.scale,
+            duration: 300,
+            ease: 'Back.easeOut'
+          });
+
+          this.playSoftSparkle(objSprite.x, objSprite.y, 8, 0xfff0a8);
+        }
       }
     });
   }
@@ -652,14 +822,25 @@ export class GameScene extends Phaser.Scene {
   }
 
   createHud() {
+    // Soft cream "shelf" behind the left count pill so it reads as a unit
+    const leftShelf = this.add.graphics().setDepth(HUD_DEPTH - 1);
+    leftShelf.fillStyle(0x2b1c12, 0.22);
+    leftShelf.fillRoundedRect(28, theme.hud.y - 24 + 5, 132, 56, 28);
+    leftShelf.fillStyle(0xfff7e3, 0.92);
+    leftShelf.fillRoundedRect(28, theme.hud.y - 24, 132, 56, 28);
+    leftShelf.lineStyle(2, 0xc9a96e, 0.45);
+    leftShelf.strokeRoundedRect(28, theme.hud.y - 24, 132, 56, 28);
+    leftShelf.setData('hud', true);
+
     // Left: single calm count pill
     this.countPill = createStatusPill(this, {
-      x: 90,
+      x: 94,
       y: theme.hud.y,
       width: 110,
-      height: 48,
+      height: 44,
       label: `0 / ${this.activeObjects.length}`,
-      fontSize: 22,
+      fontSize: 21,
+      color: 0xfff7e3,
       depth: HUD_DEPTH
     });
 
@@ -669,9 +850,9 @@ export class GameScene extends Phaser.Scene {
     // Zoom is mouse-wheel-only — no button needed in the HUD.
     const btnW = 96;
     const btnH = 48;
-    const muteW = 56;
-    const pauseW = 56;
-    const gap = 12;
+    const muteW = 80;
+    const pauseW = 80;
+    const gap = 10;
     const rightEdge = 1280 - 22;
     const homeX = rightEdge - btnW / 2;
     const pauseX = homeX - btnW / 2 - gap - pauseW / 2;
@@ -680,10 +861,23 @@ export class GameScene extends Phaser.Scene {
     const listX = ghostX - btnW - gap;
     const muteX = listX - btnW / 2 - gap - muteW / 2;
 
+    // Right "shelf" behind the 6-button cluster — same shadow + cream as left
+    const shelfLeft = muteX - muteW / 2 - 12;
+    const shelfRight = homeX + btnW / 2 + 12;
+    const shelfW = shelfRight - shelfLeft;
+    const rightShelf = this.add.graphics().setDepth(HUD_DEPTH - 1);
+    rightShelf.fillStyle(0x2b1c12, 0.22);
+    rightShelf.fillRoundedRect(shelfLeft, theme.hud.y - 28 + 5, shelfW, 64, 30);
+    rightShelf.fillStyle(0xfff7e3, 0.92);
+    rightShelf.fillRoundedRect(shelfLeft, theme.hud.y - 28, shelfW, 64, 30);
+    rightShelf.lineStyle(2, 0xc9a96e, 0.45);
+    rightShelf.strokeRoundedRect(shelfLeft, theme.hud.y - 28, shelfW, 64, 30);
+    rightShelf.setData('hud', true);
+
     this.muteButton = createPillButton(this, {
       x: muteX, y: theme.hud.y,
       width: muteW, height: btnH,
-      label: this.muted ? '🔇' : '🔊', fontSize: 20,
+      label: this.muted ? 'Muted' : 'Sound', fontSize: 16,
       onClick: () => this.toggleMute(),
       depth: HUD_DEPTH
     });
@@ -699,8 +893,15 @@ export class GameScene extends Phaser.Scene {
     this.ghostButton = createPillButton(this, {
       x: ghostX, y: theme.hud.y,
       width: btnW, height: btnH,
-      label: '👻 0', fontSize: 18,
-      onClick: () => this.useGhostCharge(),
+      label: this.hero ? '✨ 0' : '👻 0',
+      fontSize: 18,
+      onClick: () => {
+        if (this.hero) {
+          this.hero.onJujuButtonPressed();
+        } else {
+          this.useGhostCharge();
+        }
+      },
       color: theme.color.creamSoft,
       depth: HUD_DEPTH
     });
@@ -717,7 +918,7 @@ export class GameScene extends Phaser.Scene {
     this.pauseButton = createPillButton(this, {
       x: pauseX, y: theme.hud.y,
       width: pauseW, height: btnH,
-      label: '⏸', fontSize: 18,
+      label: 'Pause', fontSize: 16,
       onClick: () => this.openPause(),
       depth: HUD_DEPTH
     });
@@ -750,12 +951,31 @@ export class GameScene extends Phaser.Scene {
     });
     this.finishButton.setVisible(false);
 
+    // Pre-release editor toggle. Lets the user enter dev mode from the UI
+    // (in addition to the keyboard "D" shortcut), drag-place objects, and
+    // copy x/y/scale values back into the level data file. Remove this
+    // single block + the `D` key handler before shipping the public build.
+    this.devButton = createPillButton(this, {
+      x: 90, y: theme.hud.y + 64,
+      width: 110, height: 38,
+      label: 'Dev mode', fontSize: 14, radius: 19,
+      color: 0xf2b35c,
+      hoverColor: 0xffc878,
+      textColor: 0xfff7e3,
+      onClick: () => {
+        this.toggleDevMode();
+        this.devButton.setLabel(this.isDevMode ? 'Exit dev' : 'Dev mode');
+      },
+      depth: HUD_DEPTH
+    });
+
     // Tag every HUD container so the dual-camera setup at the end of create()
     // can render them with a separate non-zoomed camera.
     const hudContainers = [
       this.countPill.container, this.muteButton.container, this.listButton.container,
       this.ghostButton.container, this.hintButton.container, this.pauseButton.container,
-      this.homeButton.container, this.listPanel, this.finishButton.container
+      this.homeButton.container, this.listPanel, this.finishButton.container,
+      this.devButton.container
     ];
     for (const c of hudContainers) {
       if (c && c.setData) c.setData('hud', true);
@@ -779,7 +999,7 @@ export class GameScene extends Phaser.Scene {
     this.muted = !this.muted;
     this.sound.mute = this.muted;
     saveMuted(this.muted);
-    this.muteButton.setLabel(this.muted ? '🔇' : '🔊');
+    this.muteButton.setLabel(this.muted ? 'Muted' : 'Sound');
   }
 
   updateRemainingPulse() {
@@ -940,6 +1160,67 @@ export class GameScene extends Phaser.Scene {
     // Cache card dims for later redraws
     this.checklistCardW = cardW;
     this.checklistCardH = cardH;
+
+    if (this.hero?.getOptionalCount() > 0) {
+      this.buildOptionalListRow(panelW, panelH, headerH, horizontalPadding);
+    }
+  }
+
+  buildOptionalListRow(panelW, panelH, headerH, horizontalPadding) {
+    const optH = 36;
+    const rowY = panelH / 2 - optH / 2 - 4;
+    const found = this.hero.getOptionalFoundCount();
+    const total = this.hero.getOptionalCount();
+
+    this.optionalListText = this.add.text(
+      -panelW / 2 + horizontalPadding,
+      rowY,
+      `Extras ${found}/${total} (no hints)`,
+      { fontFamily: UI_FONT, fontSize: '11px', color: '#7a6a52' }
+    ).setOrigin(0, 0.5);
+    this.listPanel.add(this.optionalListText);
+  }
+
+  refreshOptionalList() {
+    if (!this.optionalListText || !this.hero) return;
+    this.optionalListText.setText(
+      `Extras ${this.hero.getOptionalFoundCount()}/${this.hero.getOptionalCount()} (no hints)`
+    );
+  }
+
+  showJujuRiddleBubble(clueText) {
+    if (this.jujuBubble) {
+      this.jujuBubble.destroy();
+    }
+
+    const { width, height } = this.scale;
+    this.jujuBubble = this.add.container(width / 2, height - 100).setDepth(HUD_DEPTH + 12);
+    this.addToHud(this.jujuBubble);
+
+    const bubbleW = 420;
+    const bubbleH = 72;
+    const bg = this.add.graphics();
+    bg.fillStyle(0xe8eaf6, 0.96);
+    bg.fillRoundedRect(-bubbleW / 2, -bubbleH / 2, bubbleW, bubbleH, 16);
+    bg.lineStyle(2, 0x5c6bc0, 0.7);
+    bg.strokeRoundedRect(-bubbleW / 2, -bubbleH / 2, bubbleW, bubbleH, 16);
+
+    const label = this.add.text(0, 0, `✨ ${clueText}`, {
+      fontFamily: UI_FONT,
+      fontSize: '14px',
+      color: '#283593',
+      wordWrap: { width: bubbleW - 24, useAdvancedWrap: true },
+      align: 'center'
+    }).setOrigin(0.5);
+
+    this.jujuBubble.add([bg, label]);
+
+    this.time.delayedCall(7000, () => {
+      if (this.jujuBubble) {
+        this.jujuBubble.destroy();
+        this.jujuBubble = null;
+      }
+    });
   }
 
   drawCard(graphics, w, h, x, y, found) {
@@ -1035,7 +1316,7 @@ export class GameScene extends Phaser.Scene {
       this.sound.play('bonusSfx', { volume: 0.35 });
     }
     container.disableInteractive();
-    this.showFoundToast(this.getBonusFoundText());
+    this.showFoundToast(this.getBonusFoundText(), envelope.key);
     this.sayGuide(this.getBonusFoundText());
     this.playSoftSparkle(container.x, container.y, 8);
 
@@ -1113,8 +1394,9 @@ export class GameScene extends Phaser.Scene {
     const clickZone = sprite.getData('clickZone');
     this.foundIds.add(object.id);
     this.saveProgress();
+    this.registerCombo();
     this.playFoundFeedback(sprite);
-    this.showFoundToast(`${object.name}!`);
+    this.showFoundToast(object.name, object.key);
     this.sayGuide(this.getFoundActiveCount() >= this.activeObjects.length ? 'All done!' : 'Nice!');
     if (clickZone) {
       clickZone.disableInteractive();
@@ -1215,7 +1497,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   finishLevel() {
-    this.scene.start('WinScene', { levelId: this.level.id });
+    this.scene.start('WinScene', {
+      levelId: this.level.id,
+      optionalAllFound: this.hero?.allOptionalFound() ?? false
+    });
   }
 
   openPause() {
@@ -1342,9 +1627,10 @@ export class GameScene extends Phaser.Scene {
     });
 
     const clueText = object.clue || `Can you find the ${object.name}?`;
+    const canSpirit = this.hero?.jujuCharges > 0 && !this.foundIds.has(object.id);
 
     const bubbleW = 320;
-    const bubbleH = 80;
+    const bubbleH = canSpirit ? 100 : 80;
     const bubbleBg = this.add.graphics();
     bubbleBg.fillStyle(0xfff7e3, 0.95);
     bubbleBg.fillRoundedRect(30, -bubbleH / 2, bubbleW, bubbleH, 16);
@@ -1357,7 +1643,7 @@ export class GameScene extends Phaser.Scene {
     bubbleBg.lineBetween(30, -8, 20, 0);
     bubbleBg.lineBetween(20, 0, 30, 8);
 
-    const textLabel = this.add.text(30 + 16, 0, clueText, {
+    const textLabel = this.add.text(30 + 16, canSpirit ? -12 : 0, clueText, {
       fontFamily: UI_FONT,
       fontSize: '14px',
       color: '#4a3a26',
@@ -1365,6 +1651,19 @@ export class GameScene extends Phaser.Scene {
     }).setOrigin(0, 0.5);
 
     this.mascotContainer.add([bubbleBg, bird, textLabel]);
+
+    if (canSpirit) {
+      const spiritBtn = this.add.text(30 + 16, 22, '✨ Spirit riddle (uses 1)', {
+        fontFamily: UI_FONT,
+        fontSize: '12px',
+        color: '#3949ab'
+      }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });
+      spiritBtn.on('pointerdown', (pointer, lx, ly, event) => {
+        event.stopPropagation();
+        this.hero.spendJujuForObject(object);
+      });
+      this.mascotContainer.add(spiritBtn);
+    }
 
     this.mascotContainer.x = -400;
     this.tweens.add({
@@ -1529,6 +1828,27 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  onHeroFlagChanged(flag, value) {
+    if (!value) return;
+    for (const object of this.activeObjects) {
+      if (object.hiddenUntilFlag === flag || object.requiresFlag === flag) {
+        const sprite = this.objectSprites.get(object.id);
+        if (!sprite || this.foundIds.has(object.id)) continue;
+        if (this.hero && !this.hero.objectVisible(object)) continue;
+
+        sprite.setVisible(true);
+        const shadow = sprite.getData('shadow');
+        if (shadow) shadow.setVisible(true);
+        const clickZone = sprite.getData('clickZone');
+        if (clickZone) {
+          clickZone.setVisible(true);
+          clickZone.setInteractive();
+        }
+        this.playSoftSparkle(sprite.x, sprite.y, 8, 0xfff0a8);
+      }
+    }
+  }
+
   spawnHiddenGhost() {
     if (this.isDevMode) return;
     
@@ -1582,7 +1902,7 @@ export class GameScene extends Phaser.Scene {
     
     this.ghostCharges += 1;
     if (this.ghostButton) {
-      this.ghostButton.setText(`👻 ${this.ghostCharges}`);
+      this.ghostButton.setLabel(`👻 ${this.ghostCharges}`);
     }
     
     if (this.cache.audio.exists('bonusSfx')) {
@@ -1646,7 +1966,7 @@ export class GameScene extends Phaser.Scene {
     
     this.ghostCharges -= 1;
     if (this.ghostButton) {
-      this.ghostButton.setText(`👻 ${this.ghostCharges}`);
+      this.ghostButton.setLabel(`👻 ${this.ghostCharges}`);
     }
     
     const object = remaining[Phaser.Math.Between(0, remaining.length - 1)];
@@ -1881,33 +2201,141 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  showFoundToast(name) {
+  registerCombo() {
+    const now = this.time.now;
+    const WINDOW_MS = 8000;
+    if (!this.comboLastAt || now - this.comboLastAt > WINDOW_MS) {
+      this.comboCount = 1;
+    } else {
+      this.comboCount = (this.comboCount || 1) + 1;
+    }
+    this.comboLastAt = now;
+
+    // Reward thresholds — speak-up at 3, 5, then every 3 after.
+    if (this.comboCount === 3 || this.comboCount === 5 || (this.comboCount >= 5 && this.comboCount % 3 === 0)) {
+      this.showComboToast(this.comboCount);
+    }
+  }
+
+  showComboToast(streak) {
+    if (this.comboToast) {
+      this.comboToast.destroy();
+    }
+
+    const pillW = 240;
+    const pillH = 56;
+    const toast = this.add.container(640, 220).setDepth(41).setAlpha(0);
+
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x2b1c12, 0.32);
+    shadow.fillRoundedRect(-pillW / 2, -pillH / 2 + 6, pillW, pillH, 28);
+
+    const bg = this.add.graphics();
+    bg.fillStyle(0xf2b35c, 1);
+    bg.fillRoundedRect(-pillW / 2, -pillH / 2, pillW, pillH, 28);
+    bg.lineStyle(2.5, 0xfff7e3, 0.85);
+    bg.strokeRoundedRect(-pillW / 2, -pillH / 2, pillW, pillH, 28);
+
+    const sparkle = this.add.text(-pillW / 2 + 28, 0, '✦', {
+      fontFamily: UI_FONT, fontSize: '22px', color: '#fff7e3'
+    }).setOrigin(0.5);
+
+    const label = this.add.text(8, 0, `Streak ×${streak}`, {
+      fontFamily: UI_FONT, fontSize: '22px', color: '#fff7e3'
+    }).setOrigin(0.5);
+
+    toast.add([shadow, bg, sparkle, label]);
+    this.comboToast = toast;
+    this.addToHud(toast);
+
+    if (this.cache.audio.exists('bonusSfx')) {
+      this.sound.play('bonusSfx', { volume: 0.32, detune: 200 + streak * 30 });
+    }
+
+    this.tweens.add({
+      targets: toast,
+      alpha: 1,
+      y: 196,
+      scale: 1.05,
+      duration: 220,
+      ease: 'Back.easeOut'
+    });
+    this.tweens.add({
+      targets: toast,
+      alpha: 0,
+      y: 180,
+      delay: 1100,
+      duration: 280,
+      ease: 'Sine.easeIn',
+      onComplete: () => toast.destroy()
+    });
+  }
+
+  showFoundToast(name, textureKey = null) {
     if (this.toast) {
       this.toast.destroy();
     }
 
-    const toast = this.add.container(720, 622).setDepth(40).setAlpha(0);
-    const bg = this.add.rectangle(0, 0, 440, 54, 0x1b2a22, 0.84)
-      .setStrokeStyle(2, 0xf0d27d, 0.68);
-    const text = this.add.text(0, 0, name, {
+    const hasThumb = textureKey && this.textures.exists(textureKey);
+    const pillW = hasThumb ? 380 : 320;
+    const pillH = 64;
+    const startY = 132;
+    const endY = 108;
+
+    const toast = this.add.container(640, startY).setDepth(40).setAlpha(0);
+
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x2b1c12, 0.28);
+    shadow.fillRoundedRect(-pillW / 2, -pillH / 2 + 6, pillW, pillH, 32);
+
+    const bg = this.add.graphics();
+    bg.fillStyle(0xfff7e3, 0.98);
+    bg.fillRoundedRect(-pillW / 2, -pillH / 2, pillW, pillH, 32);
+    bg.lineStyle(2.5, 0xf2b35c, 0.85);
+    bg.strokeRoundedRect(-pillW / 2, -pillH / 2, pillW, pillH, 32);
+
+    toast.add([shadow, bg]);
+
+    if (hasThumb) {
+      // Cream chip behind thumb for contrast
+      const chipBg = this.add.graphics();
+      chipBg.fillStyle(0xfde7b0, 0.95);
+      chipBg.fillRoundedRect(-pillW / 2 + 6, -pillH / 2 + 6, pillH - 12, pillH - 12, 20);
+      const thumb = this.add.image(-pillW / 2 + pillH / 2, 0, textureKey).setDisplaySize(40, 40);
+      toast.add([chipBg, thumb]);
+    }
+
+    const check = this.add.text(pillW / 2 - 24, 0, '✓', {
+      fontFamily: UI_FONT, fontSize: '22px', color: '#7eb58a'
+    }).setOrigin(0.5);
+
+    const textX = hasThumb ? -pillW / 2 + pillH + 8 : -pillW / 2 + 24;
+    const text = this.add.text(textX, 0, name, {
       fontFamily: UI_FONT,
       fontSize: '20px',
-      color: '#fff0c8',
-      align: 'center',
-      wordWrap: { width: 400, useAdvancedWrap: true }
-    }).setOrigin(0.5);
-    toast.add([bg, text]);
+      color: '#4a3a26',
+      align: 'left',
+      wordWrap: { width: pillW - pillH - 60, useAdvancedWrap: true }
+    }).setOrigin(0, 0.5);
+
+    toast.add([text, check]);
     this.toast = toast;
     this.addToHud(toast);
 
     this.tweens.add({
       targets: toast,
       alpha: 1,
-      y: 604,
-      duration: 160,
-      ease: 'Sine.easeOut',
-      yoyo: true,
-      hold: 850,
+      y: endY,
+      duration: 220,
+      ease: 'Back.easeOut'
+    });
+    this.tweens.add({
+      targets: toast,
+      alpha: 0,
+      y: endY - 14,
+      delay: 1100,
+      duration: 260,
+      ease: 'Sine.easeIn',
       onComplete: () => toast.destroy()
     });
   }
@@ -2537,6 +2965,7 @@ export class GameScene extends Phaser.Scene {
     document.getElementById('dev-close-btn').addEventListener('click', () => this.toggleDevMode());
     
     document.getElementById('dev-level-select').addEventListener('change', (e) => {
+      if (!e.target.value) return;
       window.sessionStorage.setItem('whimsy-hollow:dev-mode', 'true');
       this.scene.start('GameScene', { levelId: e.target.value });
     });

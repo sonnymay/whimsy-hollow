@@ -1,5 +1,7 @@
 export const whimsyLivingRoom = {
   id: 'whimsy-living-room',
+  tier: 'hero',
+  caseId: 'case-5-living',
   title: 'Whimsy Living Room',
   saveKey: 'whimsy-hollow:whimsy-living-room',
   bonusSaveKey: 'whimsy-hollow:whimsy-living-room:bonus',
@@ -121,6 +123,39 @@ export const whimsyLivingRoom = {
       scale: 0.07
     }
   ],
+  optionalObjectives: [],
+  jujus: [
+    {
+      id: 'juju-teapot',
+      key: 'juju-living-teapot',
+      asset: 'assets/objects/obj_purple_teapot.png',
+      x: 480,
+      y: 480,
+      scale: 0.07,
+      puzzleClue: 'Purple porcelain pours afternoon stories.',
+      linkedObjectId: 'purple-teapot'
+    },
+    {
+      id: 'juju-key',
+      key: 'juju-living-key',
+      asset: 'assets/objects/obj_star_key.png',
+      x: 680,
+      y: 580,
+      scale: 0.06,
+      puzzleClue: 'Stars rest beside the old trunk by the floor.',
+      linkedObjectId: 'star-key'
+    },
+    {
+      id: 'juju-watch',
+      key: 'juju-living-watch',
+      asset: 'assets/objects/obj_tiny_pocket_watch.png',
+      x: 1080,
+      y: 460,
+      scale: 0.06,
+      puzzleClue: 'Tick-tock by the chair with the best view.',
+      linkedObjectId: 'tiny-pocket-watch'
+    }
+  ],
   bonusEnvelopes: [
     {
       id: 'sleepy-mouse-rug',
@@ -150,32 +185,14 @@ export const whimsyLivingRoom = {
       scale: 0.052
     }
   ],
-  surprises: [
-    {
-      id: 'fireplace-sparkle',
-      x: 788,
-      y: 348,
-      label: 'Sparkle!'
-    },
-    {
-      id: 'lamp-glow',
-      x: 1136,
-      y: 326,
-      label: 'Glow!'
-    },
-    {
-      id: 'bookshelf-wiggle',
-      x: 458,
-      y: 182,
-      label: 'Wiggle!'
-    },
-    {
-      id: 'plant-rustle',
-      x: 1036,
-      y: 172,
-      label: 'Rustle!'
-    }
+  sceneProps: [
+    { id: 'prop-fireplace', x: 788, y: 348, w: 56, h: 48, label: 'Sparkle!', sfx: 'clickSfx' },
+    { id: 'prop-lamp', x: 1136, y: 326, w: 48, h: 48, label: 'Glow!', sfx: 'clickSfx' },
+    { id: 'prop-shelf', x: 458, y: 182, w: 48, h: 48, label: 'Wiggle!', sfx: 'clickSfx' },
+    { id: 'prop-plant', x: 1036, y: 172, w: 48, h: 40, label: 'Rustle!', sfx: 'clickSfx' }
   ],
+  interactives: [],
+  subScenes: { main: {} },
   previousLevelId: 'restaurant-kitchen'
 };
 

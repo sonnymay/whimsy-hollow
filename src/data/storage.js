@@ -3,6 +3,33 @@
  * Avoids scattered key strings and silent JSON.parse explosions.
  */
 
+const SLOT_KEY = 'whimsy-hollow:active-slot';
+const MAX_SLOTS = 3;
+
+function slotPrefix() {
+  const slot = loadActiveSlot();
+  return slot === 0 ? '' : `:slot${slot}`;
+}
+
+function scopedKey(base) {
+  return `whimsy-hollow${slotPrefix()}:${base}`;
+}
+
+export function loadActiveSlot() {
+  const raw = window.localStorage.getItem(SLOT_KEY);
+  const n = raw == null ? 0 : parseInt(raw, 10);
+  return Number.isFinite(n) && n >= 0 && n < MAX_SLOTS ? n : 0;
+}
+
+export function saveActiveSlot(index) {
+  const clamped = Math.max(0, Math.min(MAX_SLOTS - 1, index));
+  window.localStorage.setItem(SLOT_KEY, String(clamped));
+}
+
+export function getMaxSaveSlots() {
+  return MAX_SLOTS;
+}
+
 const MUTE_KEY = 'whimsy-hollow:muted';
 const ONBOARDED_KEY = 'whimsy-hollow:onboarded';
 const MUSIC_ENABLED_KEY = 'whimsy-hollow:music-enabled';
@@ -21,25 +48,82 @@ function safeParseArray(raw) {
   }
 }
 
+function levelKey(level, suffix) {
+  return `${level.saveKey}${suffix}${slotPrefix()}`;
+}
+
 export function loadFoundIds(level) {
-  return new Set(safeParseArray(window.localStorage.getItem(level.saveKey)));
+  return new Set(safeParseArray(window.localStorage.getItem(levelKey(level, ''))));
 }
 
 export function saveFoundIds(level, set) {
-  window.localStorage.setItem(level.saveKey, JSON.stringify([...set]));
+  window.localStorage.setItem(levelKey(level, ''), JSON.stringify([...set]));
 }
 
 export function loadBonusIds(level) {
-  return new Set(safeParseArray(window.localStorage.getItem(level.bonusSaveKey)));
+  const key = level.bonusSaveKey ? `${level.bonusSaveKey}${slotPrefix()}` : null;
+  return new Set(safeParseArray(key ? window.localStorage.getItem(key) : '[]'));
 }
 
 export function saveBonusIds(level, set) {
-  window.localStorage.setItem(level.bonusSaveKey, JSON.stringify([...set]));
+  if (!level.bonusSaveKey) return;
+  window.localStorage.setItem(`${level.bonusSaveKey}${slotPrefix()}`, JSON.stringify([...set]));
+}
+
+export function loadOptionalIds(level) {
+  return new Set(safeParseArray(window.localStorage.getItem(levelKey(level, ':optional'))));
+}
+
+export function saveOptionalIds(level, set) {
+  window.localStorage.setItem(levelKey(level, ':optional'), JSON.stringify([...set]));
+}
+
+export function loadJujuCollectedIds(level) {
+  return new Set(safeParseArray(window.localStorage.getItem(levelKey(level, ':juju-collected'))));
+}
+
+export function saveJujuCollectedIds(level, set) {
+  window.localStorage.setItem(levelKey(level, ':juju-collected'), JSON.stringify([...set]));
+}
+
+export function loadLevelState(level) {
+  try {
+    const raw = window.localStorage.getItem(levelKey(level, ':state'));
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveLevelState(level, state) {
+  window.localStorage.setItem(levelKey(level, ':state'), JSON.stringify(state));
 }
 
 export function clearLevelProgress(level) {
-  window.localStorage.removeItem(level.saveKey);
-  window.localStorage.removeItem(level.bonusSaveKey);
+  window.localStorage.removeItem(levelKey(level, ''));
+  if (level.bonusSaveKey) {
+    window.localStorage.removeItem(`${level.bonusSaveKey}${slotPrefix()}`);
+  }
+  window.localStorage.removeItem(levelKey(level, ':optional'));
+  window.localStorage.removeItem(levelKey(level, ':juju-collected'));
+  window.localStorage.removeItem(levelKey(level, ':state'));
+}
+
+/** Slot-scoped campaign / economy keys */
+function slotScoped(base) {
+  return scopedKey(base);
+}
+
+export function loadCoins() {
+  const val = window.localStorage.getItem(slotScoped('coins'));
+  if (val == null) return 100;
+  const parsed = parseInt(val, 10);
+  return Number.isNaN(parsed) ? 100 : parsed;
+}
+
+export function saveCoins(coins) {
+  window.localStorage.setItem(slotScoped('coins'), String(coins));
 }
 
 export function loadMuted() {
@@ -93,21 +177,7 @@ export function saveOnboarded() {
   window.localStorage.setItem(ONBOARDED_KEY, '1');
 }
 
-const COINS_KEY = 'whimsy-hollow:coins';
-const REPUTATION_KEY = 'whimsy-hollow:reputation';
-const OWNED_FURNITURE_KEY = 'whimsy-hollow:owned-furniture';
-const PLACED_FURNITURE_KEY = 'whimsy-hollow:placed-furniture';
-
-export function loadCoins() {
-  const val = window.localStorage.getItem(COINS_KEY);
-  if (val == null) return 100; // starting coins
-  const parsed = parseInt(val, 10);
-  return Number.isNaN(parsed) ? 100 : parsed;
-}
-
-export function saveCoins(coins) {
-  window.localStorage.setItem(COINS_KEY, String(coins));
-}
+const HUB_UNLOCKS_KEY = 'hub-unlocks';
 
 export function addCoins(amount) {
   const current = loadCoins();
@@ -115,14 +185,14 @@ export function addCoins(amount) {
 }
 
 export function loadReputation() {
-  const val = window.localStorage.getItem(REPUTATION_KEY);
-  if (val == null) return 0; // starting reputation
+  const val = window.localStorage.getItem(slotScoped('reputation'));
+  if (val == null) return 0;
   const parsed = parseInt(val, 10);
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
 export function saveReputation(rep) {
-  window.localStorage.setItem(REPUTATION_KEY, String(rep));
+  window.localStorage.setItem(slotScoped('reputation'), String(rep));
 }
 
 export function addReputation(amount) {
@@ -131,12 +201,12 @@ export function addReputation(amount) {
 }
 
 export function loadOwnedFurniture() {
-  const val = window.localStorage.getItem(OWNED_FURNITURE_KEY);
+  const val = window.localStorage.getItem(slotScoped('owned-furniture'));
   return safeParseArray(val);
 }
 
 export function saveOwnedFurniture(list) {
-  window.localStorage.setItem(OWNED_FURNITURE_KEY, JSON.stringify(list));
+  window.localStorage.setItem(slotScoped('owned-furniture'), JSON.stringify(list));
 }
 
 export function addOwnedFurniture(id) {
@@ -147,8 +217,22 @@ export function addOwnedFurniture(id) {
   }
 }
 
+export function loadHubUnlocks() {
+  return new Set(safeParseArray(window.localStorage.getItem(slotScoped(HUB_UNLOCKS_KEY))));
+}
+
+export function saveHubUnlocks(set) {
+  window.localStorage.setItem(slotScoped(HUB_UNLOCKS_KEY), JSON.stringify([...set]));
+}
+
+export function addHubUnlock(id) {
+  const u = loadHubUnlocks();
+  u.add(id);
+  saveHubUnlocks(u);
+}
+
 export function loadPlacedFurniture() {
-  const val = window.localStorage.getItem(PLACED_FURNITURE_KEY);
+  const val = window.localStorage.getItem(slotScoped('placed-furniture'));
   try {
     const parsed = val ? JSON.parse(val) : [];
     return Array.isArray(parsed) ? parsed : [];
@@ -158,7 +242,40 @@ export function loadPlacedFurniture() {
 }
 
 export function savePlacedFurniture(list) {
-  window.localStorage.setItem(PLACED_FURNITURE_KEY, JSON.stringify(list));
+  window.localStorage.setItem(slotScoped('placed-furniture'), JSON.stringify(list));
+}
+
+const ONBOARDING_CASE_KEY = 'onboarding-case-1';
+
+export function loadCaseOnboardingDone() {
+  return window.localStorage.getItem(slotScoped(ONBOARDING_CASE_KEY)) === '1';
+}
+
+export function saveCaseOnboardingDone() {
+  window.localStorage.setItem(slotScoped(ONBOARDING_CASE_KEY), '1');
+}
+
+const COMPLETED_CASES_KEY = 'completed-cases';
+const COMPLETED_SCENES_KEY = 'completed-scenes';
+
+export function loadCompletedCaseIds() {
+  return new Set(safeParseArray(window.localStorage.getItem(slotScoped(COMPLETED_CASES_KEY))));
+}
+
+export function markCaseComplete(caseId) {
+  const done = loadCompletedCaseIds();
+  done.add(caseId);
+  window.localStorage.setItem(slotScoped(COMPLETED_CASES_KEY), JSON.stringify([...done]));
+}
+
+export function loadCompletedSceneIds() {
+  return new Set(safeParseArray(window.localStorage.getItem(slotScoped(COMPLETED_SCENES_KEY))));
+}
+
+export function markSceneComplete(levelId) {
+  const completed = loadCompletedSceneIds();
+  completed.add(levelId);
+  window.localStorage.setItem(slotScoped(COMPLETED_SCENES_KEY), JSON.stringify([...completed]));
 }
 
 const HIGH_CONTRAST_KEY = 'whimsy-hollow:high-contrast';

@@ -8,8 +8,10 @@ import {
   loadOwnedFurniture,
   addOwnedFurniture,
   loadPlacedFurniture,
-  savePlacedFurniture
+  savePlacedFurniture,
+  loadHubUnlocks
 } from '../data/storage.js';
+import { getCompletedCaseCount, cases } from '../data/campaign.js';
 
 const UI_FONT = theme.font;
 
@@ -50,7 +52,6 @@ export class HubScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-
     // Room Background
     this.add.image(width / 2, height / 2, 'hubBackground').setDisplaySize(width, height);
     this.add.rectangle(width / 2, height / 2, width, height, 0xfff2cf, 0.08).setBlendMode(Phaser.BlendModes.SCREEN);
@@ -64,6 +65,7 @@ export class HubScene extends Phaser.Scene {
 
     // Bottom Action Buttons
     this.createBottomControls();
+    this.createVisitor();
 
     // Shop modal & Inventory drawer references (initially hidden/inactive)
     this.shopActive = false;
@@ -98,46 +100,46 @@ export class HubScene extends Phaser.Scene {
   createTopHUD() {
     const { width } = this.scale;
 
-    // HUD background panel
+    // Cream HUD shelf matching the menu/card language (was dark green)
     const hudBg = this.add.graphics();
-    hudBg.fillStyle(0x1e2722, 0.85);
-    hudBg.fillRoundedRect(30, 20, width - 60, 64, 16);
-    hudBg.lineStyle(2, 0xd4bc8a, 0.6);
-    hudBg.strokeRoundedRect(30, 20, width - 60, 64, 16);
+    hudBg.fillStyle(0x2b1c12, 0.22);
+    hudBg.fillRoundedRect(30, 24, width - 60, 64, 22);
+    hudBg.fillStyle(0xfff7e3, 0.94);
+    hudBg.fillRoundedRect(30, 20, width - 60, 64, 22);
+    hudBg.lineStyle(2, 0xc9a96e, 0.5);
+    hudBg.strokeRoundedRect(30, 20, width - 60, 64, 22);
     hudBg.setDepth(15);
 
-    // Title label
-    this.add.text(80, 52, 'My Cozy Office', {
+    // Title label — sits on cream now, so dark text
+    this.add.text(70, 52, 'My Cozy Office', {
       fontFamily: UI_FONT,
-      fontSize: '28px',
-      color: '#fff4d6',
-      stroke: '#2b1c12',
-      strokeThickness: 4
+      fontSize: '24px',
+      color: '#4a3a26'
     }).setOrigin(0, 0.5).setDepth(16);
 
-    // Coins balance
+    // Coins balance — warm sun chip
     this.coinsPill = createStatusPill(this, {
       x: width / 2 - 120,
       y: 52,
       width: 140,
       height: 40,
-      label: `🪙 ${loadCoins()}`,
-      fontSize: 18,
-      color: 0x2e3b33,
-      textColor: 0xffe89e,
+      label: `${loadCoins()} coins`,
+      fontSize: 16,
+      color: 0xffe7a3,
+      textColor: 0x6a4323,
       depth: 16
     });
 
-    // Reputation balance
+    // Reputation balance — leaf-green chip
     this.repPill = createStatusPill(this, {
       x: width / 2 + 30,
       y: 52,
       width: 140,
       height: 40,
-      label: `⭐️ ${loadReputation()}`,
-      fontSize: 18,
-      color: 0x2e3b33,
-      textColor: 0xa9f5b6,
+      label: `${loadReputation()} rep`,
+      fontSize: 16,
+      color: 0xbdf3d3,
+      textColor: 0x315642,
       depth: 16
     });
 
@@ -163,7 +165,7 @@ export class HubScene extends Phaser.Scene {
       y: 52,
       width: 120,
       height: 44,
-      label: '📍 Places',
+      label: 'Places',
       fontSize: 18,
       radius: 22,
       onClick: () => {
@@ -177,23 +179,28 @@ export class HubScene extends Phaser.Scene {
   createBottomControls() {
     const { width, height } = this.scale;
 
-    // Bottom action bar container background
+    // Cream bottom shelf with shadow
     const bar = this.add.graphics();
-    bar.fillStyle(0x1e2722, 0.8);
+    bar.fillStyle(0x2b1c12, 0.22);
+    bar.fillRoundedRect(width / 2 - 200, height - 70, 400, 60, 30);
+    bar.fillStyle(0xfff7e3, 0.95);
     bar.fillRoundedRect(width / 2 - 200, height - 76, 400, 60, 30);
-    bar.lineStyle(2, 0xd4bc8a, 0.5);
+    bar.lineStyle(2, 0xc9a96e, 0.5);
     bar.strokeRoundedRect(width / 2 - 200, height - 76, 400, 60, 30);
     bar.setDepth(15);
 
-    // Shop Button
+    // Shop Button — amber primary
     this.shopBtn = createPillButton(this, {
       x: width / 2 - 90,
       y: height - 46,
       width: 150,
       height: 46,
-      label: '🛒 Shop',
+      label: 'Shop',
       fontSize: 18,
       radius: 23,
+      color: theme.color.primary,
+      hoverColor: theme.color.primaryHover,
+      textColor: 0xfff7e3,
       onClick: () => this.toggleShop(),
       depth: 16
     });
@@ -204,7 +211,7 @@ export class HubScene extends Phaser.Scene {
       y: height - 46,
       width: 150,
       height: 46,
-      label: '📦 Inventory',
+      label: 'Inventory',
       fontSize: 18,
       radius: 23,
       onClick: () => this.toggleInventory(),
@@ -354,24 +361,34 @@ export class HubScene extends Phaser.Scene {
       .setInteractive()
       .setDepth(20);
 
-    // Modal panel background
+    // Modal panel background — soft cream card with shadow, matching menu
     this.shopPanel = this.add.container(width / 2, height / 2).setDepth(21);
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.32);
+    shadow.fillRoundedRect(-460, -212, 920, 440, theme.radius.cardLarge);
     const bg = this.add.graphics();
-    bg.fillStyle(0xfff7e3, 0.96);
-    bg.fillRoundedRect(-460, -220, 920, 440, 24);
-    bg.lineStyle(3, 0x6a4323, 0.85);
-    bg.strokeRoundedRect(-460, -220, 920, 440, 24);
-    this.shopPanel.add(bg);
+    bg.fillStyle(0xfff7e3, 0.97);
+    bg.fillRoundedRect(-460, -220, 920, 440, theme.radius.cardLarge);
+    bg.lineStyle(2.5, 0xc9a96e, 0.55);
+    bg.strokeRoundedRect(-460, -220, 920, 440, theme.radius.cardLarge);
+    this.shopPanel.add([shadow, bg]);
 
-    // Shop title
-    const title = this.add.text(0, -170, 'Furniture Boutique', {
+    // Shop title — calm, no white stroke
+    const title = this.add.text(0, -178, 'Furniture Boutique', {
       fontFamily: UI_FONT,
-      fontSize: '36px',
-      color: '#4a3a26',
-      stroke: '#ffffff',
-      strokeThickness: 4
+      fontSize: '32px',
+      color: '#4a3a26'
     }).setOrigin(0.5);
-    this.shopPanel.add(title);
+    const titleSub = this.add.text(0, -148, 'Spend coins · decorate the office', {
+      fontFamily: UI_FONT,
+      fontSize: '14px',
+      color: '#9a8568'
+    }).setOrigin(0.5);
+    // Subtle divider under title
+    const divider = this.add.graphics();
+    divider.lineStyle(1, 0xc9a96e, 0.3);
+    divider.lineBetween(-360, -126, 360, -126);
+    this.shopPanel.add([title, titleSub, divider]);
 
     // Close button
     const closeBtn = createPillButton(this, {
@@ -440,11 +457,13 @@ export class HubScene extends Phaser.Scene {
           x: x,
           y: y + 48,
           width: 140,
-          height: 30,
-          label: `${f.price} 🪙`,
+          height: 32,
+          label: `Buy · ${f.price}`,
           fontSize: 14,
-          radius: 15,
-          color: coins >= f.price ? theme.color.creamSoft : theme.color.muted,
+          radius: 16,
+          color: coins >= f.price ? theme.color.primary : theme.color.muted,
+          hoverColor: theme.color.primaryHover,
+          textColor: coins >= f.price ? 0xfff7e3 : 0x7a6750,
           onClick: () => this.buyFurniture(f),
           depth: 23
         });
@@ -477,7 +496,7 @@ export class HubScene extends Phaser.Scene {
       });
 
       // Refresh HUD & shop cards
-      this.coinsPill.setText(`🪙 ${loadCoins()}`);
+      this.coinsPill.setText(`${loadCoins()} coins`);
       this.drawShopItems();
     } else {
       this.sound.play('wrongSfx', { volume: 0.3 });
@@ -520,17 +539,20 @@ export class HubScene extends Phaser.Scene {
       easeParams: [0.8]
     });
 
-    // Drawer Background panel
+    // Drawer Background panel — cream to match the rest of the language
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.26);
+    shadow.fillRoundedRect(40, 6, width - 80, 140, 22);
     const bg = this.add.graphics();
-    bg.fillStyle(0x1e2722, 0.94);
-    bg.fillRoundedRect(40, 0, width - 80, 140, 20);
-    bg.lineStyle(2.5, 0xd4bc8a, 0.7);
-    bg.strokeRoundedRect(40, 0, width - 80, 140, 20);
-    this.drawerContainer.add(bg);
+    bg.fillStyle(0xfff7e3, 0.97);
+    bg.fillRoundedRect(40, 0, width - 80, 140, 22);
+    bg.lineStyle(2, 0xc9a96e, 0.55);
+    bg.strokeRoundedRect(40, 0, width - 80, 140, 22);
+    this.drawerContainer.add([shadow, bg]);
 
     // Title / Instructions
-    const title = this.add.text(70, 20, 'Select to Decorate:', {
-      fontFamily: UI_FONT, fontSize: '16px', color: '#eadfc0', fontStyle: 'bold'
+    const title = this.add.text(70, 20, 'Select to decorate:', {
+      fontFamily: UI_FONT, fontSize: '15px', color: '#7a6a52'
     });
     this.drawerContainer.add(title);
 
@@ -548,8 +570,8 @@ export class HubScene extends Phaser.Scene {
     const unplaced = owned.filter(id => !placed.includes(id));
 
     if (unplaced.length === 0) {
-      const emptyText = this.add.text(this.scale.width / 2, 70, 'No decoration inventory. Buy items in the Shop!', {
-        fontFamily: UI_FONT, fontSize: '18px', color: '#cfc0a4'
+      const emptyText = this.add.text(this.scale.width / 2, 70, 'No decorations yet — visit the Shop to buy some.', {
+        fontFamily: UI_FONT, fontSize: '16px', color: '#7a6a52'
       }).setOrigin(0.5);
       this.inventoryItemsContainer.add(emptyText);
       return;
@@ -565,10 +587,12 @@ export class HubScene extends Phaser.Scene {
 
       const x = startX + i * itemGap;
 
-      // Clickable card backing
+      // Clickable card backing — warm sun chip
       const card = this.add.graphics()
-        .fillStyle(0xfff2cf, 0.15)
-        .fillRoundedRect(x - 45, y - 40, 90, 80, 8)
+        .fillStyle(0xffe7a3, 0.35)
+        .fillRoundedRect(x - 45, y - 40, 90, 80, 12)
+        .lineStyle(1.5, 0xc9a96e, 0.45)
+        .strokeRoundedRect(x - 45, y - 40, 90, 80, 12)
         .setInteractive(new Phaser.Geom.Rectangle(x - 45, y - 40, 90, 80), Phaser.Geom.Rectangle.Contains);
       this.inventoryItemsContainer.add(card);
 
@@ -577,7 +601,7 @@ export class HubScene extends Phaser.Scene {
       this.inventoryItemsContainer.add(img);
 
       const name = this.add.text(x, y + 26, f.name, {
-        fontFamily: UI_FONT, fontSize: '12px', color: '#ffebd4'
+        fontFamily: UI_FONT, fontSize: '12px', color: '#4a3a26'
       }).setOrigin(0.5);
       this.inventoryItemsContainer.add(name);
 
@@ -605,6 +629,45 @@ export class HubScene extends Phaser.Scene {
         this.drawerContainer.destroy();
         this.drawerContainer = null;
         this.inventoryItemsContainer = null;
+      }
+    });
+  }
+
+  createVisitor() {
+    const { width, height } = this.scale;
+    const done = getCompletedCaseCount();
+    const unlocks = loadHubUnlocks();
+
+    const visitor = this.add.text(200, height - 120, '🐤', {
+      fontFamily: UI_FONT,
+      fontSize: '42px'
+    }).setOrigin(0.5).setDepth(14).setInteractive({ useHandCursor: true });
+
+    const lines = [
+      `Cases solved: ${done}/${cases.length}`,
+      unlocks.size > 0 ? 'New office gifts unlocked!' : 'Finish case extras for hub gifts.'
+    ];
+
+    visitor.on('pointerdown', () => {
+      this.showVisitorBubble(lines[Phaser.Math.Between(0, lines.length - 1)]);
+    });
+  }
+
+  showVisitorBubble(text) {
+    if (this.visitorBubble) this.visitorBubble.destroy();
+    this.visitorBubble = this.add.text(200, this.scale.height - 170, text, {
+      fontFamily: UI_FONT,
+      fontSize: '14px',
+      color: '#4a3a26',
+      backgroundColor: '#fff7e3',
+      padding: { x: 14, y: 10 },
+      wordWrap: { width: 220 }
+    }).setOrigin(0.5, 1).setDepth(15);
+
+    this.time.delayedCall(4000, () => {
+      if (this.visitorBubble) {
+        this.visitorBubble.destroy();
+        this.visitorBubble = null;
       }
     });
   }

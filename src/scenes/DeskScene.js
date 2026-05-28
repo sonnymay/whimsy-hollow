@@ -35,30 +35,44 @@ export class DeskScene extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.scale;
+    try {
+      this.buildScene();
+    } catch (err) {
+      console.error('[whimsy-hollow] DeskScene build failed', err);
+      this.scene.start('MenuScene');
+    }
+  }
 
-    // Background — soft cream wash with subtle painterly tint
-    this.add.rectangle(0, 0, width, height, 0x2a2620).setOrigin(0);
-    this.add.rectangle(0, 0, width, height, 0xfff2cf, 0.08).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN);
+  buildScene() {
+    const { width, height } = this.scale;
+    // Background — warmer than the old cold grey, matches BrowseScene
+    this.add.rectangle(0, 0, width, height, 0x1f2a23).setOrigin(0);
+    this.add.rectangle(0, 0, width, height, 0xfff2cf, 0.06).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN);
     this.add.circle(1080, 130, 240, 0xffd1dc, 0.08);
     this.add.circle(220, 600, 200, 0x9de3ff, 0.08);
 
     // Header
-    this.add.text(width / 2, 50, 'Sticker Book', {
+    this.add.text(width / 2, 54, 'Sticker Book', {
       fontFamily: UI_FONT,
       fontSize: '44px',
       color: '#fff4d6',
       stroke: '#2b2018',
-      strokeThickness: 7
+      strokeThickness: 5
     }).setOrigin(0.5);
 
-    // Total progress
+    // Total progress chip
     const totals = this.computeTotals();
-    this.add.text(width / 2, 90, `${totals.found} of ${totals.total} stickers · ${totals.bonusFound}/${totals.bonusTotal} bonus`, {
+    const chipW = 360;
+    const chipH = 26;
+    const chipY = 100;
+    const chipBg = this.add.graphics();
+    chipBg.fillStyle(0xfff7e3, 0.18);
+    chipBg.fillRoundedRect(width / 2 - chipW / 2, chipY - chipH / 2, chipW, chipH, 13);
+    this.add.text(width / 2, chipY, `${totals.found} of ${totals.total} stickers  ·  ${totals.bonusFound}/${totals.bonusTotal} bonus`, {
       fontFamily: UI_FONT,
-      fontSize: '17px',
-      color: '#eadfc0'
-    }).setOrigin(0.5);
+      fontSize: '14px',
+      color: '#fff4d6'
+    }).setOrigin(0.5).setAlpha(0.92);
 
     // Scrollable area for level sections
     const sectionsTopY = 122;

@@ -1,5 +1,7 @@
 export const forestBookshop = {
   id: 'forest-bookshop',
+  tier: 'hero',
+  caseId: 'case-3-bookshop',
   title: 'Forest Bookshop',
   saveKey: 'whimsy-hollow:forest-bookshop',
   bonusSaveKey: 'whimsy-hollow:forest-bookshop:bonus',
@@ -41,7 +43,7 @@ export const forestBookshop = {
       asset: 'assets/objects/bookshop_old_key.png',
       x: 820,
       y: 220,
-      scale: 0.06
+      scale: 0.06,
     },
     {
       id: 'bookshop-reading-glasses',
@@ -121,6 +123,39 @@ export const forestBookshop = {
       scale: 0.07
     }
   ],
+  optionalObjectives: [],
+  jujus: [
+    {
+      id: 'juju-inkwell',
+      key: 'juju-bookshop-ink',
+      asset: 'assets/objects/bookshop_inkwell.png',
+      x: 280,
+      y: 500,
+      scale: 0.05,
+      puzzleClue: 'Dark glass holds stories not yet written.',
+      linkedObjectId: 'bookshop-inkwell'
+    },
+    {
+      id: 'juju-key',
+      key: 'juju-bookshop-key',
+      asset: 'assets/objects/bookshop_old_key.png',
+      x: 780,
+      y: 200,
+      scale: 0.05,
+      puzzleClue: 'Rusty teeth — look behind the books on the upper shelf.',
+      linkedObjectId: 'bookshop-old-key'
+    },
+    {
+      id: 'juju-hourglass',
+      key: 'juju-bookshop-hourglass',
+      asset: 'assets/objects/bookshop_hourglass.png',
+      x: 680,
+      y: 560,
+      scale: 0.05,
+      puzzleClue: 'Sand falls where time is stacked on wood.',
+      linkedObjectId: 'bookshop-hourglass'
+    }
+  ],
   bonusEnvelopes: [
     {
       id: 'bookshop-bonus-mouse-1',
@@ -153,19 +188,11 @@ export const forestBookshop = {
       scale: 0.05
     }
   ],
-  surprises: [
-    {
-      id: 'bookshop-lamp-glow',
-      x: 320,
-      y: 480,
-      label: 'Warm!'
-    },
-    {
-      id: 'bookshop-curtain-rustle',
-      x: 1080,
-      y: 220,
-      label: 'Squeak!'
-    }
+  sceneProps: [
+    { id: 'prop-lamp', x: 320, y: 480, w: 48, h: 48, label: 'Warm!', sfx: 'clickSfx' },
+    { id: 'prop-curtain', x: 1080, y: 220, w: 48, h: 48, label: 'Squeak!', sfx: 'clickSfx' }
   ],
+  interactives: [],
+  subScenes: { main: {} },
   previousLevelId: 'twilight-tea-garden'
 };

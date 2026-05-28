@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { createPillButton } from '../ui/Button.js';
+import { createCard } from '../ui/Card.js';
 import { theme, hex } from '../ui/theme.js';
 import {
   loadMuted, saveMuted,
@@ -9,7 +10,10 @@ import {
   loadHighContrast, saveHighContrast,
   loadKeysPointer, saveKeysPointer,
   loadColorblind, saveColorblind,
-  loadReducedMotion, saveReducedMotion
+  loadReducedMotion, saveReducedMotion,
+  loadActiveSlot,
+  saveActiveSlot,
+  getMaxSaveSlots
 } from '../data/storage.js';
 import { refreshMusicSettings } from '../audio/music.js';
 
@@ -28,24 +32,42 @@ export class SettingsScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     // Soft cream wash over whatever was behind (the menu).
-    this.add.rectangle(0, 0, width, height, 0x2b2018, 0.55).setOrigin(0);
+    this.add.rectangle(0, 0, width, height, 0x2b2018, 0.6).setOrigin(0);
 
-    // Card
     const cardW = 720;
-    const cardH = 640;
-    const cardGfx = this.add.graphics();
-    cardGfx.fillStyle(0xfff4d6, 0.97);
-    cardGfx.fillRoundedRect(width / 2 - cardW / 2, height / 2 - cardH / 2, cardW, cardH, 28);
-    cardGfx.lineStyle(3, theme.color.outline, 0.45);
-    cardGfx.strokeRoundedRect(width / 2 - cardW / 2, height / 2 - cardH / 2, cardW, cardH, 28);
+    const cardH = 700;
+    createCard(this, {
+      x: width / 2,
+      y: height / 2,
+      width: cardW,
+      height: cardH,
+      radius: theme.radius.cardLarge,
+      depth: 5
+    });
 
-    this.add.text(width / 2, height / 2 - cardH / 2 + 40, 'Settings', {
+    this.add.text(width / 2, height / 2 - cardH / 2 + 48, 'Settings', {
       fontFamily: UI_FONT,
-      fontSize: '40px',
+      fontSize: '42px',
       color: hex(theme.color.text)
     }).setOrigin(0.5);
 
-    let y = height / 2 - 220;
+    const divider = this.add.graphics();
+    divider.lineStyle(1, theme.color.outline, 0.22);
+    divider.lineBetween(
+      width / 2 - cardW / 2 + 80, height / 2 - cardH / 2 + 88,
+      width / 2 + cardW / 2 - 80, height / 2 - cardH / 2 + 88
+    );
+
+    let y = height / 2 - 250;
+    this.addCycleRow(width / 2, y, 'Save slot', () => String(loadActiveSlot() + 1), ['1', '2', '3'], {
+      '1': 'Slot 1',
+      '2': 'Slot 2',
+      '3': 'Slot 3'
+    }, (label) => {
+      saveActiveSlot(parseInt(label, 10) - 1);
+    });
+
+    y += 55;
     this.addToggleRow(width / 2, y, 'Sounds', () => !loadMuted(), (on) => {
       saveMuted(!on);
       this.sound.mute = !on;
@@ -98,7 +120,7 @@ export class SettingsScene extends Phaser.Scene {
 
     // About
     this.add.text(width / 2, height / 2 + cardH / 2 - 116,
-      'Whimsy Hollow • A cozy hidden-object game\nNo timer. Just tiny treasures.',
+      'Whimsy Hollow v1.0.0 • A cozy hidden-object game\nNo timer. Just tiny treasures.',
       {
         fontFamily: UI_FONT,
         fontSize: '17px',
@@ -205,7 +227,7 @@ export class SettingsScene extends Phaser.Scene {
         const nextIndex = (currentIndex + 1) % options.length;
         const nextValue = options[nextIndex];
         onChange(nextValue);
-        btn.setText(displayNames[nextValue] || nextValue);
+        btn.setLabel(displayNames[nextValue] || nextValue);
       }
     });
   }

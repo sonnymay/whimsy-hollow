@@ -1,6 +1,7 @@
 {
   "name": "whimsy-hollow",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "A cozy hidden-object game for tired adults and kids. No timer. Just tiny treasures.",
   "private": true,
   "type": "module",
   "scripts": {

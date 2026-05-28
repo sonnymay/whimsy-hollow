@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { createPillButton } from '../ui/Button.js';
+import { createCard } from '../ui/Card.js';
 import { theme, hex } from '../ui/theme.js';
 
 const UI_FONT = theme.font;
@@ -17,25 +18,33 @@ export class PauseScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     // Dark dimmed overlay
-    this.add.rectangle(0, 0, width, height, 0x2b2018, 0.55).setOrigin(0);
+    this.add.rectangle(0, 0, width, height, 0x2b2018, 0.6).setOrigin(0);
 
-    // Card dimensions
-    const cardW = 420;
-    const cardH = 380;
-    
-    // Draw the card panel matching settings style
-    const cardGfx = this.add.graphics();
-    cardGfx.fillStyle(0xfff4d6, 0.97);
-    cardGfx.fillRoundedRect(width / 2 - cardW / 2, height / 2 - cardH / 2, cardW, cardH, 28);
-    cardGfx.lineStyle(3, theme.color.outline, 0.45);
-    cardGfx.strokeRoundedRect(width / 2 - cardW / 2, height / 2 - cardH / 2, cardW, cardH, 28);
+    const cardW = 440;
+    const cardH = 400;
+    createCard(this, {
+      x: width / 2,
+      y: height / 2,
+      width: cardW,
+      height: cardH,
+      radius: theme.radius.cardLarge,
+      depth: 5
+    });
 
     // Title
-    this.add.text(width / 2, height / 2 - cardH / 2 + 50, 'Game Paused', {
+    this.add.text(width / 2, height / 2 - cardH / 2 + 60, 'Game Paused', {
       fontFamily: UI_FONT,
-      fontSize: '32px',
+      fontSize: '34px',
       color: hex(theme.color.text)
     }).setOrigin(0.5);
+
+    // Subtle divider for hierarchy
+    const divider = this.add.graphics();
+    divider.lineStyle(1, theme.color.outline, 0.25);
+    divider.lineBetween(
+      width / 2 - cardW / 2 + 60, height / 2 - cardH / 2 + 96,
+      width / 2 + cardW / 2 - 60, height / 2 - cardH / 2 + 96
+    );
 
     const btnW = 240;
     const btnH = 52;

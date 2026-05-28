@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { levels, loadCompletedSceneIds, getFirstUnfinishedLevel } from '../data/levels.js';
 import { createPillButton } from '../ui/Button.js';
 import { theme } from '../ui/theme.js';
-import { loadReputation } from '../data/storage.js';
+import { loadReputation, clearLevelProgress } from '../data/storage.js';
 
 const UI_FONT = theme.font;
 
@@ -36,30 +36,36 @@ export class BrowseScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-
-    // Background wash
-    this.add.rectangle(0, 0, width, height, 0x2a2620).setOrigin(0);
-    this.add.rectangle(0, 0, width, height, 0xfff2cf, 0.08).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN);
+    // Background wash — warmer, less muddy
+    this.add.rectangle(0, 0, width, height, 0x1f2a23).setOrigin(0);
+    this.add.rectangle(0, 0, width, height, 0xfff2cf, 0.06).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN);
     this.add.circle(1080, 130, 240, 0xffd1dc, 0.08);
     this.add.circle(220, 600, 200, 0x9de3ff, 0.08);
 
     // Header
-    this.add.text(width / 2, 54, 'Places', {
+    this.add.text(width / 2, 56, 'Places', {
       fontFamily: UI_FONT,
-      fontSize: '48px',
+      fontSize: '44px',
       color: '#fff4d6',
       stroke: '#2b2018',
-      strokeThickness: 7
+      strokeThickness: 5
     }).setOrigin(0.5);
 
     const completed = loadCompletedSceneIds();
     const next = getFirstUnfinishedLevel();
     const total = levels.length;
-    this.add.text(width / 2, 96, `${completed.size}/${total} found — tap any place to play`, {
+    // Progress chip instead of plain text
+    const chipW = 320;
+    const chipH = 26;
+    const chipY = 100;
+    const chipBg = this.add.graphics();
+    chipBg.fillStyle(0xfff7e3, 0.18);
+    chipBg.fillRoundedRect(width / 2 - chipW / 2, chipY - chipH / 2, chipW, chipH, 13);
+    this.add.text(width / 2, chipY, `${completed.size} / ${total} found  ·  tap any place to play`, {
       fontFamily: UI_FONT,
-      fontSize: '15px',
-      color: '#eadfc0'
-    }).setOrigin(0.5);
+      fontSize: '14px',
+      color: '#fff4d6'
+    }).setOrigin(0.5).setAlpha(0.92);
 
     // Scrollable grid region
     const gridTopY = 134;
@@ -225,7 +231,7 @@ export class BrowseScene extends Phaser.Scene {
     let badge = isDone ? '✓ Done' : (isNext ? '★ Next' : 'Tap');
     let badgeColor = isDone ? '#7eb58a' : (isNext ? '#a67a1e' : '#7a6750');
     if (isLocked) {
-      badge = `🔒 Lock (${requiredRep} Rep)`;
+      badge = `Locked · ${requiredRep} rep`;
       badgeColor = '#d6827e';
     }
     const badgeText = this.add.text(cx, cy + h / 2 - 12, badge, {
@@ -260,8 +266,7 @@ export class BrowseScene extends Phaser.Scene {
         return;
       }
 
-      window.localStorage.removeItem(level.saveKey);
-      window.localStorage.removeItem(level.bonusSaveKey);
+      clearLevelProgress(level);
       this.scene.start('LoadingScene', {
         targetScene: 'GameScene',
         targetData: { levelId: level.id },

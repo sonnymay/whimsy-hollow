@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
-import { getCompletedSceneCount, getFirstUnfinishedLevel, levels, loadCompletedSceneIds } from '../data/levels.js';
+import { getPlayTarget, getCompletedSceneCount, levels } from '../data/levels.js';
+import { getCompletedCaseCount, cases } from '../data/campaign.js';
 import { createPillButton } from '../ui/Button.js';
 import { setBackdrop } from '../ui/backdrop.js';
 import { theme } from '../ui/theme.js';
+import { clearLevelProgress } from '../data/storage.js';
 import { playMusicForLevel, queueMusic } from '../audio/music.js';
 
 const UI_FONT = theme.font;
@@ -15,22 +17,19 @@ export class MenuScene extends Phaser.Scene {
   }
 
   preload() {
-    // Only the active "Play" scene's background is loaded eagerly. The
-    // other levels load on demand inside GameScene.preload(), so the menu
-    // boots in ~2 MB instead of ~24 MB.
-    const nextScene = getFirstUnfinishedLevel() ?? levels[levels.length - 1];
-    if (nextScene) {
-      this.loadImageOnce(nextScene.background.key, nextScene.background.path);
+    const playTarget = getPlayTarget();
+    const playScene = playTarget.level;
+    if (playScene) {
+      this.loadImageOnce(playScene.background.key, playScene.background.path);
     }
 
-    // Lightweight preview sprite for the floating decorative card.
-    if (nextScene?.id === 'restaurant-kitchen') {
+    if (playScene?.id === 'restaurant-kitchen') {
       this.loadImageOnce('object-magic-recipe-card', 'assets/objects/magic_recipe_card.png');
-    } else if (nextScene?.id === 'whimsy-living-room') {
+    } else if (playScene?.id === 'whimsy-living-room') {
       this.loadImageOnce('object-purple-teapot', 'assets/objects/obj_purple_teapot.png');
-    } else if (nextScene?.id === 'cozy-dream-bedroom') {
+    } else if (playScene?.id === 'cozy-dream-bedroom') {
       this.loadImageOnce('object-sleepy-cat', 'assets/objects/obj_sleepy_cat.png');
-    } else if (nextScene?.id === 'forest-bookshop') {
+    } else if (playScene?.id === 'forest-bookshop') {
       this.loadImageOnce('object-bookshop-hourglass', 'assets/objects/bookshop_hourglass.png');
     }
 
@@ -41,15 +40,42 @@ export class MenuScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    const nextScene = getFirstUnfinishedLevel();
+    const playTarget = getPlayTarget();
+    const playScene = playTarget.level;
     const completedCount = getCompletedSceneCount();
-    const allDone = !nextScene;
-    const playScene = nextScene ?? levels[levels.length - 1];
-    const sceneLabel = allDone ? 'All places found' : playScene.title.replace('Whimsy Hollow ', '');
-    const footerLabel = allDone ? `Done ${levels.length}/${levels.length}. Play again anytime.` : `${completedCount}/${levels.length} places found`;
+    const caseCount = getCompletedCaseCount();
+    const allCasesDone = caseCount >= cases.length;
+    const sceneLabel = playTarget.type === 'case'
+      ? playTarget.case.title
+      : (playScene.title.replace('Whimsy Hollow ', ''));
+    const footerLabel = `${caseCount}/${cases.length} cases · ${completedCount}/${levels.length} places`;
 
     setBackdrop(playScene.background.path);
     playMusicForLevel(this, '__menu__');
+
+
+    // Background scene image is the showpiece — let it breathe by removing
+    // the heavy color washes and using a single soft vignette instead.
+    const bgImg = this.add.image(width / 2, height / 2, playScene.background.key).setDisplaySize(width, height);
+    // Gentle parallax-style drift so the title screen feels alive
+    this.tweens.add({
+      targets: bgImg,
+      scaleX: bgImg.scaleX * 1.04,
+      scaleY: bgImg.scaleY * 1.04,
+      x: width / 2 + 12,
+      duration: 8000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+    this.add.rectangle(0, 0, width, height, 0x1a231d, 0.42).setOrigin(0);
+    // Top + bottom vignette gradients for legible text contrast.
+    const topGrad = this.add.graphics();
+    topGrad.fillGradientStyle(0x12201a, 0x12201a, 0x12201a, 0x12201a, 0.85, 0.85, 0, 0);
+    topGrad.fillRect(0, 0, width, 260);
+    const botGrad = this.add.graphics();
+    botGrad.fillGradientStyle(0x12201a, 0x12201a, 0x12201a, 0x12201a, 0, 0, 0.85, 0.85);
+    botGrad.fillRect(0, height - 220, width, 220);
 
     // Top-right settings button
     createPillButton(this, {
@@ -58,99 +84,139 @@ export class MenuScene extends Phaser.Scene {
       label: '⚙', fontSize: 22, radius: 24,
       onClick: () => this.scene.start('SettingsScene')
     });
-    this.add.image(width / 2, height / 2, playScene.background.key).setDisplaySize(width, height);
-    this.add.rectangle(0, 0, width, height, 0xfff2cf, 0.3).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN);
-    this.add.rectangle(width / 2, height / 2, width, height, 0x234235, 0.12);
-    this.add.rectangle(width / 2, 0, width, 210, 0x7eb58a, 0.44).setOrigin(0.5, 0);
-    this.add.rectangle(width / 2, height, width, 160, 0x6aa9c8, 0.36).setOrigin(0.5, 1);
-    this.add.circle(248, 210, 118, 0xffd1dc, 0.24);
-    this.add.circle(1056, 190, 138, 0xffec8a, 0.2);
-    this.add.circle(1020, 592, 156, 0x9de3ff, 0.18);
-    this.drawMascot(width / 2 - 280, 428, 1.3);
 
-    this.add.text(width / 2, 168, 'Whimsy Hollow', {
+    // Title — slightly tighter and warmer
+    this.add.text(width / 2, 132, 'Whimsy Hollow', {
       fontFamily: UI_FONT,
-      fontSize: '78px',
-      color: '#fff2c7',
-      stroke: '#2b2018',
-      strokeThickness: 10
+      fontSize: '72px',
+      color: '#fff4d6',
+      stroke: '#2b1c12',
+      strokeThickness: 8,
+      shadow: { offsetX: 0, offsetY: 4, color: '#000', blur: 8, fill: true }
     }).setOrigin(0.5);
 
-    this.add.text(width / 2, 286, 'No timer. Just tiny treasures.', {
+    this.add.text(width / 2, 196, 'No timer. Just tiny treasures.', {
       fontFamily: UI_FONT,
-      fontSize: '27px',
+      fontSize: '22px',
       color: '#f2ead0',
       stroke: '#1b2a22',
-      strokeThickness: 4
-    }).setOrigin(0.5);
+      strokeThickness: 3
+    }).setOrigin(0.5).setAlpha(0.92);
 
-    this.add.text(width / 2, 372, sceneLabel, {
+    // "Continue" card — a single bold focal point with the next scene/case label
+    const cardW = 460;
+    const cardH = 168;
+    const cardCx = width / 2;
+    const cardCy = 358;
+    const cardShadow = this.add.graphics();
+    cardShadow.fillStyle(0x000000, 0.32);
+    cardShadow.fillRoundedRect(cardCx - cardW / 2, cardCy - cardH / 2 + 8, cardW, cardH, 24);
+    const cardBg = this.add.graphics();
+    cardBg.fillStyle(0xfff7e3, 0.96);
+    cardBg.fillRoundedRect(cardCx - cardW / 2, cardCy - cardH / 2, cardW, cardH, 24);
+    cardBg.lineStyle(2.5, 0xc9a96e, 0.6);
+    cardBg.strokeRoundedRect(cardCx - cardW / 2, cardCy - cardH / 2, cardW, cardH, 24);
+
+    this.add.text(cardCx, cardCy - cardH / 2 + 32,
+      playTarget.type === 'case' ? 'Next case' : (completedCount > 0 ? 'Continue' : 'Begin'),
+      {
+        fontFamily: UI_FONT,
+        fontSize: '16px',
+        color: '#9a8568'
+      }
+    ).setOrigin(0.5);
+
+    this.add.text(cardCx, cardCy - 4, sceneLabel, {
       fontFamily: UI_FONT,
-      fontSize: '34px',
-      color: '#ffe09a',
-      stroke: '#342515',
-      strokeThickness: 5
+      fontSize: '28px',
+      color: '#4a3a26',
+      align: 'center',
+      wordWrap: { width: cardW - 48, useAdvancedWrap: true }
     }).setOrigin(0.5);
 
-    if (!allDone) {
-      this.createMenuPreview(width / 2 + 170, 488, playScene.id);
+    if (!allCasesDone && playTarget.type === 'case') {
+      this.add.text(cardCx, cardCy + 32,
+        `Case ${caseCount + 1} of ${cases.length} · ${playTarget.case.client}`,
+        { fontFamily: UI_FONT, fontSize: '14px', color: '#7a6a52' }
+      ).setOrigin(0.5);
+    } else if (!allCasesDone) {
+      this.add.text(cardCx, cardCy + 32,
+        `${completedCount}/${levels.length} places visited`,
+        { fontFamily: UI_FONT, fontSize: '14px', color: '#7a6a52' }
+      ).setOrigin(0.5);
     }
 
-    if (allDone) {
-      this.add.text(width / 2, 504, 'Pick a place ↓', {
-        fontFamily: UI_FONT,
-        fontSize: '30px',
-        color: '#fff4d6',
-        stroke: '#2b2018',
-        strokeThickness: 5
-      }).setOrigin(0.5);
-    } else {
-      createPillButton(this, {
-        x: width / 2, y: 492,
-        width: 260, height: 80,
-        label: 'Play',
-        fontSize: 32, radius: 40,
-        onClick: () => {
+    // Primary CTA button — single warm sun-cream pill, the obvious next action
+    createPillButton(this, {
+      x: cardCx, y: cardCy + cardH / 2 + 44,
+      width: 280, height: 72,
+      label: completedCount === 0 ? 'Begin' : 'Play',
+      fontSize: 28, radius: 36,
+      color: theme.color.primary,
+      hoverColor: theme.color.primaryHover,
+      textColor: 0xfff7e3,
+      onClick: () => {
+        // Direct hand-off — the destination scene's own fadeIn covers the
+        // transition. Don't chain on `camerafadeoutcomplete` here because
+        // the event can silently miss (e.g., double-click, paused timer,
+        // stale FX state) and leave the player on a black screen.
+        if (this.cameras?.main?.resetFX) {
+          try { this.cameras.main.resetFX(); } catch (_) { /* ignore */ }
+        }
+        if (playTarget.type === 'case') {
+          this.scene.start('CampaignScene', {
+            caseId: playTarget.case.id,
+            mode: 'intro',
+            returnTo: 'MenuScene'
+          });
+        } else {
           this.scene.start('LoadingScene', {
             targetScene: 'GameScene',
             targetData: { levelId: playScene.id },
             message: `Opening ${sceneLabel}...`
           });
         }
+      }
+    });
+
+    // Secondary actions: Places / Office / Sticker Book — uniform row
+    const secY = cardCy + cardH / 2 + 130;
+    const secW = 168;
+    const secH = 50;
+    const secGap = 16;
+    const secLabels = [
+      { label: 'Places',  onClick: () => this.scene.start('BrowseScene', { returnTo: 'MenuScene' }) },
+      { label: 'Office',  onClick: () => this.scene.start('HubScene') },
+      { label: 'Stickers', onClick: () => this.scene.start('DeskScene') }
+    ];
+    const totalSecW = secLabels.length * secW + (secLabels.length - 1) * secGap;
+    let secX = width / 2 - totalSecW / 2 + secW / 2;
+    for (const item of secLabels) {
+      createPillButton(this, {
+        x: secX, y: secY,
+        width: secW, height: secH,
+        label: item.label, fontSize: 17, radius: 25,
+        onClick: item.onClick
       });
+      secX += secW + secGap;
     }
 
-    // Places button — opens the full scrollable scene browser
-    createPillButton(this, {
-      x: width / 2, y: 596,
-      width: 220, height: 60,
-      label: '📍 Places', fontSize: 22, radius: 30,
-      onClick: () => this.scene.start('BrowseScene', { returnTo: 'MenuScene' })
-    });
-
-    // Cozy Office entry — small, bottom-left corner
-    createPillButton(this, {
-      x: 130, y: height - 50,
-      width: 180, height: 46,
-      label: '🏠 Cozy Office', fontSize: 16, radius: 23,
-      onClick: () => this.scene.start('HubScene')
-    });
-
-    // Sticker Book entry — small, bottom-right corner
-    createPillButton(this, {
-      x: width - 130, y: height - 50,
-      width: 180, height: 46,
-      label: '📒 Sticker Book', fontSize: 16, radius: 23,
-      onClick: () => this.scene.start('DeskScene')
-    });
-
-    this.add.text(width / 2, 650, footerLabel, {
+    // Footer progress label
+    this.add.text(width / 2, height - 32, footerLabel, {
       fontFamily: UI_FONT,
-      fontSize: '23px',
+      fontSize: '15px',
       color: '#eadfc0',
       stroke: '#16251e',
-      strokeThickness: 4
-    }).setOrigin(0.5);
+      strokeThickness: 2
+    }).setOrigin(0.5).setAlpha(0.9);
+
+    this.add.text(width - 16, height - 12, 'v1.0.0', {
+      fontFamily: UI_FONT,
+      fontSize: '12px',
+      color: '#cfc0a4',
+      stroke: '#16251e',
+      strokeThickness: 2
+    }).setOrigin(1, 1).setAlpha(0.75);
   }
 
   createPlaceDots(centerX, y, nextId) {
@@ -220,8 +286,7 @@ export class MenuScene extends Phaser.Scene {
         // Only wipe progress for completed levels (replay). In-progress
         // levels resume where the player left off.
         if (completed.has(level.id)) {
-          window.localStorage.removeItem(level.saveKey);
-          window.localStorage.removeItem(level.bonusSaveKey);
+          clearLevelProgress(level);
         }
         this.scene.start('LoadingScene', {
           targetScene: 'GameScene',
