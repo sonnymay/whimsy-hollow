@@ -11,6 +11,21 @@ Whimsy Hollow is a hand-painted hidden-object game built in [Phaser 3](https://p
 - **No timer, no fail state.** Tap at your own pace.
 - **5 story cases** with sub-scenes, riddles, spirits, and optional bonus objectives.
 - **54 additional cozy places** to explore — sun-warmed sunrooms, lantern conservatories, sunflower pressing tables, and more.
+- **Collectible spirits** hidden throughout each scene
+- **Office decoration system** — furnish and customize your space between sessions
+- **Original hand-painted art** with cozy, warm aesthetics
+- **Cross-platform desktop app** via Tauri (Windows, macOS, Linux)
+
+## Tech Stack
+
+- **Game Engine:** Phaser 3
+- **Desktop Wrapper:** Tauri
+- **Language:** JavaScript / TypeScript
+- **Art:** Custom hand-painted assets
+
+## Live Demo
+
+[whimsy-hollow.vercel.app](https://whimsy-hollow.vercel.app)
 - **Cozy Office hub** — earn furniture by completing cases and decorate your hideaway.
 - **Accessibility built-in** — colorblind filters, high-contrast outlines, keyboard pointer, reduced motion.
 - **3 save slots** — share the hollow with the whole household.
