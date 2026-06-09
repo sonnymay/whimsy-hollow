@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { getLevelById, getNextLevel, mailGarden, markSceneComplete, levels } from '../data/levels.js';
+import { getLevelById, getNextLevel, mailGarden, markSceneComplete, levels, getCaseForLevel } from '../data/levels.js';
 import {
   clearLevelProgress,
   loadBonusIds,
@@ -182,6 +182,7 @@ export class GameScene extends Phaser.Scene {
     this.add.rectangle(640, 700, 1280, 40, 0x315642, 0.14);
 
     this.createObjects();
+    this.ensureCoverTextures();
     this.createInteractives();
     this.createBonusEnvelopes();
     if (this.hero) {
@@ -208,7 +209,7 @@ export class GameScene extends Phaser.Scene {
     this.createHud();
     this.createGuide();
     this.updateHud();
-    this.sayGuide('Find these');
+    this.greetForCase();
 
     // Handle ESC key to pause
     this.input.keyboard.on('keydown-ESC', () => {
@@ -601,6 +602,62 @@ export class GameScene extends Phaser.Scene {
       sprite.setData('glow', glow);
       this.objectSprites.set(object.id, sprite);
     }
+  }
+
+  // Covers can be backed by a real sprite (interactive.asset, loaded in
+  // preload) or drawn at runtime (interactive.cover) so a level needs no new
+  // art to gain a "open something to reveal an item" beat.
+  ensureCoverTextures() {
+    if (!this.level.interactives) return;
+    for (const it of this.level.interactives) {
+      if (it.asset) continue;
+      if (!it.key || this.textures.exists(it.key)) continue;
+      this.makeCoverTexture(it.key, it.cover || {});
+    }
+  }
+
+  makeCoverTexture(key, cover) {
+    const w = Math.max(40, cover.w ?? 150);
+    const h = Math.max(40, cover.h ?? 96);
+    const style = cover.style ?? 'drawer';
+    const g = this.make.graphics({ x: 0, y: 0, add: false });
+
+    if (style === 'cloth') {
+      const base = cover.fill ?? 0xc77d8f;
+      const dark = cover.accent ?? 0x9d5d6e;
+      g.fillStyle(0x2b1c12, 0.2);
+      g.fillRoundedRect(6, 11, w - 12, h - 12, 18);
+      g.fillStyle(base, 1);
+      g.fillRoundedRect(4, 4, w - 8, h - 8, 18);
+      g.fillStyle(dark, 0.5);
+      g.fillRoundedRect(4, h * 0.5, w - 8, h * 0.3, 12);
+      g.fillStyle(0xffffff, 0.12);
+      g.fillRoundedRect(8, 8, w - 16, h * 0.3, 12);
+      g.lineStyle(2.5, dark, 0.9);
+      g.strokeRoundedRect(4, 4, w - 8, h - 8, 18);
+    } else {
+      const body = cover.fill ?? 0x8a5a2b;
+      const top = cover.accent ?? 0xa6713a;
+      const edge = 0x5a3a1c;
+      g.fillStyle(0x000000, 0.18);
+      g.fillRoundedRect(6, 11, w - 12, h - 12, 14);
+      g.fillStyle(body, 1);
+      g.fillRoundedRect(4, 4, w - 8, h - 8, 14);
+      g.fillStyle(top, 1);
+      g.fillRoundedRect(4, 4, w - 8, (h - 8) * 0.42, 14);
+      g.lineStyle(2, edge, 0.25);
+      g.lineBetween(14, h * 0.62, w - 14, h * 0.62);
+      g.lineBetween(14, h * 0.76, w - 14, h * 0.76);
+      g.lineStyle(3, edge, 1);
+      g.strokeRoundedRect(4, 4, w - 8, h - 8, 14);
+      g.fillStyle(0x3a2410, 1);
+      g.fillCircle(w / 2, h * 0.6, 9);
+      g.fillStyle(0xe7c98a, 1);
+      g.fillCircle(w / 2, h * 0.6, 4.5);
+    }
+
+    g.generateTexture(key, w, h);
+    g.destroy();
   }
 
   createInteractives() {
@@ -1397,7 +1454,11 @@ export class GameScene extends Phaser.Scene {
     this.registerCombo();
     this.playFoundFeedback(sprite);
     this.showFoundToast(object.name, object.key);
-    this.sayGuide(this.getFoundActiveCount() >= this.activeObjects.length ? 'All done!' : 'Nice!');
+    this.sayGuide(
+      this.getFoundActiveCount() >= this.activeObjects.length
+        ? 'Every treasure found!'
+        : this.buildFindLine(object)
+    );
     if (clickZone) {
       clickZone.disableInteractive();
       clickZone.setVisible(false);
@@ -1509,11 +1570,152 @@ export class GameScene extends Phaser.Scene {
     this.scene.launch('PauseScene', { from: 'GameScene' });
   }
 
-  // In-game mascot was disabled because it occluded the scene's lower-left
-  // corner. These are safe no-ops — callers don't need to be changed.
-  createGuide() {}
-  sayGuide() {}
-  guideHopTo() {}
+  createGuide() {
+    if (this.guide || !this.textures.exists(MASCOT_KEY)) return;
+    const x = 1198;
+    const y = 602;
+    this.guideHome = { x, y };
+    const guide = this.add.container(x, y).setDepth(HUD_DEPTH + 9);
+    const shadow = this.add.ellipse(0, 44, 76, 18, 0x3d2a1d, 0.2);
+    const bird = this.add.image(0, 0, MASCOT_KEY).setDisplaySize(82, 82);
+    const hit = this.add.zone(0, 4, 84, 96).setInteractive({ useHandCursor: true });
+    guide.add([shadow, bird, hit]);
+    hit.on('pointerdown', (pointer, lx, ly, event) => {
+      if (event) event.stopPropagation();
+      this.guideHopTo();
+      this.sayGuide(this.caseGreeting || 'You can do it!');
+    });
+    this.addToHud(guide);
+    this.guide = guide;
+    this.guideBird = bird;
+    if (!loadReducedMotion()) {
+      this.guideBob = this.tweens.add({
+        targets: guide,
+        y: y - 8,
+        duration: 900,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+    }
+  }
+
+  greetForCase() {
+    const caseDef = getCaseForLevel(this.level.id);
+    this.caseGreeting = caseDef ? `${caseDef.client}: ${caseDef.request}` : 'Find these little treasures!';
+    this.sayGuide(this.caseGreeting, caseDef ? 3200 : 1600);
+  }
+
+  sayGuide(text, holdMs = 1600) {
+    if (!text || !this.guide) return;
+    if (this.guideBubble) {
+      this.guideBubble.destroy();
+      this.guideBubble = null;
+    }
+    if (this.guideBubbleTimer) {
+      this.guideBubbleTimer.remove();
+      this.guideBubbleTimer = null;
+    }
+    const home = this.guideHome || { x: this.guide.x, y: this.guide.y };
+    const padX = 16;
+    const maxW = 280;
+    const label = this.add.text(0, 0, text, {
+      fontFamily: UI_FONT,
+      fontSize: '16px',
+      color: '#4a3a26',
+      align: 'center',
+      wordWrap: { width: maxW - padX * 2, useAdvancedWrap: true }
+    }).setOrigin(0.5);
+    const bubbleW = Math.min(maxW, Math.ceil(label.width) + padX * 2);
+    const bubbleH = Math.ceil(label.height) + 20;
+    const bx = Phaser.Math.Clamp(home.x - bubbleW / 2 - 8, bubbleW / 2 + 8, 1280 - bubbleW / 2 - 8);
+    const by = home.y - 64 - bubbleH / 2;
+    const bubble = this.add.container(bx, by).setDepth(HUD_DEPTH + 10).setAlpha(0);
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x2b1c12, 0.22);
+    shadow.fillRoundedRect(-bubbleW / 2, -bubbleH / 2 + 5, bubbleW, bubbleH, 16);
+    const bg = this.add.graphics();
+    bg.fillStyle(0xfff7e3, 0.98);
+    bg.fillRoundedRect(-bubbleW / 2, -bubbleH / 2, bubbleW, bubbleH, 16);
+    bg.lineStyle(2.5, 0xf2b35c, 0.85);
+    bg.strokeRoundedRect(-bubbleW / 2, -bubbleH / 2, bubbleW, bubbleH, 16);
+    bg.fillStyle(0xfff7e3, 0.98);
+    bg.fillTriangle(bubbleW / 2 - 30, bubbleH / 2 - 2, bubbleW / 2 - 6, bubbleH / 2 + 16, bubbleW / 2 - 10, bubbleH / 2 - 2);
+    bubble.add([shadow, bg, label]);
+    this.addToHud(bubble);
+    this.guideBubble = bubble;
+    if (loadReducedMotion()) {
+      bubble.setAlpha(1);
+    } else {
+      this.tweens.add({ targets: bubble, alpha: 1, y: by - 6, duration: 180, ease: 'Back.easeOut' });
+      if (this.guideBird) {
+        const sx = this.guideBird.scaleX;
+        const sy = this.guideBird.scaleY;
+        this.tweens.add({
+          targets: this.guideBird,
+          scaleX: sx * 1.06,
+          scaleY: sy * 0.94,
+          duration: 120,
+          yoyo: true,
+          ease: 'Quad.easeOut'
+        });
+      }
+    }
+    this.guideBubbleTimer = this.time.delayedCall(holdMs, () => {
+      this.guideBubbleTimer = null;
+      const b = this.guideBubble;
+      if (!b) return;
+      this.tweens.add({
+        targets: b,
+        alpha: 0,
+        duration: 240,
+        ease: 'Sine.easeIn',
+        onComplete: () => {
+          b.destroy();
+          if (this.guideBubble === b) this.guideBubble = null;
+        }
+      });
+    });
+  }
+
+  guideHopTo(sprite) {
+    if (!this.guide || loadReducedMotion()) return;
+    const home = this.guideHome || { x: this.guide.x, y: this.guide.y };
+    let leanAngle = 0;
+    if (sprite && this.cameras?.main) {
+      const cam = this.cameras.main;
+      const screenX = (sprite.x - cam.worldView.x) * cam.zoom;
+      leanAngle = screenX < home.x ? -10 : 10;
+    }
+    if (this.guideBob) this.guideBob.pause();
+    this.guide.y = home.y;
+    this.guide.angle = 0;
+    this.tweens.add({
+      targets: this.guide,
+      y: home.y - 26,
+      angle: leanAngle,
+      duration: 200,
+      yoyo: true,
+      ease: 'Quad.easeOut',
+      onComplete: () => {
+        this.guide.angle = 0;
+        this.guide.y = home.y;
+        if (this.guideBob) this.guideBob.resume();
+      }
+    });
+  }
+
+  buildFindLine(object) {
+    const name = object.name || 'treasure';
+    if (object.requester) {
+      return Phaser.Utils.Array.GetRandom([
+        `${object.requester}'s ${name} — found!`,
+        `Found ${object.requester}'s ${name}!`,
+        `${name} for ${object.requester}!`
+      ]);
+    }
+    return Phaser.Utils.Array.GetRandom(['Nice find!', 'Lovely!', 'There it is!']);
+  }
 
   applyColorblindFilter() {
     if (!this.cameras || !this.cameras.main || !this.cameras.main.postFX) return;

@@ -253,7 +253,8 @@ export class HeroLevelController {
       zone.on('pointerdown', (pointer, lx, ly, event) => {
         event.stopPropagation();
         const label = prop.label ?? '…';
-        this.scene.showFoundToast?.(label);
+        this.scene.sayGuide?.(label);
+        this.scene.guideHopTo?.(zone);
         if (prop.sfx && this.scene.cache.audio.exists(prop.sfx)) {
           this.scene.sound.play(prop.sfx, { volume: 0.3 });
         } else if (this.scene.cache.audio.exists('clickSfx')) {

@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 import { getPlayTarget, getCompletedSceneCount, levels } from '../data/levels.js';
 import { getCompletedCaseCount, cases } from '../data/campaign.js';
-import { createPillButton } from '../ui/Button.js';
+import { createPillButton, createStatusPill } from '../ui/Button.js';
 import { setBackdrop } from '../ui/backdrop.js';
 import { theme } from '../ui/theme.js';
-import { clearLevelProgress } from '../data/storage.js';
+import { clearLevelProgress, loadCoins, loadReputation } from '../data/storage.js';
 import { playMusicForLevel, queueMusic } from '../audio/music.js';
 
 const UI_FONT = theme.font;
@@ -83,6 +83,18 @@ export class MenuScene extends Phaser.Scene {
       width: 60, height: 48,
       label: '⚙', fontSize: 22, radius: 24,
       onClick: () => this.scene.start('SettingsScene')
+    });
+
+    // Top-left wallet — coins + reputation, so earning is visible at a glance
+    createStatusPill(this, {
+      x: 96, y: 50, width: 132, height: 44,
+      label: `🪙 ${loadCoins()}`, fontSize: 17,
+      color: 0xffe7a3, textColor: 0x6a4323
+    });
+    createStatusPill(this, {
+      x: 240, y: 50, width: 132, height: 44,
+      label: `⭐️ ${loadReputation()}`, fontSize: 17,
+      color: 0xbdf3d3, textColor: 0x315642
     });
 
     // Title — slightly tighter and warmer

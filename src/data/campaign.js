@@ -21,7 +21,7 @@ export const cases = [
     ],
     levelId: 'mail-garden',
     unlockAfter: null,
-    hubUnlock: 'furniture-books',
+    hubUnlock: 'books',
     optionalBonusCoins: 50
   },
   {
@@ -41,7 +41,7 @@ export const cases = [
     ],
     levelId: 'restaurant-kitchen',
     unlockAfter: 'case-1-mail',
-    hubUnlock: 'furniture-kettle',
+    hubUnlock: 'kettle',
     optionalBonusCoins: 50
   },
   {
@@ -61,7 +61,7 @@ export const cases = [
     ],
     levelId: 'forest-bookshop',
     unlockAfter: 'case-2-kitchen',
-    hubUnlock: 'furniture-clock',
+    hubUnlock: 'clock',
     optionalBonusCoins: 50
   },
   {
@@ -81,7 +81,7 @@ export const cases = [
     ],
     levelId: 'cozy-dream-bedroom',
     unlockAfter: 'case-3-bookshop',
-    hubUnlock: 'furniture-pillow',
+    hubUnlock: 'pillow',
     optionalBonusCoins: 50
   },
   {
@@ -101,7 +101,7 @@ export const cases = [
     ],
     levelId: 'whimsy-living-room',
     unlockAfter: 'case-4-bedroom',
-    hubUnlock: 'furniture-teapot',
+    hubUnlock: 'teapot',
     optionalBonusCoins: 50
   }
 ];

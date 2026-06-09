@@ -76,7 +76,8 @@ export const restaurantKitchen = {
       asset: 'assets/objects/silver_fork.png',
       x: 514,
       y: 528,
-      scale: 0.13
+      scale: 0.13,
+      hiddenUnder: 'cover-napkin'
     },
     {
       id: 'rolling-pin',
@@ -98,7 +99,8 @@ export const restaurantKitchen = {
       asset: 'assets/objects/tomato_basket.png',
       x: 406,
       y: 486,
-      scale: 0.1
+      scale: 0.1,
+      hiddenUnder: 'cover-cupboard'
     },
     {
       id: 'chef-hat',
@@ -182,7 +184,28 @@ export const restaurantKitchen = {
     { id: 'prop-tiles', x: 904, y: 156, w: 48, h: 48, label: 'Painted flowers sparkle on the blue tiles.', sfx: 'clickSfx' },
     { id: 'prop-cookies', x: 1196, y: 444, w: 48, h: 40, label: 'Cookies smell like tiny stars.', sfx: 'clickSfx' }
   ],
-  interactives: [],
+  interactives: [
+    {
+      id: 'cover-cupboard',
+      type: 'slide-x',
+      slideDistance: -120,
+      x: 406,
+      y: 486,
+      scale: 1,
+      key: 'cover-kitchen-cupboard',
+      cover: { style: 'drawer', w: 132, h: 104, fill: 0x5b7a9d, accent: 0x7596b8 }
+    },
+    {
+      id: 'cover-napkin',
+      type: 'slide-y',
+      slideDistance: 70,
+      x: 514,
+      y: 524,
+      scale: 1,
+      key: 'cover-kitchen-napkin',
+      cover: { style: 'cloth', w: 130, h: 92, fill: 0xeae0c8, accent: 0xc9bb96 }
+    }
+  ],
   subScenes: { main: {} },
   previousLevelId: 'mail-garden'
 };

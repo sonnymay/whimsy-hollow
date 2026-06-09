@@ -448,7 +448,7 @@ export class HubScene extends Phaser.Scene {
 
       // Buy button / status
       if (isOwned) {
-        const ownedText = this.add.text(x, y + 46, '✓ Placed', {
+        const ownedText = this.add.text(x, y + 46, '✓ Owned', {
           fontFamily: UI_FONT, fontSize: '14px', color: '#668f6f', fontStyle: 'bold'
         }).setOrigin(0.5);
         this.shopItemsContainer.add(ownedText);

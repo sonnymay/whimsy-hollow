@@ -76,7 +76,8 @@ export const cozyDreamBedroom = {
       asset: 'assets/objects/obj_tiny_alarm_clock.png',
       x: 246,
       y: 426,
-      scale: 0.052
+      scale: 0.052,
+      hiddenUnder: 'cover-nightstand-drawer'
     },
     {
       id: 'hair-ribbon',
@@ -98,7 +99,8 @@ export const cozyDreamBedroom = {
       asset: 'assets/objects/obj_soft_feather.png',
       x: 592,
       y: 484,
-      scale: 0.064
+      scale: 0.064,
+      hiddenUnder: 'cover-blanket-fold'
     },
     {
       id: 'dream-crystal',
@@ -191,7 +193,28 @@ export const cozyDreamBedroom = {
     { id: 'prop-chest', x: 990, y: 462, w: 56, h: 48, label: 'Nice!', sfx: 'clickSfx' },
     { id: 'prop-window', x: 1032, y: 210, w: 48, h: 48, label: 'Look!', sfx: 'clickSfx' }
   ],
-  interactives: [],
+  interactives: [
+    {
+      id: 'cover-nightstand-drawer',
+      type: 'slide-y',
+      slideDistance: 58,
+      x: 246,
+      y: 428,
+      scale: 1,
+      key: 'cover-bedroom-nightstand',
+      cover: { style: 'drawer', w: 120, h: 80, fill: 0x8a6a52, accent: 0xa98a6c }
+    },
+    {
+      id: 'cover-blanket-fold',
+      type: 'slide-x',
+      slideDistance: 112,
+      x: 592,
+      y: 484,
+      scale: 1,
+      key: 'cover-bedroom-blanket',
+      cover: { style: 'cloth', w: 132, h: 96, fill: 0x8fb0c9, accent: 0x6f90a9 }
+    }
+  ],
   subScenes: { main: {} },
   previousLevelId: 'whimsy-living-room'
 };

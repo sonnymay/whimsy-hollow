@@ -44,6 +44,7 @@ export const forestBookshop = {
       x: 820,
       y: 220,
       scale: 0.06,
+      hiddenUnder: 'cover-thick-book'
     },
     {
       id: 'bookshop-reading-glasses',
@@ -54,7 +55,8 @@ export const forestBookshop = {
       asset: 'assets/objects/bookshop_reading_glasses.png',
       x: 940,
       y: 480,
-      scale: 0.06
+      scale: 0.06,
+      hiddenUnder: 'cover-armchair-cushion'
     },
     {
       id: 'bookshop-scroll',
@@ -192,7 +194,28 @@ export const forestBookshop = {
     { id: 'prop-lamp', x: 320, y: 480, w: 48, h: 48, label: 'Warm!', sfx: 'clickSfx' },
     { id: 'prop-curtain', x: 1080, y: 220, w: 48, h: 48, label: 'Squeak!', sfx: 'clickSfx' }
   ],
-  interactives: [],
+  interactives: [
+    {
+      id: 'cover-thick-book',
+      type: 'slide-x',
+      slideDistance: 104,
+      x: 820,
+      y: 224,
+      scale: 1,
+      key: 'cover-bookshop-thick-book',
+      cover: { style: 'drawer', w: 96, h: 132, fill: 0x7a4a8a, accent: 0x9a6aaa }
+    },
+    {
+      id: 'cover-armchair-cushion',
+      type: 'slide-y',
+      slideDistance: 64,
+      x: 940,
+      y: 478,
+      scale: 1,
+      key: 'cover-bookshop-cushion',
+      cover: { style: 'cloth', w: 128, h: 90, fill: 0xb6896a, accent: 0x8a5f44 }
+    }
+  ],
   subScenes: { main: {} },
   previousLevelId: 'twilight-tea-garden'
 };

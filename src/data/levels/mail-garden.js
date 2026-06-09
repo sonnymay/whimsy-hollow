@@ -32,7 +32,8 @@ export const mailGarden = {
       asset: 'assets/objects/golden_key.png',
       x: 696,
       y: 410,
-      scale: 0.5
+      scale: 0.5,
+      hiddenUnder: 'cover-parcel-box'
     },
     {
       id: 'blue-crystal',
@@ -87,7 +88,8 @@ export const mailGarden = {
       asset: 'assets/objects/wizard_hat.png',
       x: 836,
       y: 388,
-      scale: 0.48
+      scale: 0.48,
+      hiddenUnder: 'cover-package-flap'
     },
     {
       id: 'glowing-feather',
@@ -185,7 +187,28 @@ export const mailGarden = {
     { id: 'prop-parcel', x: 870, y: 454, w: 64, h: 48, label: 'A parcel rustles, then settles down.', sfx: 'clickSfx' },
     { id: 'prop-flowers', x: 1062, y: 616, w: 56, h: 40, label: 'Blue flowers sparkle with garden gossip.', sfx: 'clickSfx' }
   ],
-  interactives: [],
+  interactives: [
+    {
+      id: 'cover-parcel-box',
+      type: 'slide-y',
+      slideDistance: 78,
+      x: 696,
+      y: 410,
+      scale: 1,
+      key: 'cover-mail-parcel-box',
+      cover: { style: 'drawer', w: 150, h: 96 }
+    },
+    {
+      id: 'cover-package-flap',
+      type: 'slide-x',
+      slideDistance: 104,
+      x: 836,
+      y: 392,
+      scale: 1,
+      key: 'cover-mail-package-flap',
+      cover: { style: 'drawer', w: 138, h: 100, fill: 0xb07a3c, accent: 0xc9954c }
+    }
+  ],
   subScenes: {
     main: {}
   }

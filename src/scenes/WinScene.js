@@ -52,6 +52,10 @@ export class WinScene extends Phaser.Scene {
 
     if (caseDef && isFirstTime) {
       markCaseComplete(caseDef.id);
+      if (caseDef.hubUnlock) {
+        addHubUnlock(caseDef.hubUnlock);
+        addOwnedFurniture(caseDef.hubUnlock);
+      }
     }
 
     let earnedCoins = 0;
@@ -84,10 +88,6 @@ export class WinScene extends Phaser.Scene {
     if (this.optionalAllFound && caseDef) {
       earnedCoins += caseDef.optionalBonusCoins ?? 50;
       addCoins(caseDef.optionalBonusCoins ?? 50);
-      if (caseDef.hubUnlock) {
-        addHubUnlock(caseDef.hubUnlock);
-        addOwnedFurniture(caseDef.hubUnlock);
-      }
     }
 
     setBackdrop(this.level.background.path);
@@ -183,8 +183,8 @@ export class WinScene extends Phaser.Scene {
       strokeThickness: 3
     }).setOrigin(0.5);
 
-    if (this.optionalAllFound && caseDef?.hubUnlock) {
-      this.add.text(width / 2, 332, 'Office unlock + bonus extras!', {
+    if (isFirstTime && caseDef?.hubUnlock) {
+      this.add.text(width / 2, 332, 'New office furniture unlocked!', {
         fontFamily: UI_FONT,
         fontSize: '15px',
         color: '#668f6f'

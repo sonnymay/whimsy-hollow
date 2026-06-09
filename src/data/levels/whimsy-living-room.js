@@ -109,7 +109,8 @@ export const whimsyLivingRoom = {
       asset: 'assets/objects/obj_star_key.png',
       x: 704,
       y: 594,
-      scale: 0.075
+      scale: 0.075,
+      hiddenUnder: 'cover-trunk-lid'
     },
     {
       id: 'tiny-pocket-watch',
@@ -120,7 +121,8 @@ export const whimsyLivingRoom = {
       asset: 'assets/objects/obj_tiny_pocket_watch.png',
       x: 1112,
       y: 488,
-      scale: 0.07
+      scale: 0.07,
+      hiddenUnder: 'cover-living-cushion'
     }
   ],
   optionalObjectives: [],
@@ -191,7 +193,28 @@ export const whimsyLivingRoom = {
     { id: 'prop-shelf', x: 458, y: 182, w: 48, h: 48, label: 'Wiggle!', sfx: 'clickSfx' },
     { id: 'prop-plant', x: 1036, y: 172, w: 48, h: 40, label: 'Rustle!', sfx: 'clickSfx' }
   ],
-  interactives: [],
+  interactives: [
+    {
+      id: 'cover-trunk-lid',
+      type: 'slide-y',
+      slideDistance: 66,
+      x: 704,
+      y: 592,
+      scale: 1,
+      key: 'cover-living-trunk',
+      cover: { style: 'drawer', w: 140, h: 88, fill: 0x8a5a2b, accent: 0xa6713a }
+    },
+    {
+      id: 'cover-living-cushion',
+      type: 'slide-x',
+      slideDistance: -116,
+      x: 1112,
+      y: 488,
+      scale: 1,
+      key: 'cover-living-cushion-tex',
+      cover: { style: 'cloth', w: 124, h: 96, fill: 0xb07a8f, accent: 0x8a5a6e }
+    }
+  ],
   subScenes: { main: {} },
   previousLevelId: 'restaurant-kitchen'
 };
