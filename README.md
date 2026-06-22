@@ -68,6 +68,16 @@ src-tauri/                # desktop shell config
 
 ---
 
+## What This Code Shows
+
+- **Phaser 3 scene graph** — 59 independent scenes registered and hot-switched with zero reload; each scene is a self-contained JS module with shared camera and audio bus
+- **Campaign state machine** — hero-level controller tracks case completion, juju unlocks, optional objectives, and spirit collection across 5 nested story arcs
+- **Save system** — 3 independent save slots using structured localStorage with migration guards for future schema changes
+- **Tauri desktop packaging** — same codebase ships as a Vercel web build and a native Tauri 2 app for Windows / macOS / Linux
+- **Accessibility layer** — colorblind filters, high-contrast outlines, keyboard pointer support, and reduced-motion mode wired to a single settings observer
+
+---
+
 ## Steam release notes
 
 Built and tested on macOS, Windows, and Linux via Tauri 2.
