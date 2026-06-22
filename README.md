@@ -58,16 +58,27 @@ public/assets/            # webp backgrounds, png objects, sounds, music
 src-tauri/                # desktop shell config
 ```
 
+## What This Code Shows
+
+- **Phaser 3 scene graph** — 59 independent scenes registered and hot-switched with zero reload; each scene is a self-contained JS module with shared camera and audio bus
+- **Campaign state machine** — hero-level controller tracks case completion, juju unlocks, optional objectives, and spirit collection across 5 nested story arcs
+- **Save system** — 3 independent save slots using structured localStorage with migration guards for future schema changes
+- **Tauri desktop packaging** — same codebase ships as a Vercel web build and a native Tauri 2 app for Windows / macOS / Linux; window size, fullscreen, and asset paths differ per target
+- **Accessibility layer** — colorblind filters (deuteranopia / protanopia / tritanopia), high-contrast outlines, keyboard pointer support, and reduced-motion mode all wired to a single settings observer
+
+---
+
 ## Steam release notes
 
-- Built and tested on macOS, Windows, and Linux via Tauri 2.
-- Window: 1280×720 default, 960×540 minimum, resizable, F11 toggles fullscreen.
-- Single player. Offline. No telemetry. No microtransactions.
-- ESRB Everyone / PEGI 3.
+Built and tested on macOS, Windows, and Linux via Tauri 2.
+Window: 1280×720 default, 960×540 minimum, resizable, F11 toggles fullscreen.
+Single player. Offline. No telemetry. No microtransactions.
+ESRB Everyone / PEGI 3.
 
-See [STEAM-STORE.md](./STEAM-STORE.md) for capsule sizes, screenshot list, and store copy.
-See [GAMEPLAY-SPEC.md](./GAMEPLAY-SPEC.md) for the hero-level data contract.
+See STEAM-STORE.md for capsule sizes, screenshot list, and store copy. See GAMEPLAY-SPEC.md for the hero-level data contract.
+
+---
 
 ## License
 
-Copyright (c) 2026 Whimsy Hollow. All rights reserved.
+MIT © Sonny May
