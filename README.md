@@ -88,3 +88,7 @@
 > ## License
 >
 > MIT (c) Sonny May
+> 
+> ## Contributing
+>
+> Bug reports and suggestions are welcome — please open an issue with the scene, platform, and steps to reproduce.
